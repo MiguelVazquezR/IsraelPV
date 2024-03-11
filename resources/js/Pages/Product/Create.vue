@@ -5,10 +5,19 @@
 
             <form v-if="products_quantity < 500 " @submit.prevent="store" class="rounded-lg border border-grayD9 lg:p-5 p-3 lg:w-1/2 mx-auto mt-7 lg:grid lg:grid-cols-2 gap-x-3">
                 <h1 class="font-bold ml-2 col-span-full">Agregar producto</h1>
-                <div class="mt-3 col-span-2">
+                <div class="mt-3">
                     <InputLabel value="Nombre del producto*" class="ml-3 mb-1" />
                     <el-input v-model="form.name" placeholder="Escribe el nombre del producto" :maxlength="100" clearable />
                     <InputError :message="form.errors.name" />
+                </div>
+                <div class="mt-3">
+                    <InputLabel value="Categoría*" class="ml-3 mb-1" />
+                    <el-select class="w-1/2" v-model="form.category_id" clearable
+                        placeholder="Seleccione" no-data-text="No hay opciones registradas"
+                        no-match-text="No se encontraron coincidencias">
+                        <el-option v-for="category in categories" :key="category" :label="category.name" :value="category.name" />
+                    </el-select>
+                    <InputError :message="form.errors.participants" />
                 </div>
                 <div class="mt-3">
                     <div class="flex items-center ml-3 mb-1">
@@ -102,6 +111,7 @@ export default {
 data() {
     const form = useForm({
       name: null,
+      category_id: null,
       code: null,
       public_price: null,
       cost: null,
@@ -117,14 +127,15 @@ data() {
 },
 components:{
 AppLayout,
+InputFilePreview,
 PrimaryButton,
 InputLabel, 
 InputError,
-InputFilePreview,
 Back
 },
 props:{
-products_quantity: Number
+products_quantity: Number,
+categories: Array,
 },
 methods:{
     store() {
