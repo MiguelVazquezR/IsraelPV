@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SaleController;
@@ -47,6 +48,12 @@ Route::resource('sales', SaleController::class)->middleware('auth');
 //products routes-------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 Route::resource('products', ProductController::class)->middleware('auth');
+Route::post('products/update-with-media/{product}', [ProductController::class, 'updateWithMedia'])->name('products.update-with-media')->middleware('auth');
+Route::put('products-entry/{product_id}', [ProductController::class, 'entryStock'])->name('products.entry')->middleware('auth');
+Route::get('products-search', [ProductController::class, 'searchProduct'])->name('products.search')->middleware('auth');
+Route::get('products-get-product-scaned/{product_id}', [ProductController::class, 'getProductScaned'])->name('products.get-product-scaned')->middleware('auth');
+Route::get('products-fetch-history/{product_id}', [ProductController::class, 'fetchHistory'])->name('products.fetch-history')->middleware('auth');
+Route::get('products-get-by-page/{currentPage}', [ProductController::class, 'getItemsByPage'])->name('products.get-by-page')->middleware('auth');
 
 
 //clients routes-------------------------------------------------------------------------------------
@@ -57,3 +64,8 @@ Route::resource('clients', ClientController::class)->middleware('auth');
 //settings routes-------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 Route::resource('settings', SettingController::class)->middleware('auth');
+
+
+//categories routes-------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------
+Route::resource('categories', CategoryController::class)->middleware('auth');
