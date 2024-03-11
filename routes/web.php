@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SaleController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -33,3 +37,23 @@ Route::middleware([
         return Inertia::render('Dashboard');
     })->name('dashboard');
 });
+
+
+//sales routes-------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+Route::resource('sales', SaleController::class)->middleware('auth');
+
+
+//products routes-------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+Route::resource('products', ProductController::class)->middleware('auth');
+
+
+//clients routes-------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------
+Route::resource('clients', ClientController::class)->middleware('auth');
+
+
+//settings routes-------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+Route::resource('settings', SettingController::class)->middleware('auth');
