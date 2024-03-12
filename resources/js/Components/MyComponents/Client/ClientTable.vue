@@ -1,7 +1,7 @@
 <template>
     <div v-if="clients.length" class="w-full mx-auto text-[11px] md:text-sm overflow-auto">
         <div class="text-center md:text-base flex items-center space-x-4 mb-2">
-            <div class="hidden md:block w-[10%]">ID</div>
+            <div class="font-bold w-[10%]">ID</div>
             <div class="font-bold pb-3 pl-2 text-left w-[18%] md:w-[13%]">Nombre</div>
             <div class="font-bold pb-3 text-left w-[35%] md:w-[30%]">Dirección</div>
             <div class="font-bold pb-3 text-left w-[10%]">Teléfono</div>
@@ -49,11 +49,11 @@ props:{
 clients: Object
 },
 methods:{
-    async deleteItem(productId) {
+    async deleteItem(clientId) {
         try {
-            const response = await axios.delete(route('clients.destroy', productId));
+            const response = await axios.delete(route('clients.destroy', clientId));
             if (response.status == 200) {
-                const indexToDelete = this.clients.findIndex(item => item.id == productId);
+                const indexToDelete = this.clients.findIndex(item => item.id == clientId);
                 this.clients.splice(indexToDelete, 1);
 
                 ElNotification({
@@ -67,7 +67,7 @@ methods:{
             console.log(error);
             ElNotification({
                 title: 'Error',
-                message: 'No se pudo eliminar el producto. Inténte más tarde',
+                message: 'No se pudo eliminar el cliente. Inténte más tarde',
                 type: 'error',
                 position: 'bottom-right',
             });

@@ -30,9 +30,9 @@ class Product extends Model implements HasMedia
     //     return $this->hasMany(ProductHistory::class);
     // }
 
-    public function sales() :HasMany
+    public function sales()
     {
-        return $this->hasMany(Sale::class);
+        return $this->belongsToMany(Sale::class);
     }
 
     public function category() :BelongsTo

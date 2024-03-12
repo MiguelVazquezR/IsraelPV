@@ -13,7 +13,7 @@
                     <AuthenticationCardLogo />
                 </Link>
             </div>
-            <nav class="pr-2 pt-20 text-white">
+            <nav class="pr-2 pt-20 text-gay-600">
                 <!-- Con barra pequeña -->
                 <template v-if="small">
                     <div v-for="(menu, index) in menus" :key="index">
@@ -35,7 +35,7 @@
                                 <button @click="goToRoute(option.route)" v-if="option.show" :active="option.active"
                                     :title="option.label"
                                     class="w-full text-start pl-6 pr-2 mt-2 flex justify-between text-xs rounded-md py-1 transition ease-linear duration-150"
-                                    :class="option.active ? 'bg-gray-300 text-primary' : 'hover:text-primary hover:bg-gradient-to-r from-gray-800 to-black1 text-gray-700'">
+                                    :class="option.active ? 'bg-gray-300 text-primary' : 'hover:text-primary hover:bg-gray-300 text-gray-600'">
                                     <p class="w-full truncate"> {{ option.label }}</p>
                                 </button>
                             </div>
@@ -70,8 +70,8 @@ export default {
                 {
                     label: 'Punto de venta',
                     icon: '<i class="fa-solid fa-basket-shopping text-lg"></i>',
-                    route: route('sales.index'),
-                    active: route().current('sales.*'),
+                    route: route('sales.point'),
+                    active: route().current('sales.point'),
                     options: [],
                     dropdown: false,
                     show: true
@@ -99,7 +99,7 @@ export default {
                    //    ejemplo para usar submenues
                     label: 'Gestión de ventas',
                     icon: '<i class="fa-solid fa-chart-simple text-lg"></i>',
-                    active:  route().current('dashboard'),
+                    active:  route().current('dashboard') || route().current('sales.index'),
                     options: [
                         {
                             label: 'Análisis de ventas',
@@ -108,7 +108,7 @@ export default {
                         },
                         {
                             label: 'Registro de ventas',
-                            route: route('dashboard'),
+                            route: route('sales.index'),
                             show: true,
                         },
                     ],
@@ -124,15 +124,15 @@ export default {
                     dropdown: false,
                     show: true
                 },
-                {
-                    label: 'Configuraciones',
-                    icon: '<i class="fa-solid fa-gears text-lg"></i>',
-                    route: route('settings.index'),
-                    active: route().current('settings.*'),
-                    options: [],
-                    dropdown: false,
-                    show: true
-                },
+                // {
+                //     label: 'Configuraciones',
+                //     icon: '<i class="fa-solid fa-gears text-lg"></i>',
+                //     route: route('settings.index'),
+                //     active: route().current('settings.*'),
+                //     options: [],
+                //     dropdown: false,
+                //     show: true
+                // },
             ],
         }
     },

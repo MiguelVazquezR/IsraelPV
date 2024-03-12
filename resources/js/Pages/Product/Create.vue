@@ -103,7 +103,7 @@
             </div>
         </div>
 
-        <!-- tag form -->
+        <!-- category form -->
         <DialogModal :show="showCategoryFormModal" @close="showCategoryFormModal = false">
             <template #title> Agregar categoría </template>
             <template #content>

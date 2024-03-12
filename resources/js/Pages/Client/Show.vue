@@ -1,7 +1,7 @@
 <template>
     <AppLayout :title="client.name">
         <div class="px-2 lg:px-10 py-7">
-            <Back :route="'clients.index'" />
+            <Back />
 
             <!-- header botones -->
             <div class="lg:flex justify-between items-center mx-3">

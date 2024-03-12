@@ -34,8 +34,8 @@ class ProductController extends Controller
             'name' => 'required|string|max:100',
             'category_id' => 'required',
             'public_price' => 'required|numeric|min:0|max:9999',
-            'cost' => 'required|numeric|min:0|max:9999',
-            'current_stock' => 'required|numeric|min:0|max:9999',
+            'cost' => 'nullable|numeric|min:0|max:9999',
+            'current_stock' => 'nullable|numeric|min:0|max:9999',
             'min_stock' => 'nullable|numeric|min:0|max:9999',
             'max_stock' => 'nullable|numeric|min:0|max:9999',
         ]);
@@ -74,8 +74,8 @@ class ProductController extends Controller
             'name' => 'required|string|max:100',
             'category_id' => 'required',
             'public_price' => 'required|numeric|min:0|max:9999',
-            'cost' => 'required|numeric|min:0|max:9999',
-            'current_stock' => 'required|numeric|min:0|max:9999',
+            'cost' => 'nullable|numeric|min:0|max:9999',
+            'current_stock' => 'nullable|numeric|min:0|max:9999',
             'min_stock' => 'nullable|numeric|min:0|max:9999',
             'max_stock' => 'nullable|numeric|min:0|max:9999',
         ]);
@@ -97,8 +97,8 @@ class ProductController extends Controller
             'name' => 'required|string|max:100',
             'category_id' => 'required',
             'public_price' => 'required|numeric|min:0|max:9999',
-            'cost' => 'required|numeric|min:0|max:9999',
-            'current_stock' => 'required|numeric|min:0|max:9999',
+            'cost' => 'nullable|numeric|min:0|max:9999',
+            'current_stock' => 'nullable|numeric|min:0|max:9999',
             'min_stock' => 'nullable|numeric|min:0|max:9999',
             'max_stock' => 'nullable|numeric|min:0|max:9999',
         ]);

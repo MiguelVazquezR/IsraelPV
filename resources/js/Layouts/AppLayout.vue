@@ -52,12 +52,12 @@ const logout = () => {
                                 <!-- Logo -->
                                 <div class="lg:hidden shrink-0 flex items-center">
                                     <Link :href="route('dashboard')">
-                                    <ApplicationMark class="block h-9 w-auto" />
+                                    <ApplicationMark class="block h-14 w-auto" />
                                     </Link>
                                 </div>
                             </div>
 
-                            <div class="hidden sm:flex sm:items-center sm:ms-6">
+                            <div class="hidden lg:flex lg:items-center lg:ms-6">
                                 <!-- notifications -->
                                 <NotificationsCenter />
 
@@ -116,7 +116,7 @@ const logout = () => {
                             </div>
 
                             <!-- Hamburger -->
-                            <div class="-me-2 flex items-center sm:hidden">
+                            <div class="-me-2 flex items-center lg:hidden">
                                 <!-- notifications -->
                                 <NotificationsCenter />
                                 <button
@@ -138,17 +138,24 @@ const logout = () => {
                     </div>
                     <!-- Responsive Navigation Menu -->
                     <div :class="{ 'block': showingNavigationDropdown, 'hidden': !showingNavigationDropdown }"
-                        class="sm:hidden">
+                        class="lg:hidden z-40 rounded-tl-[6px] rounded-bl-[6px] bg-gray-50 w-4/6 absolute right-0 top-14 min-h-[50%] max-h-[90%] overflow-y-scroll overflow-x-hidden shadow-lg border border-gray4 pt-4">
+
                         <div class="pt-2 pb-3 space-y-1">
-                            <ResponsiveNavLink :href="route('sales.index')" :active="route().current('sales.*')">
+                            <ResponsiveNavLink :href="route('sales.point')" :active="route().current('sales.point')">
                                 Punto de venta
-                            </ResponsiveNavLink>
-                            <!-- <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                Análisis de venta
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('products.index')" :active="route().current('products.*')">
                                 Productos
-                            </ResponsiveNavLink> -->
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
+                                Análisis de venta
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('sales.index')" :active="route().current('sales.index')">
+                                Registro de ventas
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('clients.index')" :active="route().current('clients.*')">
+                                Clientes
+                            </ResponsiveNavLink>
                         </div>
 
                         <!-- Responsive Settings Options -->
