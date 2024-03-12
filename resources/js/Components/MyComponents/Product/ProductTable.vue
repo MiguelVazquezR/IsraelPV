@@ -1,13 +1,13 @@
 <template>
     <div v-if="products.length" class="w-full mx-auto text-[11px] md:text-sm overflow-auto">
-        <div class="text-center md:text-base flex items-center space-x-4 mb-2">
+        <div class="text-center md:text-sm lg:text-base flex items-center space-x-4 mb-2">
             <div class="hidden md:block w-[10%]"></div>
             <div class="font-bold pb-3 pl-2 text-left w-[18%] md:w-[13%]">Código</div>
             <div class="font-bold pb-3 text-left w-[35%] md:w-[30%]">Nombre de producto</div>
             <div class="font-bold pb-3 text-left w-[10%]">Precio</div>
             <div class="font-bold pb-3 text-left w-[10%]">Existencias</div>
             <div class="font-bold pb-3 text-left w-[10%]">Existencias mínimas</div>
-            <div class="w-[17%]"></div>
+            <div class="w-[15%]"></div>
         </div>
         <div>
             <div v-for="product in products" :key="product.id" class="*:px-2 *:py-1 cursor-pointer flex items-center space-x-4 border rounded-full mb-2 hover:border-primarylight" 
@@ -15,7 +15,7 @@
                 <div class="md:block w-[50%] md:w-[10%] h-14 rounded-l-full">
                     <img class="mx-auto h-12 object-contain rounded-md" :src="product.imageCover[0]?.original_url">
                 </div>
-                <div class="w-[18%] md:w-[13%]">{{ product.code }}</div>
+                <div class="w-[15%] md:w-[10%]">{{ product.id }}</div>
                 <div class="w-[35%] md:w-[30%]">{{ product.name }}</div>
                 <div class="w-[10%]">${{ product.public_price }}</div>
                 <div :class="product.current_stock < product.min_stock ? 'text-primary' : ''" class="w-[10%]">
@@ -24,7 +24,7 @@
                     <span v-if="product.current_stock < product.min_stock" class="text-[11px]">Bajo stock</span>
                 </div>
                 <div class="w-[10%]">{{ product.min_stock }}</div>
-                <div class="rounded-r-full w-[17%] text-right">
+                <div class="rounded-r-full w-[15%] text-right">
                     <i @click.stop="$inertia.get(route('products.edit', product.id))" class="fa-solid fa-pencil text-primary cursor-pointer hover:bg-gray-200 rounded-full mr-1 p-2"></i>
                     <el-popconfirm confirm-button-text="Si" cancel-button-text="No" icon-color="#C30303" title="¿Continuar?" @confirm="deleteItem(product.id)">
                         <template #reference>

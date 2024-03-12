@@ -90,9 +90,9 @@
                             </div>
                             <div v-else class="grid grid-cols-2 border border-grayD9 rounded-full px-5 py-1 relative">
                                 <p class="text-gray37">Existencias: </p>
-                                <p class="text-right font-bold text-primary">{{ product.data.current_stock }}<i
+                                <p class="text-right font-bold text-red-600">{{ product.data.current_stock }}<i
                                         class="fa-solid fa-arrow-down text-xs ml-2"></i></p>
-                                <p class="absolute top-2 -right-16 text-xs font-bold text-primary">Bajo stock</p>
+                                <p class="absolute top-2 -right-16 text-xs font-bold text-red-600">Bajo stock</p>
                             </div>
 
                             <h2 class="pt-5 ml-5 font-bold text-lg">Cantidades de stock permitidas</h2>

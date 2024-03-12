@@ -124,15 +124,15 @@ export default {
                     dropdown: false,
                     show: true
                 },
-                {
-                    label: 'Configuraciones',
-                    icon: '<i class="fa-solid fa-gears text-lg"></i>',
-                    route: route('settings.index'),
-                    active: route().current('settings.*'),
-                    options: [],
-                    dropdown: false,
-                    show: true
-                },
+                // {
+                //     label: 'Configuraciones',
+                //     icon: '<i class="fa-solid fa-gears text-lg"></i>',
+                //     route: route('settings.index'),
+                //     active: route().current('settings.*'),
+                //     options: [],
+                //     dropdown: false,
+                //     show: true
+                // },
             ],
         }
     },

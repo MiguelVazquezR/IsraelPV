@@ -61,11 +61,16 @@ Route::get('products-get-by-page/{currentPage}', [ProductController::class, 'get
 Route::resource('clients', ClientController::class)->middleware('auth');
 
 
-//settings routes-------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------
-Route::resource('settings', SettingController::class)->middleware('auth');
-
-
 //categories routes-------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------
 Route::resource('categories', CategoryController::class)->middleware('auth');
+
+
+//payments routes-------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------
+Route::resource('payments', CategoryController::class)->middleware('auth');
+
+
+//settings routes-------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+Route::resource('settings', SettingController::class)->middleware('auth');
