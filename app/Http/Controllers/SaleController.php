@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\SaleResource;
 use App\Models\Client;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Sale;
 use Illuminate\Http\Request;
@@ -38,12 +39,15 @@ class SaleController extends Controller
     public function store(Request $request)
     {
         // return $request;
+
+        // Registra la venta
         $sale = Sale::create([
             'has_credit' => $request->data['has_credit'],
             'total' => $request->data['total'],
             'client_id' => $request->data['client_id'],
         ]);
 
+        // Agrega todos los productos a la venta
         foreach ($request->data['saleProducts'] as $product) {
             // Asociar producto a la venta con sus atributos adicionales
             $sale->products()->attach($product['product']['id'], [
@@ -52,35 +56,15 @@ class SaleController extends Controller
             ]);
         }
 
-        // foreach ($request->data['saleProducts'] as $sale) {
-        //     //registra cada producto vendido
-        //     Sale::create([
-        //         'current_price' => $sale['product']['public_price'],
-        //         'quantity' => $sale['quantity'],
-        //         'product_id' => $sale['product']['id'],
-        //     ]);
+        // si la variable del abono no es null se crea un registro de abono
+        if ($request->data['deposit'] !== null) {
+            Payment::create([
+                'amount' => $request->data['deposit'],
+                'notes' => $request->data['deposit_notes'],
+                'sale_id' => $sale->id,
+            ]);
+        }
 
-        //     //Registra el historial de venta de cada producto
-        //     ProductHistory::create([
-        //         'description' => 'Registro de venta. ' . $sale['quantity'] . ' piezas',
-        //         'type' => 'Venta',
-        //         'product_id' => $sale['product']['id']
-        //     ]);
-
-        //     //rebaja del stock la cantidad de piezas vendidas
-        //     $product = Product::find($sale['product']['id']);
-        //     $product->decrement('current_stock', $sale['quantity']);
-
-        //     // notificar si ha llegado al limite de existencias bajas
-        //     if ($product->current_stock <= $product->min_stock) {
-        //         $title = "Bajo stock";
-        //         $description = "Producto <span class='text-primary'>$product->name</span> alcanzó el nivel mínimo establecido";
-        //         $url = route('products.show', $product->id);
-
-        //         auth()->user()->notify(new BasicNotification($title, $description, $url));
-        //     }
-
-        // }
     }
 
     
