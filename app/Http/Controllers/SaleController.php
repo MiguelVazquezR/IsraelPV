@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SaleResource;
 use App\Models\Client;
 use App\Models\Product;
 use App\Models\Sale;
@@ -10,13 +11,21 @@ use Illuminate\Http\Request;
 class SaleController extends Controller
 {
     
-    public function index()
+    public function pointIndex()
     {
         $products = Product::all(['id', 'name', 'code']);
         $clients = Client::all(['id', 'name']);
 
         // return $products;
-        return inertia('Sale/Index', compact('products', 'clients'));
+        return inertia('Sale/Point', compact('products', 'clients'));
+    }
+
+    public function index()
+    {
+        $sales = SaleResource::collection(Sale::latest()->with('client:id,name', 'products:id,name')->get());
+
+        // return $sales;
+        return inertia('Sale/Index', compact('sales'));
     }
 
     
@@ -28,8 +37,23 @@ class SaleController extends Controller
     
     public function store(Request $request)
     {
+        // return $request;
+        $sale = Sale::create([
+            'has_credit' => $request->data['has_credit'],
+            'total' => $request->data['total'],
+            'client_id' => $request->data['client_id'],
+        ]);
+
+        foreach ($request->data['saleProducts'] as $product) {
+            // Asociar producto a la venta con sus atributos adicionales
+            $sale->products()->attach($product['product']['id'], [
+                'quantity' => $product['quantity'],
+                'price' => $product['product']['public_price']
+            ]);
+        }
+
         // foreach ($request->data['saleProducts'] as $sale) {
-        //     //regiatra cada producto vendido
+        //     //registra cada producto vendido
         //     Sale::create([
         //         'current_price' => $sale['product']['public_price'],
         //         'quantity' => $sale['quantity'],

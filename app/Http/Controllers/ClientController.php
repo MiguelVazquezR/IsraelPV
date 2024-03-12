@@ -35,7 +35,7 @@ class ClientController extends Controller
 
         $client = Client::create($request->all());
 
-        return to_route('clients.show', $client->id);
+        // return to_route('clients.show', $client->id);
     }
 
     

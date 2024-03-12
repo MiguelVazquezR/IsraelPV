@@ -141,7 +141,7 @@ const logout = () => {
                         class="lg:hidden z-40 rounded-tl-[6px] rounded-bl-[6px] bg-gray-50 w-4/6 absolute right-0 top-14 min-h-[50%] max-h-[90%] overflow-y-scroll overflow-x-hidden shadow-lg border border-gray4 pt-4">
 
                         <div class="pt-2 pb-3 space-y-1">
-                            <ResponsiveNavLink :href="route('sales.index')" :active="route().current('sales.*')">
+                            <ResponsiveNavLink :href="route('sales.point')" :active="route().current('sales.point')">
                                 Punto de venta
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('products.index')" :active="route().current('products.*')">
@@ -150,7 +150,7 @@ const logout = () => {
                             <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                 Análisis de venta
                             </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
+                            <ResponsiveNavLink :href="route('sales.index')" :active="route().current('sales.index')">
                                 Registro de ventas
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('clients.index')" :active="route().current('clients.*')">

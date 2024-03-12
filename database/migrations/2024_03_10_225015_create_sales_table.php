@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
             $table->boolean('has_credit')->default(false);
-            $table->unsignedFloat('total');
-            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
+            $table->unsignedDouble('total');
+            $table->foreignId('client_id')->nullable()->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

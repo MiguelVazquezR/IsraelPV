@@ -16,7 +16,7 @@
                     <InputError :message="form.errors.rfc" />
                 </div>
                 <div class="mt-3">
-                    <InputLabel value="Teléfono" class="ml-3 mb-1" />
+                    <InputLabel value="Teléfono*" class="ml-3 mb-1" />
                     <el-input v-model="form.phone" placeholder="Ingresa el número de teléfono" :maxlength="100" clearable />
                     <InputError :message="form.errors.phone" />
                 </div>
@@ -71,6 +71,7 @@ methods:{
           message: "Se ha agregado un nuevo cliente",
           type: "success",
         });
+        this.$inertia.get(route('clients.index'));
         },
       });
     },

@@ -18,12 +18,12 @@
             <p class="font-bold text-lg">{{ sale.product.name }}</p>
           </div>
         </div>
-        <div :class="editMode == true ? 'w-[30%]' : 'w-[15%]'" class="text-base flex items-center">
-          <template v-if="!editMode">
+        <div :class="editMode !== null ? 'w-[35%]' : 'w-[15%]'" class="text-base flex items-center">
+          <template v-if="editMode !== index">
             ${{ sale.product.public_price }}
-            <i @click.stop="startEditing(sale)" class="fa-solid fa-pencil text-sm text-primary cursor-pointer bg-gray-200 rounded-full ml-2 mr-1 py-1 px-[6px]"></i>
+            <i @click.stop="startEditing(sale, index)" class="fa-solid fa-pencil text-sm text-primary cursor-pointer bg-gray-200 rounded-full ml-2 mr-1 py-1 px-[6px]"></i>
           </template>
-          <template v-else>
+          <template v-else-if="editMode == index">
             <div class="flex space-x-2">
               <el-input v-model="editedPrice" @keyup.enter="stopEditing(sale)" type="number" step="0.01">
                 <template #prefix>
@@ -63,19 +63,21 @@
         <p class="text-xs text-gray-400 pl-2">{{ sale.product.category?.name }}</p>
         <p class="font-bold text-base">{{ sale.product.name }}</p>
         <div class="flex items-center space-x-2">
-          <template v-if="!editMode">
-            <p class="text-sm">${{ sale.product.public_price }} / unidad</p>
-            <i @click.stop="startEditing(sale)" class="fa-solid fa-pencil text-xs text-primary cursor-pointer bg-gray-200 rounded-full ml-2 mr-1 py-1 px-[6px]"></i>
+          <template v-if="editMode !== index">
+            ${{ sale.product.public_price }}
+            <i @click.stop="startEditing(sale, index)" class="fa-solid fa-pencil text-sm text-primary cursor-pointer bg-gray-200 rounded-full ml-2 mr-1 py-1 px-[6px]"></i>
           </template>
-          <template v-else>
-            <div class="flex w-full space-x-2">
-              <el-input class="!w-40" v-model="editedPrice" @keyup.enter="stopEditing(sale)" type="number" step="0.01">
-                <template #prefix>
-                  <i class="fa-solid fa-dollar-sign"></i>
-                  </template>
-              </el-input>
-              <button @click="stopEditing(sale)" class="rounded-full size-7 bg-primary"><i class="fa-solid fa-check text-white text-xs pt-1"></i></button>
-              <button @click="editMode = false" class="rounded-full size-7 bg-[#EDEDED]"><i class="fa-solid fa-x  mark text-black text-xs pt-1"></i></button>
+          <template v-else-if="editMode == index">
+            <div class="flex space-x-2">
+              <div class="w-1/2">
+                <el-input v-model="editedPrice" @keyup.enter="stopEditing(sale)" type="number" step="0.01">
+                  <template #prefix>
+                    <i class="fa-solid fa-dollar-sign"></i>
+                    </template>
+                </el-input>
+              </div>
+              <button @click="stopEditing(sale)" class="rounded-full size-6 bg-primary"><i class="fa-solid fa-check text-white text-xs pt-[3px]"></i></button>
+              <button @click="editMode = false" class="rounded-full size-6 bg-[#EDEDED]"><i class="fa-solid fa-x  mark text-black text-xs pt-[2px]"></i></button>
             </div>
           </template>
         </div>
@@ -105,7 +107,7 @@ export default {
   data() {
     return {
       quantity: 1,
-      editMode: false,
+      editMode: null,
       editedPrice: null
     };
   },
@@ -117,12 +119,12 @@ export default {
     deleteItem(productId) {
       this.$emit('delete-product', productId);
     },
-    startEditing(sale) {
-      this.editMode = true;
+    startEditing(sale, index) {
+      this.editMode = index;
       this.editedPrice = sale.product.public_price;
     },
     stopEditing(sale) {
-      this.editMode = false;
+      this.editMode = null;
       // Aquí puedes realizar la lógica para actualizar el precio en tu modelo de datos.
       // En este ejemplo, simplemente actualizamos el precio en el objeto de venta directamente.
       sale.product.public_price = parseFloat(this.editedPrice);

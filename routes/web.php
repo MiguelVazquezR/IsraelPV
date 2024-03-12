@@ -43,6 +43,7 @@ Route::middleware([
 //sales routes-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
 Route::resource('sales', SaleController::class)->middleware('auth');
+Route::get('sales-point', [SaleController::class, 'pointIndex'])->name('sales.point')->middleware('auth');
 
 
 //products routes-------------------------------------------------------------------------------------
