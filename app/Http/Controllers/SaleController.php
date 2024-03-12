@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\Product;
 use App\Models\Sale;
 use Illuminate\Http\Request;
@@ -12,9 +13,10 @@ class SaleController extends Controller
     public function index()
     {
         $products = Product::all(['id', 'name', 'code']);
+        $clients = Client::all(['id', 'name']);
 
         // return $products;
-        return inertia('Sale/Index', compact('products'));
+        return inertia('Sale/Index', compact('products', 'clients'));
     }
 
     

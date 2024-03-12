@@ -27,11 +27,12 @@
                     </div>
                   </el-tooltip>
 
-                  <el-select v-model="client_id" clearable
+                  <el-select v-model="editableTabs[this.editableTabsValue - 1].client_id" clearable filterable
                       placeholder="Seleccione" no-data-text="No hay opciones registradas"
                       no-match-text="No se encontraron coincidencias">
                       <el-option v-for="client in clients" :key="client" :label="client.name" :value="client.id" />
                   </el-select>
+                  <i :class="editableTabs[this.editableTabsValue - 1].client_id ? 'text-green-500' : 'text-gray-400'" class="fa-solid fa-user-check text-sm"></i>
                 </div>
 
                 <el-popconfirm confirm-button-text="Si" cancel-button-text="No" icon-color="#C30303" title="Se eliminará todo el registro de productos ¿Deseas continuar?"
@@ -104,7 +105,7 @@
 
           <!-- Total por cobrar -->
           <div class="border border-grayD9 rounded-lg p-4 mt-5 text-xs lg:text-base">
-            <div v-if="!editableTabs[this.editableTabsValue - 1]?.paying">
+            <div v-if="!editableTabs[this.editableTabsValue - 1]?.cash && !editableTabs[this.editableTabsValue - 1]?.credit">
               <div class="flex items-center justify-between text-lg mx-5">
                 <p class="font-bold">Total</p>
                 <p class="text-gray-99">$ <strong class="ml-3">{{ calculateTotal() }}</strong></p>
@@ -112,19 +113,19 @@
               <!-- botones -->
               <div class="text-center mt-7">
                 <p class="text-sm text-gray-400 text-left mb-3">Opciones de pago</p>
-                <div class="flex items-center justify-center space-x-4">
-                  <PrimaryButton @click="receive()"
+                <div class="flex items-center justify-end space-x-4">
+                  <PrimaryButton @click="creditPayment()"
                     :disabled="editableTabs[this.editableTabsValue - 1]?.saleProducts?.length == 0"
                     class="!px-9 !bg-[#baf09b] disabled:!bg-[#999999] !text-black">A crédito</PrimaryButton>
-                  <PrimaryButton @click="receive()"
+                  <PrimaryButton @click="cashPayment()"
                     :disabled="editableTabs[this.editableTabsValue - 1]?.saleProducts?.length == 0"
                     class="!px-9 !bg-[#5FCB1F] disabled:!bg-[#999999]">Al contado</PrimaryButton>
                 </div>
               </div>
             </div>
 
-            <!-- cobrando -->
-            <div v-else>
+            <!-- cobrando al contado -->
+            <div v-if="editableTabs[this.editableTabsValue - 1]?.cash">
               <p class="text-gray-99 text-center mb-3 text-lg">Total $ <strong>{{ calculateTotal() }}</strong>
               </p>
               <div class="flex items-center justify-between mx-5 space-x-10">
@@ -140,11 +141,44 @@
                   }) }}</p>
               </div>
               <p v-if="(calculateTotal() > editableTabs[this.editableTabsValue - 1]?.moneyReceived) && editableTabs[this.editableTabsValue - 1].moneyReceived"
-                class="text-xs text-primary text-center mb-3">La cantidad es insuficiente. Por favor, ingrese una cantidad
+                class="text-xs text-red-600 text-center mb-3">La cantidad es insuficiente. Por favor, ingrese una cantidad
                 igual o mayor al total de compra.</p>
               <div class="flex space-x-2 justify-end">
-                <CancelButton @click="editableTabs[this.editableTabsValue - 1].paying = false">Cancelar</CancelButton>
+                <CancelButton @click="editableTabs[this.editableTabsValue - 1].cash = false; editableTabs[this.editableTabsValue - 1].moneyReceived = null">Cancelar</CancelButton>
                 <PrimaryButton :disabled="storeProcessing" @click="store" class="!rounded-full">Aceptar</PrimaryButton>
+              </div>
+            </div>
+
+            <!-- Cobrando a crédito  -->
+            <div v-if="editableTabs[this.editableTabsValue - 1]?.credit">
+              <div class="flex items-center justify-between">
+                <i @click="editableTabs[this.editableTabsValue - 1].credit = false; editableTabs[this.editableTabsValue - 1].deposit = null; editableTabs[this.editableTabsValue - 1].deposit_notes = null" class="fa-solid fa-angle-left text-xs p-2 cursor-pointer"></i>
+                <p class="text-gray-99">$ <strong class="ml-3">{{ calculateTotal() }}</strong></p>
+              </div>
+              <h3 class="text-lg font-bold">Registrar abono de la venta</h3>
+              <div class="flex items-center justify-between space-x-7 my-3">
+                <div>
+                  <InputLabel value="Monto abonado" class="text-sm ml-2 !text-gray-400" />
+                  <el-input type="number" v-model="editableTabs[this.editableTabsValue - 1].deposit" placeholder="ingresa el abono">
+                    <template #prefix>
+                      <i class="fa-solid fa-dollar-sign"></i>
+                      </template>
+                  </el-input>
+                </div>
+                <div>
+                  <InputLabel value="Saldo restante" class="text-sm ml-2 !text-gray-400" />
+                  <p v-if="(calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit) > 0">${{ calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit }}</p>
+                  <p class="text-red-600 text-xs" v-else>La cantidad abonada debe de ser menor al monto total</p>
+                </div>
+              </div>
+              <div>
+                <InputLabel value="Notas" class="text-sm ml-2 !text-gray-400" />
+                 <el-input v-model="editableTabs[this.editableTabsValue - 1].deposit_notes" :autosize="{ minRows: 3, maxRows: 5 }" type="textarea"
+                    placeholder="Escribe tus notas" :maxlength="200" show-word-limit clearable />
+              </div>
+              <div class="flex items-center justify-end space-x-3 mt-4">
+                <ThirthButton>No abonar</ThirthButton>
+                <PrimaryButton :disabled="(calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit) < 0">Abonar</PrimaryButton>
               </div>
             </div>
           </div>
@@ -160,13 +194,13 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import ThirthButton from '@/Components/MyComponents/ThirthButton.vue';
 import CancelButton from "@/Components/MyComponents/CancelButton.vue";
 import SaleTable from '@/Components/MyComponents/Sale/SaleTable.vue';
+import InputLabel from "@/Components/InputLabel.vue";
 import axios from 'axios';
 
 export default {
   data() {
 
     return {
-      client_id: null, //cliente
       storeProcessing: false, //cargando store de venta
       scanning: false, //cargando la busqueda de productos por escaner
       loading: false, //cargando la busqueda de productos
@@ -181,26 +215,23 @@ export default {
       editableTabsValue: "1", //tab seleccionado - componente de tabs
       editableTabs: [ //Informacion del tab - componente de tabs
         {
-          title: "Registro 1",
+          title: "Registro de venta",
           name: "1",
           saleProducts: [],
-          paying: false,
+          cash: false,
+          credit: false,
           moneyReceived: null,
+          client_id: null,
+          deposit: null,
+          deposit_notes: null
         },
-        {
-          title: "Registro 2",
-          name: "2",
-          saleProducts: [],
-          paying: false,
-          moneyReceived: null,
-        },
-        {
-          title: "Registro 3",
-          name: "3",
-          saleProducts: [],
-          paying: false,
-          moneyReceived: null,
-        },
+        // {
+        //   title: "Registro 2",
+        //   name: "2",
+        //   saleProducts: [],
+        //   paying: false,
+        //   moneyReceived: null,
+        // },
       ],
     }
   },
@@ -209,10 +240,12 @@ export default {
     PrimaryButton,
     ThirthButton,
     CancelButton,
+    InputLabel,
     SaleTable
   },
   props: {
-    products: Array
+    products: Array,
+    clients: Array,
   },
   methods: {
     async store() {
@@ -314,7 +347,11 @@ export default {
       this.productsFound = null;
       this.productSelected = null;
       this.editableTabs[this.editableTabsValue - 1].saleProducts = [];
-      this.editableTabs[this.editableTabsValue - 1].paying = false;
+      this.editableTabs[this.editableTabsValue - 1].client_id = null;
+      this.editableTabs[this.editableTabsValue - 1].desposit = null;
+      this.editableTabs[this.editableTabsValue - 1].desposit_notes = null;
+      this.editableTabs[this.editableTabsValue - 1].cash = false;
+      this.editableTabs[this.editableTabsValue - 1].credit = false;
       this.editableTabs[this.editableTabsValue - 1].moneyReceived = null;
       // this.scanInputFocus();
     },
@@ -327,9 +364,12 @@ export default {
       // Formatear el resultado al final
       return total?.toLocaleString('en-US', { minimumFractionDigits: 2 });
     },
-    receive() {
-      this.editableTabs[this.editableTabsValue - 1].paying = true;
-      this.receivedInputFocus();
+    cashPayment() {
+      this.editableTabs[this.editableTabsValue - 1].cash = true;
+      // this.receivedInputFocus();
+    },
+    creditPayment() {
+      this.editableTabs[this.editableTabsValue - 1].credit = true;
     },
     // scanInputFocus() {
     //   this.$nextTick(() => {
