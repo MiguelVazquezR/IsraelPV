@@ -130,19 +130,19 @@ class ProductController extends Controller
         $query = $request->input('query');
 
         // Realiza la búsqueda en la base de datos
-        $products = ProductResource::collection(Product::where('name', 'like', "%$query%")->orWhere('code', $query)->get()->take(20));
+        $products = ProductResource::collection(Product::with('category')->where('name', 'like', "%$query%")->orWhere('id', $query)->get()->take(20));
 
         return response()->json(['items' => $products]);
     }
 
 
-    // public function getProductScaned($product_id)
-    // {
-    //     // Realiza la búsqueda en la base de datos
-    //     $product = ProductResource::make(Product::find($product_id));
+    public function getProductScaned($product_id)
+    {
+        // Realiza la búsqueda en la base de datos
+        $product = ProductResource::make(Product::with('category')->find($product_id));
 
-    //     return response()->json(['item' => $product]);
-    // }
+        return response()->json(['item' => $product]);
+    }
 
 
     public function entryStock(Request $request, $product_id)
