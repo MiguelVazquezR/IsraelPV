@@ -44,7 +44,7 @@
                     <div class="mt-3 col-span-2">
                         <InputLabel value="Código del producto*" class="ml-3 mb-1" />
                         <el-input v-model="form.code" @keydown.enter="getProduct" ref="codeInput"
-                            placeholder="Escanea el código del producto" :maxlength="100" clearable>
+                            placeholder="Escribe el nombre o código del producto" :maxlength="100" clearable>
                             <template #prefix>
                                 <i class="fa-solid fa-barcode"></i>
                             </template>
@@ -176,6 +176,11 @@ export default {
 
             } catch (error) {
                 console.log(error);
+                this.$notify({
+                    title: "Producto no encontrado",
+                    message: 'No se encontró el producto',
+                    type: "warning",
+                });
             } finally {
                 this.loading = false;
             }
@@ -186,9 +191,18 @@ export default {
                 const response = await axios.get(route('products.search'), { params: { query: this.form.code } });
                 if (response.status == 200) {
                     this.productEntryFound = response.data.items;
-                    this.$nextTick(() => {
-                        this.$refs.quantityInput.focus(); // Enfocar el input de cantidad cuando se encuentra el producto
-                    });
+                    console.log(this.productEntryFound);
+                    if (this.productEntryFound?.length > 0) {
+                            this.$nextTick(() => {
+                            this.$refs.quantityInput?.focus(); // Enfocar el input de cantidad cuando se encuentra el producto
+                        });
+                    } else {
+                        this.$notify({
+                            title: "Producto no encontrado",
+                            message: 'No se encontró el producto',
+                            type: "warning",
+                        });
+                    }
                 }
 
             } catch (error) {

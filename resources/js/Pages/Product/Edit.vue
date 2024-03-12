@@ -1,10 +1,10 @@
 <template>
-    <AppLayout title="Nuevo producto">
+    <AppLayout title="Editar producto">
         <div class="px-10 py-7">
             <Back />
 
-            <form v-if="products_quantity < 500 " @submit.prevent="store" class="rounded-lg border border-grayD9 lg:p-5 p-3 lg:w-1/2 mx-auto mt-7 lg:grid lg:grid-cols-2 gap-x-3">
-                <h1 class="font-bold ml-2 col-span-full">Agregar producto</h1>
+            <form @submit.prevent="update" class="rounded-lg border border-grayD9 lg:p-5 p-3 lg:w-1/2 mx-auto mt-7 lg:grid lg:grid-cols-2 gap-x-3">
+                <h1 class="font-bold ml-2 col-span-full">Editar producto</h1>
                 <div class="mt-3">
                     <InputLabel value="Nombre del producto*" class="ml-3 mb-1" />
                     <el-input v-model="form.name" placeholder="Escribe el nombre del producto" :maxlength="100" clearable />
@@ -80,7 +80,9 @@
 
                 <div>
                     <InputLabel value="Agregar imagen" class="ml-3 mb-1" />
-                    <InputFilePreview @imagen="saveImage" @cleared="form.imageCover = null" />
+                    <InputFilePreview @imagen="saveImage($event); form.imageCoverCleared = false"
+                        @cleared="form.imageCover = null; form.imageCoverCleared = true"
+                        :imageUrl="product.data.imageCover[0]?.original_url" />
                 </div>
 
                 <!-- <div class="mt-3 col-span-2">
@@ -97,10 +99,6 @@
                     <PrimaryButton class="!rounded-full" :disabled="form.processing">Guardar producto</PrimaryButton>
                 </div>
             </form>
-            <div v-else class="text-center text-gray-500">
-                <p class="text-3xl mb-3">¡Lo sentimos!</p>
-                <p class="">Has llegado al límite de productos disponibles (500). Para poder aumentar el límite ponte en contacto con el equipo de DTW</p>
-            </div>
         </div>
 
         <!-- tag form -->
@@ -139,15 +137,16 @@ import { useForm } from "@inertiajs/vue3";
 export default {
 data() {
     const form = useForm({
-      name: null,
-      category_id: null,
-      code: null,
-      public_price: null,
-      cost: null,
-      current_stock: null,
-      min_stock: null,
-      max_stock: null,
+      name: this.product.data.name,
+      category_id: this.product.data.category.id,
+      code: this.product.data.code,
+      public_price: this.product.data.public_price,
+      cost: this.product.data.cost,
+      current_stock: this.product.data.current_stock,
+      min_stock: this.product.data.min_stock,
+      max_stock: this.product.data.max_stock,
       imageCover: null,
+      imageCoverCleared: false
     });
 
     const categoryForm = useForm({
@@ -171,20 +170,33 @@ InputError,
 Back
 },
 props:{
-products_quantity: Number,
+product: Object,
 categories: Array,
 },
 methods:{
-    store() {
-      this.form.post(route("products.store"), {
-        onSuccess: () => {
-         this.$notify({
-          title: "Correcto",
-          message: "Se ha agregado un nuevo producto",
-          type: "success",
-        });
-        },
-      });
+    update() {
+        if (this.form.imageCover) {
+            this.form.post(route("products.update-with-media", this.product.data.id), {
+                method: '_put',
+                onSuccess: () => {
+                    this.$notify({
+                        title: "Correcto",
+                        message: 'Se ha editado el producto ' + this.product.data.name,
+                        type: "success",
+                    });
+                },
+            });
+        } else {
+            this.form.put(route("products.update", this.product.data.id), {
+                onSuccess: () => {
+                    ElNotification({
+                        title: 'Correcto',
+                        message: 'Se ha editado el producto ' + this.product.data.name,
+                        type: 'success',
+                    });
+                },
+            });
+        }
     },
     storeCategory() {
         this.categoryForm.post(route('categories.store'), {
