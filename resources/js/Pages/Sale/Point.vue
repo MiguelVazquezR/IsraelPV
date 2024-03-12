@@ -149,7 +149,7 @@
                 igual o mayor al total de compra.</p>
               <div class="flex space-x-2 justify-end">
                 <CancelButton @click="editableTabs[this.editableTabsValue - 1].cash = false; editableTabs[this.editableTabsValue - 1].moneyReceived = null">Cancelar</CancelButton>
-                <PrimaryButton :disabled="storeProcessing" @click="store" class="!rounded-full">Aceptar</PrimaryButton>
+                <PrimaryButton :disabled="storeProcessing" @click="checkClientExist" class="!rounded-full">Aceptar</PrimaryButton>
               </div>
             </div>
 
@@ -181,8 +181,8 @@
                     placeholder="Escribe tus notas" :maxlength="200" show-word-limit clearable />
               </div>
               <div class="flex items-center justify-end space-x-3 mt-4">
-                <ThirthButton @click="store">No abonar</ThirthButton>
-                <PrimaryButton @click="store" :disabled="(calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit) < 0">Abonar</PrimaryButton>
+                <ThirthButton @click="editableTabs[this.editableTabsValue - 1].has_credit = true; checkClientExist()">No abonar</ThirthButton>
+                <PrimaryButton @click="editableTabs[this.editableTabsValue - 1].has_credit = true; checkClientExist()" :disabled="(calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit) < 0">Abonar</PrimaryButton>
               </div>
             </div>
           </div>
@@ -224,6 +224,17 @@
                 </div>
             </template>
         </DialogModal>
+
+        <ConfirmationModal :show="showConfirmModal" @close="showConfirmModal = false">
+        <template #title> No seleccionaste un cliente </template>
+        <template #content> No has seleccionado cliente en la venta. ¿Deseas continuar? </template>
+        <template #footer>
+          <div>
+            <CancelButton @click="showConfirmModal = false" class="mr-2">Cancelar</CancelButton>
+            <PrimaryButton @click="showConfirmModal = false; store()">Continuar</PrimaryButton>
+          </div>
+        </template>
+      </ConfirmationModal>
   </AppLayout>
 </template>
 
@@ -236,6 +247,7 @@ import SaleTable from '@/Components/MyComponents/Sale/SaleTable.vue';
 import InputLabel from "@/Components/InputLabel.vue";
 import DialogModal from "@/Components/DialogModal.vue";
 import InputError from "@/Components/InputError.vue";
+import ConfirmationModal from "@/Components/ConfirmationModal.vue";
 import axios from 'axios';
 import { useForm } from "@inertiajs/vue3";
 
@@ -250,6 +262,7 @@ export default {
 
     return {
       form,
+      showConfirmModal: false, //confirmar crear venta sin cliente seleccionado
       showClientFormModal: false, //modal para agregar un cliente
       storeProcessing: false, //cargando store de venta
       scanning: false, //cargando la busqueda de productos por escaner
@@ -288,6 +301,7 @@ export default {
   },
   components: {
     AppLayout,
+    ConfirmationModal,
     PrimaryButton,
     ThirthButton,
     CancelButton,
@@ -301,6 +315,13 @@ export default {
     clients: Array,
   },
   methods: {
+    checkClientExist(){
+      if (this.editableTabs[this.editableTabsValue - 1]?.client_id == null) {
+        this.showConfirmModal = true;
+      } else {
+        this.store();
+      }
+    },
     async store() {
       try {
         this.storeProcessing = true;
