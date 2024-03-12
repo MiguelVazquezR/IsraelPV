@@ -181,8 +181,8 @@
                     placeholder="Escribe tus notas" :maxlength="200" show-word-limit clearable />
               </div>
               <div class="flex items-center justify-end space-x-3 mt-4">
-                <ThirthButton>No abonar</ThirthButton>
-                <PrimaryButton :disabled="(calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit) < 0">Abonar</PrimaryButton>
+                <ThirthButton @click="store">No abonar</ThirthButton>
+                <PrimaryButton @click="store" :disabled="(calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit) < 0">Abonar</PrimaryButton>
               </div>
             </div>
           </div>
@@ -309,6 +309,8 @@ export default {
             saleProducts: this.editableTabs[this.editableTabsValue - 1]?.saleProducts,
             has_credit: this.editableTabs[this.editableTabsValue - 1]?.has_credit,
             client_id: this.editableTabs[this.editableTabsValue - 1]?.client_id,
+            deposit: this.editableTabs[this.editableTabsValue - 1]?.deposit,
+            deposit_notes: this.editableTabs[this.editableTabsValue - 1]?.deposit_notes,
             total: this.calculateTotal(),
           }
         });
@@ -404,8 +406,8 @@ export default {
       this.productSelected = null;
       this.editableTabs[this.editableTabsValue - 1].saleProducts = [];
       this.editableTabs[this.editableTabsValue - 1].client_id = null;
-      this.editableTabs[this.editableTabsValue - 1].desposit = null;
-      this.editableTabs[this.editableTabsValue - 1].desposit_notes = null;
+      this.editableTabs[this.editableTabsValue - 1].deposit = null;
+      this.editableTabs[this.editableTabsValue - 1].deposit_notes = null;
       this.editableTabs[this.editableTabsValue - 1].cash = false;
       this.editableTabs[this.editableTabsValue - 1].credit = false;
       this.editableTabs[this.editableTabsValue - 1].moneyReceived = null;
