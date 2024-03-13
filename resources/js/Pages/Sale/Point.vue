@@ -162,7 +162,7 @@
               <h3 class="text-lg font-bold">Registrar abono de la venta</h3>
               <div class="flex items-center justify-between space-x-7 my-3">
                 <div>
-                  <InputLabel value="Monto abonado" class="text-sm ml-2 !text-gray-400" />
+                  <InputLabel value="Monto abonado (opcional)" class="text-sm ml-2 !text-gray-400" />
                   <el-input type="number" v-model="editableTabs[this.editableTabsValue - 1].deposit" placeholder="ingresa el abono">
                     <template #prefix>
                       <i class="fa-solid fa-dollar-sign"></i>
@@ -176,13 +176,13 @@
                 </div>
               </div>
               <div>
-                <InputLabel value="Notas" class="text-sm ml-2 !text-gray-400" />
+                <InputLabel value="Notas (opcional)" class="text-sm ml-2 !text-gray-400" />
                  <el-input v-model="editableTabs[this.editableTabsValue - 1].deposit_notes" :autosize="{ minRows: 3, maxRows: 5 }" type="textarea"
                     placeholder="Escribe tus notas" :maxlength="200" show-word-limit clearable />
               </div>
               <div class="flex items-center justify-end space-x-3 mt-4">
-                <ThirthButton @click="editableTabs[this.editableTabsValue - 1].has_credit = true; checkClientExist()">No abonar</ThirthButton>
-                <PrimaryButton @click="editableTabs[this.editableTabsValue - 1].has_credit = true; checkClientExist()" :disabled="(calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit) < 0">Abonar</PrimaryButton>
+                <!-- <ThirthButton @click="editableTabs[this.editableTabsValue - 1].has_credit = true; checkClientExist()">No abonar</ThirthButton> -->
+                <PrimaryButton @click="editableTabs[this.editableTabsValue - 1].has_credit = true; checkClientExist()" :disabled="(calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit) < 0">Finalizar venta</PrimaryButton>
               </div>
             </div>
           </div>

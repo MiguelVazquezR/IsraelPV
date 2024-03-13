@@ -40,8 +40,9 @@ class ClientController extends Controller
 
     
     public function show(Client $client)
-    {
-        return inertia('Client/Show', compact('client'));
+    {   
+        $clients = Client::all(['id','name']);
+        return inertia('Client/Show', compact('client', 'clients'));
     }
 
     

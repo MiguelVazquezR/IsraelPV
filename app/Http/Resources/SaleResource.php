@@ -20,6 +20,8 @@ class SaleResource extends JsonResource
             'has_credit' => $this->has_credit,
             'total' => $this->total,
             'client' => $this->whenLoaded('client'),
+            'products' => $this->whenLoaded('products'),
+            'payments' => PaymentResource::collection($this->whenLoaded('payments')),
             'created_at' => $this->created_at?->isoFormat('DD MMM YYYY, h:mm a'),
             'updated_at' => $this->updated_at?->isoFormat('DD MMM YYYY, h:mm a'),
         ];

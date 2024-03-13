@@ -13,9 +13,11 @@
             </div>
 
             <div class="lg:w-1/4 relative">
-                <input v-model="searchQuery" @keydown.enter="searchProducts" class="input w-full pl-9"
-                    placeholder="Buscar cliente" type="text">
-                <i class="fa-solid fa-magnifying-glass text-xs text-gray99 absolute top-[10px] left-4"></i>
+                <el-select clearable filterable
+                    placeholder="Seleccione" no-data-text="No hay opciones registradas"
+                    no-match-text="No se encontraron coincidencias">
+                    <el-option @click="$inertia.get(route('clients.show', client.id))" v-for="client in clients" :key="client" :label="client.name" :value="client.id" />
+                </el-select>
             </div>
 
             <!-- informacion del cliente -->
@@ -28,9 +30,9 @@
                 </div>
                 <div class="space-y-2">
                     <p>{{ client.name }}</p>
-                    <p>{{ client.rfc }}</p>
+                    <p>{{ client.rfc ?? '-' }}</p>
                     <p>{{ client.phone }}</p>
-                    <p>{{ client.address }}</p>
+                    <p>{{ client.address ?? '-' }}</p>
                 </div>
             </div>
         </div>
@@ -56,7 +58,8 @@ ThirthButton,
 Back
 },
 props:{
-client: Object
+client: Object,
+clients: Array,
 },
 methods:{
 
