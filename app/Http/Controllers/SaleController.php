@@ -68,9 +68,12 @@ class SaleController extends Controller
     }
 
     
-    public function show(Sale $sale)
+    public function show($sale_id)
     {
-        //
+        $sale = SaleResource::make(Sale::with('client', 'payments', 'products')->find($sale_id));
+
+        // return $sale;
+        return inertia('Sale/Show', compact('sale'));
     }
 
     
