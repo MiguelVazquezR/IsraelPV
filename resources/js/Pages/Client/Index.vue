@@ -5,7 +5,7 @@
             <div class="lg:flex justify-between items-center mx-3">
                 <h1 class="font-bold text-lg">Clientes</h1>
                 <div class="my-4 lg:my-0 flex items-center space-x-3">
-                    <ThirthButton @click="openEntryModal" class="!rounded-full">Registrar abono</ThirthButton>
+                    <!-- <ThirthButton @click="openEntryModal" class="!rounded-full">Registrar abono</ThirthButton> -->
                     <PrimaryButton @click="$inertia.get(route('clients.create'))" class="!rounded-full">Nuevo cliente</PrimaryButton>
                 </div>
             </div>

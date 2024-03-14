@@ -1,16 +1,20 @@
 <template>
-    <button :id="`accordion-title-${id}`" class="w-full text-start px-2 mb-1 flex justify-between text-xs rounded-md py-1"
-        :class="active ? 'font-bold text-primary' : ''" @click.prevent="accordionOpen = !accordionOpen"
+    <button :id="`accordion-title-${id}`"
+        class="w-full text-start px-5 mb- flex justify-between items-center text-xs rounded-r-[10px] mt-1 py-1"
+        :class="active ? 'bg-gray-300 text-primary border-l-4 border-primary' : ''" @click.prevent="accordionOpen = !accordionOpen"
         :aria-expanded="accordionOpen" :aria-controls="`accordion-text-${id}`" :title="title">
-        <p class="truncate"><span v-html="icon"></span> {{ title }}</p>
+        <i v-html="icon"></i>
+        <p class="ml-2">
+            {{ title }}
+        </p>
         <i class="fa-solid fa-angle-down transform origin-center transition duration-200 ease-out"
             :class="{ '!rotate-180': accordionOpen }"></i>
     </button>
     <div :id="`accordion-text-${id}`" role="region" :aria-labelledby="`accordion-title-${id}`"
-        class="grid text-sm overflow-hidden transition-all duration-300 ease-in-out"
+        class="grid text-sm overflow-hidden transition-all duration-300 ease-in-out ml-2"
         :class="accordionOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'">
         <div class="overflow-hidden">
-            <p class="pb-1">
+            <p>
                 <slot />
             </p>
         </div>
