@@ -41,7 +41,9 @@ class ClientController extends Controller
     
     public function show(Client $client)
     {   
+        $client = $client->load(['sales']);
         $clients = Client::all(['id','name']);
+
         return inertia('Client/Show', compact('client', 'clients'));
     }
 
@@ -71,4 +73,5 @@ class ClientController extends Controller
     {
         $client->delete();
     }
+
 }

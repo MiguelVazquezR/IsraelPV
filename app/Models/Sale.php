@@ -15,15 +15,16 @@ class Sale extends Model
     protected $fillable = [
         'has_credit',
         'paid_at',
+        'limit_date',
         'total',
         'client_id',
     ];
 
     protected $casts = [
-        'paid_at' => 'date'
+        'paid_at' => 'date',
+        'limit_date' => 'date',
     ];
-
-
+    
     //relationships
     public function client() :BelongsTo
     {

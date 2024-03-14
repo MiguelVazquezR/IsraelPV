@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 
 class SaleController extends Controller
 {
-    
+
     public function pointIndex()
     {
         $products = Product::all(['id', 'name', 'code']);
@@ -29,13 +29,13 @@ class SaleController extends Controller
         return inertia('Sale/Index', compact('sales'));
     }
 
-    
+
     public function create()
     {
         //
     }
 
-    
+
     public function store(Request $request)
     {
         // return $request;
@@ -64,7 +64,6 @@ class SaleController extends Controller
                 'sale_id' => $sale->id,
             ]);
         }
-
     }
 
     
@@ -77,21 +76,27 @@ class SaleController extends Controller
         return inertia('Sale/Show', compact('sale', 'clients'));
     }
 
-    
+
     public function edit(Sale $sale)
     {
         //
     }
 
-    
     public function update(Request $request, Sale $sale)
     {
         //
     }
 
-    
     public function destroy(Sale $sale)
     {
         $sale->delete();
+    }
+
+    // API
+    public function getById(Sale $sale)
+    {
+        $item = $sale->load(['payments', 'products']);
+
+        return response()->json(compact('item'));
     }
 }

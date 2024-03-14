@@ -45,8 +45,8 @@ Route::middleware([
 //sales routes-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
 Route::resource('sales', SaleController::class)->middleware('auth');
+Route::get('sales-get-by-id/{sale}', [SaleController::class, 'getById'])->middleware('auth')->name('sales.get-by-id');
 Route::get('sales-point', [SaleController::class, 'pointIndex'])->name('sales.point')->middleware('auth');
-
 
 //products routes-------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
@@ -62,7 +62,6 @@ Route::get('products-get-by-page/{currentPage}', [ProductController::class, 'get
 //clients routes-------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------------
 Route::resource('clients', ClientController::class)->middleware('auth');
-
 
 //categories routes-------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------
