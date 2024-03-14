@@ -1,31 +1,17 @@
 <template>
-    <div class="border border-grayD9 rounded-[20px] py-2 px-4 min-h-32">
-        <Loading v-if="loading" class="pt-6" />
+    <div class="border border-grayD9 rounded-full py-2 px-4 hover:bg-primarylight text-xs">
+        <Loading v-if="loading" />
         <Link :href="route('sales.show', saleId)" v-else>
-        <header class="flex items-center justify-between">
-            <h1 class="text-gray99"><b class="mr-1">Folio</b>{{ 'V-' + String(saleId).padStart(4, '0') }}</h1>
-        </header>
-        <main class="text-gray99 mt-1">
-            <div class="flex items-center space-x-1">
-                <p>Creado el: <span class="text-black">{{ format(sale.created_at, true) }}</span></p>
-                <i v-if="sale.has_credit" class="fa-solid fa-minus"></i>
-                <p v-if="sale.has_credit">Crédito vence el: <span class="text-black">{{ format(sale.limit_date) }}</span></p>
-            </div>
-            <div v-if="sale.has_credit">
-                <p>Total: <span class="text-black">${{ getTotal.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span></p>
-                <p>Abonado: <span class="text-black">${{ getTotalPaid.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span></p>
-                <p class="font-bold">Saldo pendinte: <span class="text-black">${{ (getTotal - getTotalPaid).toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span></p>
-            </div>
-            <div class="mt-2">
-                <p>Productos:</p>
-                <ul class="text-primary">
-                    •
-                    <Link :href="route('products.show', item)" v-for="(item, index) in sale.products" :key="item.id"
-                        class="underline">
-                    {{ item.name }}
-                    </Link>
-                </ul>
-            </div>
+        <main class="flex items-center space-x-2 h-8">
+            <span class="w-[11%] truncate">{{ 'V-' + String(saleId).padStart(4, '0') }}</span>
+            <span class="w-[11%] truncate">{{ format(sale.created_at, true) }}</span>
+            <span class="w-[11%] truncate">{{ sale.has_credit ? 'A crédito' : 'Al contado' }}</span>
+            <span class="w-[11%] truncate">{{ sale.limit_date ? format(sale.limit_date) : '-' }}</span>
+            <span class="w-[11%] truncate">{{ sale.products.length }}</span>
+            <span class="w-[11%] truncate">${{ getTotal.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span>
+            <span class="w-[11%] truncate">{{ sale.has_credit ? '$' + getTotalPaid.toLocaleString('en-US', {minimumFractionDigits: 2}) : '-' }}</span>
+            <span class="w-[11%] truncate">{{ sale.has_credit ? '$' + (getTotal - getTotalPaid).toLocaleString('en-US', {minimumFractionDigits: 2}) : '-' }}</span>
+            <span class="w-[11%] truncate" :class="getStatus == 'Pagado' ? 'text-[#5FCB1F]' : 'text-[#1761B7]'">{{ getStatus }}</span>
         </main>
         </Link>
     </div>
@@ -62,6 +48,11 @@ export default {
                 return total + payment.amount;
             }, 0);
         },
+        getStatus() {
+
+            if ( (this.getTotal - this.getTotalPaid) > 0 && this.sale.has_credit ) return 'Pendiente';
+            else return 'Pagado';
+        }
     },
     methods: {
         format(date, dateTime = false) {

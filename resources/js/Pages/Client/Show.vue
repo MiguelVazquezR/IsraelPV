@@ -35,10 +35,16 @@
 
             <el-tabs v-model="activeTab">
                 <el-tab-pane label="Todas las ventas" name="1">
-                    <SaleMobileDetail v-for="item in client.sales" :key="item.id" :saleId="item.id" />
+                    <SaleMobileDetail v-for="item in client.sales" :key="item.id" :saleId="item.id" class="lg:hidden mb-2" />
+                    <SaleDesktopDetail v-for="item in client.sales" :key="item.id" :saleId="item.id" class="hidden lg:block mb-2" />
                 </el-tab-pane>
-                <el-tab-pane label="Ventas si liquidar" name="2">
-                    hola
+                <el-tab-pane label="Ventas sin liquidar" name="2">
+                    <SaleMobileDetail
+                        v-for="item in client.sales.filter(sale => sale.has_credit && sale.paid_at === null)"
+                        :key="item.id" :saleId="item.id" class="lg:hidden mb-2" />
+                    <SaleDesktopDetail
+                        v-for="item in client.sales.filter(sale => sale.has_credit && sale.paid_at === null)"
+                        :key="item.id" :saleId="item.id" class="hidden lg:block mb-2" />
                 </el-tab-pane>
             </el-tabs>
 
@@ -51,6 +57,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import ThirthButton from '@/Components/MyComponents/ThirthButton.vue';
 import SaleMobileDetail from '@/Components/MyComponents/Client/SaleMobileDetail.vue';
+import SaleDesktopDetail from '@/Components/MyComponents/Client/SaleDesktopDetail.vue';
 import Back from "@/Components/MyComponents/Back.vue";
 
 export default {
@@ -66,6 +73,7 @@ export default {
         ThirthButton,
         Back,
         SaleMobileDetail,
+        SaleDesktopDetail,
     },
     props: {
         client: Object,

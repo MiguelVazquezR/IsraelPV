@@ -99,12 +99,4 @@ class SaleController extends Controller
 
         return response()->json(compact('item'));
     }
-
-    // API
-    public function getById(Sale $sale)
-    {
-        $item = $sale->load(['payments', 'products']);
-
-        return response()->json(compact('item'));
-    }
 }
