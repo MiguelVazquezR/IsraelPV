@@ -14,7 +14,7 @@
                 <div class="w-[15%] text-center rounded-l-full">{{ sale.folio }}</div>
                 <div class="w-[18%] md:w-[13%] text-primary"><span @click.stop="$inertia.get(route('clients.show', sale.client.id))" :class="sale.client?.name ? 'hover:underline' : ''">{{ sale.client?.name ?? 'N/A' }}</span></div>
                 <div class="w-[30%] lg:w-[20%]">{{ sale.created_at }}</div>
-                <div class="w-[20%] lg:w-[10%]">{{ sale.has_credit ? 'A crédito' : 'Al contado' }}</div>
+                <div class="w-[20%] lg:w-[10%]">{{ sale.has_credit ? 'A crédito' : 'Al contado' }}<i v-if="sale.has_credit" :class="sale.status?.color" :title="sale.status?.label" class="fa-solid fa-circle ml-2 text-[9px]"></i></div>
                 <div class="w-[15%]">${{ sale.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</div>
                 <div class="rounded-r-full w-[17%] text-center">
                     <!-- <i @click.stop="$inertia.get(route('sales.edit', sale.id))" class="fa-solid fa-pencil text-primary cursor-pointer hover:bg-gray-200 rounded-full mr-1 p-2"></i> -->
