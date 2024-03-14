@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
             $table->boolean('has_credit')->default(false);
-            $table->timestamp('paid_at')->default(null);
+            $table->date('limit_date')->nullable();
             $table->unsignedDouble('total');
             $table->foreignId('client_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->timestamp('paid_at')->default(null);
             $table->timestamps();
         });
     }
