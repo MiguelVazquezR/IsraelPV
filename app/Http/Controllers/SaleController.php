@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Sale;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class SaleController extends Controller
@@ -23,10 +24,12 @@ class SaleController extends Controller
 
     public function index()
     {
-        $sales = SaleResource::collection(Sale::latest()->with('client:id,name', 'products:id,name')->get());
+        $sales = SaleResource::collection(Sale::latest()->with('client:id,name', 'products:id,name')->get()->take(20));
+        $clients = Client::all(['id', 'name']);
+        $total_sales = Sale::all()->count();
 
         // return $sales;
-        return inertia('Sale/Index', compact('sales'));
+        return inertia('Sale/Index', compact('sales', 'clients', 'total_sales'));
     }
 
 
@@ -45,6 +48,7 @@ class SaleController extends Controller
             'has_credit' => $request->data['has_credit'],
             'total' => $request->data['total'],
             'client_id' => $request->data['client_id'],
+            'paid_at' => now(),
         ]);
 
         // Agrega todos los productos a la venta
@@ -90,6 +94,7 @@ class SaleController extends Controller
     public function destroy(Sale $sale)
     {
         $sale->delete();
+
     }
 
     // API
@@ -100,10 +105,49 @@ class SaleController extends Controller
         return response()->json(compact('item'));
     }
 
+
     public function getByIds(Request $request)
     {
         $items = Sale::whereIn('id', $request->ids)->with(['payments', 'products'])->get();
 
         return response()->json(compact('items'));
+    }
+
+
+    public function searchProduct(Request $request)
+    {
+        $queryDate = $request->input('queryDate');
+        $queryClient = $request->input('queryClient');
+
+        $salesQuery = Sale::with('client', 'payments', 'products');
+
+        // Filtrar por rango de fechas si se proporciona
+        if (!empty($queryDate) && count($queryDate) === 2) {
+            $startDate = Carbon::parse($queryDate[0])->startOfDay();
+            $endDate = Carbon::parse($queryDate[1])->endOfDay();
+            $salesQuery->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        // Filtrar por cliente si se proporciona
+        if (!empty($queryClient)) {
+            $salesQuery->where('client_id', $queryClient);
+        }
+
+        // Realizar la consulta y devolver los resultados
+        $sales = SaleResource::collection($salesQuery->take(20)->get());
+
+        return response()->json(['items' => $sales]);
+    }
+
+
+    public function getItemsByPage($currentPage)
+    {
+        $offset = $currentPage * 20;
+        $sales = SaleResource::collection(Sale::latest()
+            ->skip($offset)
+            ->take(20)
+            ->get());
+
+        return response()->json(['items' => $sales]);
     }
 }

@@ -41,7 +41,7 @@
                   icon-color="#C30303" title="Se eliminará todo el registro de productos ¿Deseas continuar?"
                   @confirm="clearTab()">
                   <template #reference>
-                    <ThirthButton class="!text-[#F80505] border-[#F80505] !py-1 !px-2 mb-2"><i
+                    <ThirthButton class="!text-[#F80505] !border-[#F80505] !py-1 !px-2 mb-2"><i
                         class="fa-regular fa-trash-can mr-2"></i> Limpiar registros</ThirthButton>
                   </template>
                 </el-popconfirm>
