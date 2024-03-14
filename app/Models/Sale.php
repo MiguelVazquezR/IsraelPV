@@ -24,7 +24,7 @@ class Sale extends Model
         'paid_at' => 'date',
         'limit_date' => 'date',
     ];
-
+    
     //relationships
     public function client() :BelongsTo
     {
