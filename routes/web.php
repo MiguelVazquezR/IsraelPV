@@ -46,6 +46,7 @@ Route::middleware([
 //-------------------------------------------------------------------------------------------------
 Route::resource('sales', SaleController::class)->middleware('auth');
 Route::get('sales-get-by-id/{sale}', [SaleController::class, 'getById'])->middleware('auth')->name('sales.get-by-id');
+Route::post('sales-get-by-ids', [SaleController::class, 'getByIds'])->middleware('auth')->name('sales.get-by-ids');
 Route::get('sales-point', [SaleController::class, 'pointIndex'])->name('sales.point')->middleware('auth');
 
 //products routes-------------------------------------------------------------------------------------

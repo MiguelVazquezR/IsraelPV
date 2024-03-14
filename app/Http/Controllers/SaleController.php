@@ -99,4 +99,11 @@ class SaleController extends Controller
 
         return response()->json(compact('item'));
     }
+
+    public function getByIds(Request $request)
+    {
+        $items = Sale::whereIn('id', $request->ids)->with(['payments', 'products'])->get();
+
+        return response()->json(compact('items'));
+    }
 }
