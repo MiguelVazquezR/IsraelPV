@@ -3,61 +3,73 @@
 namespace App\Http\Controllers;
 
 use App\Models\Payment;
+use App\Models\Sale;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    
     public function index()
     {
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    
     public function store(Request $request)
     {
-        //
+        // $request->validate([
+        //     'sale_id' => 'required',
+        //     'amount' => 'required',
+        //     'notes' => 'nullable',
+        //     'date' => 'required',
+        // ]);
+
+        $sale = Sale::find($request->sale_id); //recupero la venta
+        $total_sale = $sale->total; //guardo el total de venta
+
+        // return $total_sale;
+        Payment::create([
+            'amount' => $request->amount,
+            'notes' => $request->notes,
+            'sale_id' => $request->sale_id,
+            'created_at' => $request->date,
+        ]);
+
+        $total_payments = Payment::where('sale_id', $request->sale_id)->sum('amount');
+
+
+        if ( ($total_sale - $total_payments) == 0) {
+            $sale->update([
+                'paid_at' => now()
+            ]);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
+    
     public function show(Payment $payment)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+    
     public function edit(Payment $payment)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    
     public function update(Request $request, Payment $payment)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    
     public function destroy(Payment $payment)
     {
         //

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SettingController;
@@ -70,7 +71,7 @@ Route::resource('categories', CategoryController::class)->middleware('auth');
 
 //payments routes-------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------
-Route::resource('payments', CategoryController::class)->middleware('auth');
+Route::resource('payments', PaymentController::class)->middleware('auth');
 
 
 //settings routes-------------------------------------------------------------------------------------

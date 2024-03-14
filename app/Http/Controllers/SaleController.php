@@ -71,9 +71,10 @@ class SaleController extends Controller
     public function show($sale_id)
     {
         $sale = SaleResource::make(Sale::with('client', 'payments', 'products')->find($sale_id));
+        $clients = Client::all(['id', 'name']);
 
         // return $sale;
-        return inertia('Sale/Show', compact('sale'));
+        return inertia('Sale/Show', compact('sale', 'clients'));
     }
 
     
@@ -91,6 +92,6 @@ class SaleController extends Controller
     
     public function destroy(Sale $sale)
     {
-        //
+        $sale->delete();
     }
 }
