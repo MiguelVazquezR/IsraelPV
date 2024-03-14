@@ -42,7 +42,7 @@
                 <h1 class="font-bold my-4">Ingresar producto a almacén</h1>
                 <section class="text-center mt-5 mb-2 mx-5">
                     <div class="mt-3 col-span-2">
-                        <InputLabel value="Código del producto*" class="ml-3 mb-1" />
+                        <InputLabel value="Código o nombre del producto*" class="ml-3 mb-1" />
                         <el-input v-model="form.code" @keydown.enter="getProduct" ref="codeInput"
                             placeholder="Escribe el nombre o código del producto" :maxlength="100" clearable>
                             <template #prefix>

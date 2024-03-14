@@ -84,19 +84,8 @@
                         @cleared="form.imageCover = null; form.imageCoverCleared = true"
                         :imageUrl="product.data.imageCover[0]?.original_url" />
                 </div>
-
-                <!-- <div class="mt-3 col-span-2">
-                    <InputLabel value="Código del producto (en caso de tener)" class="ml-3 mb-1" />
-                    <el-input v-model="form.code" placeholder="Escribe el código del producto" :maxlength="100" clearable>
-                        <template #prefix>
-                        <i class="fa-solid fa-barcode"></i>
-                        </template>
-                    </el-input>
-                    <InputError :message="form.errors.code" />
-                </div> -->
-
                 <div class="col-span-2 text-right mt-3">
-                    <PrimaryButton class="!rounded-full" :disabled="form.processing">Guardar producto</PrimaryButton>
+                    <PrimaryButton class="!rounded-full" :disabled="form.processing">Actualizar producto</PrimaryButton>
                 </div>
             </form>
         </div>

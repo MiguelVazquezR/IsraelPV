@@ -5,8 +5,9 @@
             <div class="lg:flex justify-between items-center mx-3">
                 <h1 class="font-bold text-lg">Clientes</h1>
                 <div class="my-4 lg:my-0 flex items-center space-x-3">
-                    <ThirthButton @click="openEntryModal" class="!rounded-full">Registrar abono</ThirthButton>
-                    <PrimaryButton @click="$inertia.get(route('clients.create'))" class="!rounded-full">Nuevo cliente</PrimaryButton>
+                    <!-- <ThirthButton @click="openEntryModal" class="!rounded-full">Registrar abono</ThirthButton> -->
+                    <PrimaryButton @click="$inertia.get(route('clients.create'))" class="!rounded-full">Nuevo cliente
+                    </PrimaryButton>
                 </div>
             </div>
 
@@ -16,11 +17,12 @@
                 <i class="fa-solid fa-magnifying-glass text-xs text-gray99 absolute top-[10px] left-4"></i>
             </div>
 
-            <Loading v-if="loading" class="mt-20" />
-            <div v-else class="mt-8 lg:w-11/12">
+            <div class="mt-8 lg:w-11/12">
                 <!-- <p v-if="localProducts.length" class="text-gray66 text-[11px]">{{ localProducts.length }} de {{ total_products }} elementos
                 </p> -->
-                <ClientTable :clients="localClients" />
+                <ClientTable :clients="localClients" class="hidden lg:block" />
+                <ClientMobileIndex v-for="item in localClients" :key="item.id" :clientId="item.id" class="lg:hidden" />
+                <el-empty v-if="!localClients.length" description="No hay clientes registrados" />
                 <!-- <p v-if="localProducts.length" class="text-gray66 text-[11px]">{{ localProducts.length }} de {{ total_products }} elementos
                 </p> -->
                 <!-- <p v-if="loadingItems" class="text-xs my-4 text-center">
@@ -38,30 +40,32 @@
 <script>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ClientTable from '@/Components/MyComponents/Client/ClientTable.vue';
+import ClientMobileIndex from '@/Components/MyComponents/Client/ClientMobileIndex.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import ThirthButton from '@/Components/MyComponents/ThirthButton.vue';
 import Loading from '@/Components/MyComponents/Loading.vue';
 
 export default {
-data() {
-    return {
-        searchQuery: null,
-        loading: false,
-        localClients: this.clients.data,
-    }
-},
-components:{
-AppLayout,
-PrimaryButton,
-ThirthButton,
-ClientTable,
-Loading,
-},
-props:{
-clients: Object
-},
-methods:{
+    data() {
+        return {
+            searchQuery: null,
+            loading: false,
+            localClients: this.clients.data,
+        }
+    },
+    components: {
+        AppLayout,
+        PrimaryButton,
+        ThirthButton,
+        ClientTable,
+        ClientMobileIndex,
+        Loading,
+    },
+    props: {
+        clients: Object
+    },
+    methods: {
 
-}
+    }
 }
 </script>

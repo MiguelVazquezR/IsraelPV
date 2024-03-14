@@ -3,8 +3,15 @@
         <div class="px-10 py-7">
             <div class="flex justify-between items-center">
                 <Back />
-                <ThirthButton @click="paymentModal = true" v-if="sale.data.has_credit && (sale.data.total - totalPaymentAmount) > 0" class="!rounded-full">Registrar abono</ThirthButton>
-                <p v-else class="text-lg font-bold text-green-500">Pagado</p>
+                <div class="flex items-center space-x-2">
+                    <ThirthButton @click="paymentModal = true" v-if="sale.data.has_credit && (sale.data.total - totalPaymentAmount) > 0" class="!rounded-full">Registrar abono</ThirthButton>
+                    <p v-else class="text-lg font-bold text-green-500">Pagado</p>
+                     <el-popconfirm confirm-button-text="Si" cancel-button-text="No" icon-color="#C30303" title="¿Continuar?" @confirm="deleteItem(sale.data.id)">
+                        <template #reference>
+                            <i @click.stop class="fa-regular fa-trash-can text-primary cursor-pointer bg-gray-200 rounded-full p-2"></i>
+                        </template>
+                    </el-popconfirm>
+                </div>
             </div>
 
             <!-- Información de la venta -->
@@ -14,8 +21,9 @@
                 <p class="font-bold">Cliente: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.client?.name ?? '-' }}</span></p>
                 <p class="font-bold">Método de pago: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.has_credit ? 'A crédito' : 'Al contado'}}</span></p>
                 <p class="font-bold">Total de venta: <span class="!font-thin ml-2 text-gray-600">${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p>
-                <p class="font-bold">Abonos: <span class="!font-thin ml-2 text-gray-600">${{ totalPaymentAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p>
-                <p class="font-bold bg-yellow-200 inline-block">Saldo restante: <span class="!font-thin ml-2 text-gray-600">${{ sale.data.total - totalPaymentAmount }}</span></p>
+                <p v-if="sale.data.has_credit" class="font-bold">Abonos: <span class="!font-thin ml-2 text-gray-600">${{ totalPaymentAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p>
+                <p v-if="sale.data.has_credit" class="font-bold">Crédito vence el: <span class="!font-thin ml-2 text-red-600">{{ sale.data.limit_date }}</span></p>
+                <p v-if="sale.data.has_credit" class="font-bold bg-yellow-200 inline-block">Saldo restante: <span class="!font-thin ml-2 text-gray-600">${{ (sale.data.total - totalPaymentAmount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p>
             </div>
 
             <!-- Productos -->
@@ -40,7 +48,7 @@
                 </div>
 
                 <!-- Abonos -->
-                <div class="ml-3 lg:ml-8">
+                <div v-if="sale.data.has_credit" class="ml-3 lg:ml-8">
                     <h2 class="font-bold mb-2">Abonos</h2>
                     <div class="grid grid-cols-2">
                         <p class="font-bold">Fecha</p>
@@ -178,6 +186,30 @@ methods:{
                 this.form.reset();
             },
       })
+    },
+async deleteItem(saleId) {
+        try {
+            const response = await axios.delete(route('sales.destroy', saleId));
+            if (response.status == 200) {
+
+                this.$notify({
+                    title: 'Success',
+                    message: 'Se ha eliminado la venta',
+                    type: 'success',
+                    position: 'bottom-right',
+            });
+
+            this.$inertia.get(route('sales.index'));
+            }
+        } catch (error) {
+            console.log(error);
+            this.$notify({
+                title: 'Error',
+                message: 'No se pudo eliminar la venta. Inténte más tarde',
+                type: 'error',
+                position: 'bottom-right',
+            });
+        }
     }
 },
 computed: {

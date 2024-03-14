@@ -4,59 +4,50 @@
       <!-- header botones -->
       <div class="flex justify-between items-center mx-3">
         <h1 class="font-bold text-lg">Registrar venta</h1>
-        <el-popconfirm confirm-button-text="Si" cancel-button-text="No" icon-color="#C30303" title="Se eliminará todo el registro de productos ¿Deseas continuar?"
-          @confirm="clearTab()">
-          <template #reference>
-            <ThirthButton class="!text-red-600 border-red-600 !py-1 !px-7"><i class="fa-regular fa-trash-can mr-2"></i> Limpiar registro</ThirthButton>
-          </template>
-        </el-popconfirm>
       </div>
 
       <!-- cuerpo de la pagina -->
-      <div class="lg:flex lg:space-x-5 my-8">
+      <div class="lg:flex lg:space-x-5 my-8 text-xs lg:text-sm">
         <!-- scaner de código  -->
         <section class="lg:w-[70%]">
-          <!-- <div class="relative lg:w-1/2 mx-auto mb-4">
-            <input v-model="scannerQuery" :disabled="scanning" @keydown.enter="getProductByCode" ref="scanInput"
-              class="input w-full pl-9" placeholder="Escanea el producto" type="text">
-            <i class="fa-solid fa-barcode text-xs text-gray99 absolute top-[10px] left-4"></i>
-          </div> -->
           <!-- Pestañas -->
           <div class="lg:mx-7">
-            <el-tabs v-model="editableTabsValue" type="card" class="demo-tabs">
+            <el-tabs v-model="editableTabsValue" type="card" class="mb-5">
               <div class="m-4 flex justify-between items-center">
                 <div class="flex items-center space-x-3 w-full md:w-1/2">
                   <p class="font-bold">Cliente</p>
-                  <el-tooltip content="Si no es necesario agrega un cliente específico, no selecciones ninguna opción" placement="top">
+                  <el-tooltip content="Si no es necesario agregar un cliente específico, no selecciones ninguna opción"
+                    placement="top">
                     <div class="rounded-full border border-primary w-3 h-3 flex items-center justify-center px-1">
                       <i class="fa-solid fa-info text-primary text-[7px]"></i>
                     </div>
                   </el-tooltip>
 
                   <el-select v-model="editableTabs[this.editableTabsValue - 1].client_id" clearable filterable
-                      placeholder="Seleccione" no-data-text="No hay opciones registradas"
-                      no-match-text="No se encontraron coincidencias">
-                      <el-option v-for="client in clients" :key="client" :label="client.name" :value="client.id" />
+                    placeholder="Seleccione" no-data-text="No hay opciones registradas"
+                    no-match-text="No se encontraron coincidencias">
+                    <el-option v-for="client in clients" :key="client" :label="client.name" :value="client.id" />
                   </el-select>
-                  <i :class="editableTabs[this.editableTabsValue - 1].client_id ? 'text-green-500' : 'text-gray-400'" class="fa-solid fa-user-check text-sm"></i>
-                  <button
-                      @click="showClientFormModal = true" type="button"
-                      class="rounded-full border border-primary size-5 flex px-1 items-center justify-center">
-                      <i class="fa-solid fa-plus text-primary text-[9px] pb-[1px] pr-[1px]"></i>
+                  <i :class="editableTabs[this.editableTabsValue - 1].client_id ? 'text-green-500' : 'text-gray-400'"
+                    class="fa-solid fa-user-check text-sm"></i>
+                  <button @click="showClientFormModal = true" type="button"
+                    class="rounded-full border border-primary size-5 flex px-1 items-center justify-center">
+                    <i class="fa-solid fa-plus text-primary text-[9px] pb-[1px] pr-[1px]"></i>
                   </button>
                 </div>
               </div>
               <el-tab-pane v-for="tab in editableTabs" :key="tab.name" :label="tab.title" :name="tab.name">
+                <el-popconfirm v-if="tab.saleProducts.length" confirm-button-text="Si" cancel-button-text="No"
+                  icon-color="#C30303" title="Se eliminará todo el registro de productos ¿Deseas continuar?"
+                  @confirm="clearTab()">
+                  <template #reference>
+                    <ThirthButton class="!text-[#F80505] !border-[#F80505] !py-1 !px-2 mb-2"><i
+                        class="fa-regular fa-trash-can mr-2"></i> Limpiar registros</ThirthButton>
+                  </template>
+                </el-popconfirm>
                 <SaleTable @delete-product="deleteProduct" :saleProducts="tab.saleProducts" />
               </el-tab-pane>
             </el-tabs>
-            <!-- ------------- Pestañas editables ------------ -->
-            <!-- <el-tabs v-model="editableTabsValue" type="card" editable class="demo-tabs" @edit="handleTabsEdit"
-              @keydown.enter="this.scanInputFocus();">
-              <el-tab-pane v-for="tab in editableTabs" :key="tab.name" :label="tab.title" :name="tab.name">
-                <SaleTable @delete-product="deleteProduct" :saleProducts="tab.saleProducts" />
-              </el-tab-pane>
-            </el-tabs> -->
           </div>
         </section>
 
@@ -65,16 +56,19 @@
           <!-- buscador de productos -->
           <div class="relative">
             <input v-model="searchQuery" @focus="searchFocus = true" @blur="handleBlur" @input="searchProducts"
-              ref="searchInput" class="input w-full pl-9" placeholder="Buscar código o nombre de producto" type="search">
+              ref="searchInput" class="input w-full pl-9" placeholder="Buscar código o nombre de producto"
+              type="search">
             <i class="fa-solid fa-magnifying-glass text-xs text-gray99 absolute top-[10px] left-4"></i>
             <!-- Resultados de la búsqueda -->
             <div v-if="searchFocus && searchQuery"
               class="absolute mt-1 bg-white border border-gray-300 rounded shadow-lg w-full z-50">
               <ul v-if="productsFound?.length > 0 && !loading">
-                <li @click="productFoundSelected = product; searchQuery = null" v-for="(product, index) in productsFound"
-                  :key="index" class="hover:bg-gray-200 cursor-default text-sm px-5 py-2">{{ product.name }}</li>
+                <li @click="productFoundSelected = product; searchQuery = null"
+                  v-for="(product, index) in productsFound" :key="index"
+                  class="hover:bg-gray-200 cursor-default text-sm px-5 py-2">{{ product.name }}</li>
               </ul>
-              <p v-else-if="!loading" class="text-center text-sm text-gray-600 px-5 py-2">No se encontraron coincidencias
+              <p v-else-if="!loading" class="text-center text-sm text-gray-600 px-5 py-2">No se encontraron
+                coincidencias
               </p>
               <!-- estado de carga -->
               <div v-if="loading" class="flex justify-center items-center py-10">
@@ -100,7 +94,8 @@
                 <el-input-number v-model="quantity" :min="0" :max="productFoundSelected.current_stock" :precision="2" />
               </div>
               <div class="text-center mt-7">
-                <PrimaryButton @click="addSaleProduct(this.productFoundSelected); productFoundSelected = null" class="!rounded-full !px-24">Agregar
+                <PrimaryButton @click="addSaleProduct(this.productFoundSelected); productFoundSelected = null"
+                  class="!rounded-full !px-24">Agregar
                 </PrimaryButton>
               </div>
             </div>
@@ -109,10 +104,13 @@
 
           <!-- Total por cobrar -->
           <div class="border border-grayD9 rounded-lg p-4 mt-5 text-xs lg:text-base">
-            <div v-if="!editableTabs[this.editableTabsValue - 1]?.cash && !editableTabs[this.editableTabsValue - 1]?.credit">
+            <div
+              v-if="!editableTabs[this.editableTabsValue - 1]?.cash && !editableTabs[this.editableTabsValue - 1]?.credit">
               <div class="flex items-center justify-between text-lg mx-5">
                 <p class="font-bold">Total</p>
-                <p class="text-gray-99">$ <strong class="ml-3">{{ calculateTotal().toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</strong></p>
+                <p class="text-gray-99">$ <strong class="ml-3">{{
+              calculateTotal().toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,
+                ",") }}</strong></p>
               </div>
               <!-- botones -->
               <div class="text-center mt-7">
@@ -130,7 +128,8 @@
 
             <!-- cobrando al contado -->
             <div v-if="editableTabs[this.editableTabsValue - 1]?.cash">
-              <p class="text-gray-99 text-center mb-3 text-lg">Total $ <strong>{{ calculateTotal().toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</strong>
+              <p class="text-gray-99 text-center mb-3 text-lg">Total $ <strong>{{
+              calculateTotal().toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</strong>
               </p>
               <div class="flex items-center justify-between mx-5 space-x-10">
                 <p>Entregado</p>
@@ -140,49 +139,63 @@
               <div class="flex items-center justify-between mx-5 my-2 relative">
                 <p>Cambio</p>
                 <p v-if="calculateTotal() <= editableTabs[this.editableTabsValue - 1]?.moneyReceived">${{
-                  (editableTabs[this.editableTabsValue - 1]?.moneyReceived - calculateTotal()).toLocaleString('en-US', {
-                    minimumFractionDigits: 2
-                  }) }}</p>
+              (editableTabs[this.editableTabsValue - 1]?.moneyReceived - calculateTotal()).toLocaleString('en-US', {
+                minimumFractionDigits: 2
+              }) }}</p>
               </div>
               <p v-if="(calculateTotal() > editableTabs[this.editableTabsValue - 1]?.moneyReceived) && editableTabs[this.editableTabsValue - 1].moneyReceived"
-                class="text-xs text-red-600 text-center mb-3">La cantidad es insuficiente. Por favor, ingrese una cantidad
+                class="text-xs text-red-600 text-center mb-3">La cantidad es insuficiente. Por favor, ingrese una
+                cantidad
                 igual o mayor al total de compra.</p>
               <div class="flex space-x-2 justify-end">
-                <CancelButton @click="editableTabs[this.editableTabsValue - 1].cash = false; editableTabs[this.editableTabsValue - 1].moneyReceived = null">Cancelar</CancelButton>
-                <PrimaryButton :disabled="storeProcessing" @click="checkClientExist" class="!rounded-full">Aceptar</PrimaryButton>
+                <CancelButton
+                  @click="editableTabs[this.editableTabsValue - 1].cash = false; editableTabs[this.editableTabsValue - 1].moneyReceived = null">
+                  Cancelar</CancelButton>
+                <PrimaryButton :disabled="storeProcessing" @click="checkClientExist" class="!rounded-full">Aceptar
+                </PrimaryButton>
               </div>
             </div>
 
             <!-- Cobrando a crédito  -->
             <div v-if="editableTabs[this.editableTabsValue - 1]?.credit">
               <div class="flex items-center justify-between">
-                <i @click="editableTabs[this.editableTabsValue - 1].credit = false; editableTabs[this.editableTabsValue - 1].deposit = null; editableTabs[this.editableTabsValue - 1].deposit_notes = null" class="fa-solid fa-angle-left text-xs p-2 cursor-pointer"></i>
-                <p class="text-gray-99">$ <strong class="ml-3">{{ calculateTotal().toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</strong></p>
+                <i @click="editableTabs[this.editableTabsValue - 1].credit = false; editableTabs[this.editableTabsValue - 1].deposit = null; editableTabs[this.editableTabsValue - 1].deposit_notes = null"
+                  class="fa-solid fa-angle-left text-xs p-2 cursor-pointer"></i>
+                <p class="text-gray-99">$ <strong class="ml-3">{{
+              calculateTotal().toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,
+                ",") }}</strong></p>
               </div>
               <h3 class="text-lg font-bold">Registrar abono de la venta</h3>
               <div class="flex items-center justify-between space-x-7 my-3">
                 <div>
                   <InputLabel value="Monto abonado (opcional)" class="text-sm ml-2 !text-gray-400" />
-                  <el-input type="number" v-model="editableTabs[this.editableTabsValue - 1].deposit" placeholder="ingresa el abono">
+                  <el-input type="number" v-model="editableTabs[this.editableTabsValue - 1].deposit"
+                    placeholder="ingresa el abono">
                     <template #prefix>
                       <i class="fa-solid fa-dollar-sign"></i>
-                      </template>
+                    </template>
                   </el-input>
                 </div>
                 <div>
                   <InputLabel value="Saldo restante" class="text-sm ml-2 !text-gray-400" />
-                  <p v-if="(calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit) > 0">${{ (calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
+                  <p v-if="(calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit) > 0">${{
+              (calculateTotal() -
+                editableTabs[this.editableTabsValue - 1].deposit)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }}</p>
                   <p class="text-red-600 text-xs" v-else>La cantidad abonada debe de ser menor al monto total</p>
                 </div>
               </div>
               <div>
                 <InputLabel value="Notas (opcional)" class="text-sm ml-2 !text-gray-400" />
-                 <el-input v-model="editableTabs[this.editableTabsValue - 1].deposit_notes" :autosize="{ minRows: 3, maxRows: 5 }" type="textarea"
-                    placeholder="Escribe tus notas" :maxlength="200" show-word-limit clearable />
+                <el-input v-model="editableTabs[this.editableTabsValue - 1].deposit_notes"
+                  :autosize="{ minRows: 3, maxRows: 5 }" type="textarea" placeholder="Escribe tus notas"
+                  :maxlength="200" show-word-limit clearable />
               </div>
               <div class="flex items-center justify-end space-x-3 mt-4">
                 <!-- <ThirthButton @click="editableTabs[this.editableTabsValue - 1].has_credit = true; checkClientExist()">No abonar</ThirthButton> -->
-                <PrimaryButton @click="editableTabs[this.editableTabsValue - 1].has_credit = true; checkClientExist()" :disabled="(calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit) < 0">Finalizar venta</PrimaryButton>
+                <PrimaryButton @click="editableTabs[this.editableTabsValue - 1].has_credit = true; checkClientExist()"
+                  :disabled="(calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit) < 0">Finalizar venta
+                </PrimaryButton>
               </div>
             </div>
           </div>
@@ -191,50 +204,50 @@
     </div>
 
     <!-- client form -->
-        <DialogModal :show="showClientFormModal" @close="showClientFormModal = false">
-            <template #title> Agregar cliente </template>
-            <template #content>
-            <form @submit.prevent="storeClient" class="md:grid grid-cols-2 gap-x-3">
-                <div class="mt-3">
-                    <InputLabel value="Nombre*" class="ml-3 mb-1" />
-                    <el-input v-model="form.name" placeholder="Escribe el nombre del cliente" :maxlength="100" clearable />
-                    <InputError :message="form.errors.name" />
-                </div>
-                <div class="mt-3">
-                    <InputLabel value="RFC" class="ml-3 mb-1" />
-                    <el-input v-model="form.rfc" placeholder="Escribe el RFC en caso de tenerlo" :maxlength="100" clearable />
-                    <InputError :message="form.errors.rfc" />
-                </div>
-                <div class="mt-3">
-                    <InputLabel value="Teléfono*" class="ml-3 mb-1" />
-                    <el-input v-model="form.phone" placeholder="Ingresa el número de teléfono" :maxlength="100" clearable />
-                    <InputError :message="form.errors.phone" />
-                </div>
-                <div class="mt-3">
-                    <InputLabel value="Dirección" class="ml-3 mb-1" />
-                    <el-input v-model="form.address" placeholder="Escribe la dirección" :maxlength="100" clearable />
-                    <InputError :message="form.errors.address" />
-                </div>
-            </form>
-            </template>
-            <template #footer>
-                <div class="flex items-center space-x-2">
-                    <CancelButton @click="showClientFormModal = false" :disabled="form.processing">Cancelar</CancelButton>
-                    <PrimaryButton @click="storeClient()" :disabled="form.processing">Crear</PrimaryButton>
-                </div>
-            </template>
-        </DialogModal>
-
-        <ConfirmationModal :show="showConfirmModal" @close="showConfirmModal = false">
-        <template #title> No seleccionaste un cliente </template>
-        <template #content> No has seleccionado cliente en la venta. ¿Deseas continuar? </template>
-        <template #footer>
-          <div>
-            <CancelButton @click="showConfirmModal = false" class="mr-2">Cancelar</CancelButton>
-            <PrimaryButton @click="showConfirmModal = false; store()">Continuar</PrimaryButton>
+    <DialogModal :show="showClientFormModal" @close="showClientFormModal = false">
+      <template #title> Agregar cliente </template>
+      <template #content>
+        <form @submit.prevent="storeClient" class="md:grid grid-cols-2 gap-x-3">
+          <div class="mt-3">
+            <InputLabel value="Nombre*" class="ml-3 mb-1" />
+            <el-input v-model="form.name" placeholder="Escribe el nombre del cliente" :maxlength="100" clearable />
+            <InputError :message="form.errors.name" />
           </div>
-        </template>
-      </ConfirmationModal>
+          <div class="mt-3">
+            <InputLabel value="RFC" class="ml-3 mb-1" />
+            <el-input v-model="form.rfc" placeholder="Escribe el RFC en caso de tenerlo" :maxlength="100" clearable />
+            <InputError :message="form.errors.rfc" />
+          </div>
+          <div class="mt-3">
+            <InputLabel value="Teléfono*" class="ml-3 mb-1" />
+            <el-input v-model="form.phone" placeholder="Ingresa el número de teléfono" :maxlength="100" clearable />
+            <InputError :message="form.errors.phone" />
+          </div>
+          <div class="mt-3">
+            <InputLabel value="Dirección" class="ml-3 mb-1" />
+            <el-input v-model="form.address" placeholder="Escribe la dirección" :maxlength="100" clearable />
+            <InputError :message="form.errors.address" />
+          </div>
+        </form>
+      </template>
+      <template #footer>
+        <div class="flex items-center space-x-2">
+          <CancelButton @click="showClientFormModal = false" :disabled="form.processing">Cancelar</CancelButton>
+          <PrimaryButton @click="storeClient()" :disabled="form.processing">Crear</PrimaryButton>
+        </div>
+      </template>
+    </DialogModal>
+
+    <ConfirmationModal :show="showConfirmModal" @close="showConfirmModal = false">
+      <template #title> No seleccionaste un cliente </template>
+      <template #content> No has seleccionado cliente en la venta. ¿Deseas continuar? </template>
+      <template #footer>
+        <div>
+          <CancelButton @click="showConfirmModal = false" class="mr-2">Cancelar</CancelButton>
+          <PrimaryButton @click="showConfirmModal = false; store()">Continuar</PrimaryButton>
+        </div>
+      </template>
+    </ConfirmationModal>
   </AppLayout>
 </template>
 
@@ -253,7 +266,7 @@ import { useForm } from "@inertiajs/vue3";
 
 export default {
   data() {
-     const form = useForm({
+    const form = useForm({
       name: null,
       rfc: null,
       phone: null,
@@ -315,7 +328,7 @@ export default {
     clients: Array,
   },
   methods: {
-    checkClientExist(){
+    checkClientExist() {
       if (this.editableTabs[this.editableTabsValue - 1]?.client_id == null) {
         this.showConfirmModal = true;
       } else {
@@ -461,16 +474,16 @@ export default {
       });
     },
     storeClient() {
-        this.form.post(route('clients.store'), {
-            onSuccess: () => {
-                this.$notify({
-                    title: "Éxito",
-                    message: "Se ha creado un nuevo ccliente",
-                    type: "success",
-                });
-                this.showClientFormModal = false;
-            },
-        });
+      this.form.post(route('clients.store'), {
+        onSuccess: () => {
+          this.$notify({
+            title: "Éxito",
+            message: "Se ha creado un nuevo ccliente",
+            type: "success",
+          });
+          this.showClientFormModal = false;
+        },
+      });
     },
   },
   mounted() {

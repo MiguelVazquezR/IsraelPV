@@ -30,6 +30,7 @@ export default {
                 gray99: '#999999',
                 grayF2: '#F2F2F2',
                 grayED: '#EDEDED',
+                gray37: '#373737',
             },
         },
     },

@@ -16,7 +16,6 @@ class SaleResource extends JsonResource
     {
         $status = null;
 
-        if ($this->has_credit) {
             if ($this->paid_at) {
                 $status = [
                     'label' => 'Pagado',
@@ -28,7 +27,6 @@ class SaleResource extends JsonResource
                     'color' => 'text-red-600',
                 ];
             }
-        }
 
         return [
             'id' => $this->id,
