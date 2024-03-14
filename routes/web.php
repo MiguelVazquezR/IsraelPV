@@ -66,6 +66,8 @@ Route::get('products-get-by-page/{currentPage}', [ProductController::class, 'get
 //clients routes-------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------------
 Route::resource('clients', ClientController::class)->middleware('auth');
+Route::get('clients-get-pendent-amount/{client}', [ClientController::class, 'getClientPendentAmount'])->name('clients.get-pendent-amount')->middleware('auth');
+Route::get('clients-get-by-id/{client}', [ClientController::class, 'getById'])->middleware('auth')->name('clients.get-by-id');
 
 //categories routes-------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------
