@@ -1,6 +1,6 @@
 <template>
     <AppLayout :title="product.data.name">
-        <div class="px-2 lg:px-10 py-7">
+        <div class="px-2 lg:px-10 py-7 text-xs lg:text-sm">
             <!-- header botones -->
             <div class="lg:flex justify-between items-center mx-3">
                 <h1 class="font-bold text-lg">Productos</h1>
@@ -52,7 +52,7 @@
                     </div>
 
                     <!-- pestaña 1 Informacion de producto -->
-                    <div v-if="currentTab == 1" class="mt-7 mx-16 text-sm lg:text-base">
+                    <div v-if="currentTab == 1" class="mt-7 lg:mx-16 text-sm lg:text-base">
                         <div class="lg:flex justify-between items-center">
                             <p class="text-gray37 flex items-center">
                                 <span class="mr-2">Código</span>
@@ -72,7 +72,7 @@
                             }}</strong></p>
                         </div>
                         <p>categoría: <span class="ml-2 text-sm font-bold">{{ product.data.category.name }}</span></p>
-                        <h1 class="font-bold text-lg lg:text-xl my-2 lg:my-4">{{ product.data.name }}</h1>
+                        <p>Nombre: <span class="ml-2 text-sm font-bold">{{ product.data.name }}</span></p>
 
                         <div class="lg:w-1/2 mt-3 lg:mt-10 -ml-7 space-y-2">
                             <div class="grid grid-cols-2 border border-grayD9 rounded-full px-5 py-1">
