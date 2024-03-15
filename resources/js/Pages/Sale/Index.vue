@@ -46,7 +46,9 @@
             <div v-else class="mt-8 lg:w-11/12">
                 <p v-if="localSales.length" class="text-gray66 text-[11px]">{{ localSales.length }} de {{ total_sales }} elementos
                 </p>
-                <RegisteredSalesTable :sales="localSales" />
+                <RegisteredSalesTable :sales="localSales" class="hidden lg:block" />
+                <SaleMobileIndex  v-for="item in localSales" :key="item.id" :saleId="item.id" class="lg:hidden" />
+                <el-empty v-if="!localSales.length" description="No hay ventas registradas" />
                 <p v-if="localSales.length" class="text-gray66 text-[11px]">{{ localSales.length }} de {{ total_sales }} elementos
                 </p>
                 <p v-if="loadingItems" class="text-xs my-4 text-center">
@@ -64,6 +66,7 @@
 <script>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import RegisteredSalesTable from '@/Components/MyComponents/Sale/RegisteredSalesTable.vue';
+import SaleMobileIndex from '@/Components/MyComponents/Sale/SaleMobileIndex.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import InputLabel from "@/Components/InputLabel.vue";
 import Loading from '@/Components/MyComponents/Loading.vue';
@@ -86,6 +89,7 @@ data() {
 components:{
 AppLayout,
 RegisteredSalesTable,
+SaleMobileIndex,
 PrimaryButton,
 InputLabel,
 Loading

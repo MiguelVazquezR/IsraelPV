@@ -48,7 +48,8 @@ class SaleController extends Controller
             'has_credit' => $request->data['has_credit'],
             'total' => $request->data['total'],
             'client_id' => $request->data['client_id'],
-            'paid_at' => now(),
+            'limit_date' => $request->data['limit_date'],
+            'paid_at' => $request->data['has_credit'] ? null : now(),
         ]);
 
         // Agrega todos los productos a la venta
@@ -100,9 +101,11 @@ class SaleController extends Controller
     // API
     public function getById(Sale $sale)
     {
-        $item = $sale->load(['payments', 'products']);
+        // $item = $sale->load(['client:id,name', 'products:id,name']);
 
-        return response()->json(compact('item'));
+        $sale = SaleResource::make(Sale::with(['client:id,name', 'products:id,name'])->find($sale->id));
+
+        return response()->json(compact('sale'));
     }
 
 

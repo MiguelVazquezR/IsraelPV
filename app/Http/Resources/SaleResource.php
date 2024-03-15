@@ -33,7 +33,7 @@ class SaleResource extends JsonResource
             'folio' => 'V-' . str_pad($this->id, 4, "0", STR_PAD_LEFT),
             'has_credit' => $this->has_credit,
             'paid_at' => $this->paid_at?->isoFormat('DD MMM YYYY'),
-            'limit_date' => $this->limit_date,
+            'limit_date' => $this->limit_date?->isoFormat('DD MMM YYYY'),
             'total' => $this->total,
             'status' => $status,
             'client' => $this->whenLoaded('client'),
