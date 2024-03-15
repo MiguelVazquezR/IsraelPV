@@ -22,7 +22,7 @@
                 <p class="font-bold">Método de pago: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.has_credit ? 'A crédito' : 'Al contado'}}</span></p>
                 <p class="font-bold">Total de venta: <span class="!font-thin ml-2 text-gray-600">${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p>
                 <p v-if="sale.data.has_credit" class="font-bold">Abonos: <span class="!font-thin ml-2 text-gray-600">${{ totalPaymentAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p>
-                <p v-if="sale.data.has_credit" class="font-bold">Crédito vence el: <span class="!font-thin ml-2 text-red-600">{{ sale.data.limit_date }}</span></p>
+                <p v-if="sale.data.has_credit" class="font-bold">Crédito vence el: <span class="!font-thin ml-2 text-red-600">{{ sale.data.limit_date ?? '-' }}</span></p>
                 <p v-if="sale.data.has_credit" class="font-bold bg-yellow-200 inline-block">Saldo restante: <span class="!font-thin ml-2 text-gray-600">${{ (sale.data.total - totalPaymentAmount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p>
             </div>
 
