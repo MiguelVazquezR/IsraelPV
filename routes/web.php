@@ -5,6 +5,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductHistoryController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
@@ -65,6 +66,14 @@ Route::get('products-search', [ProductController::class, 'searchProduct'])->name
 Route::get('products-get-product-scaned/{product_id}', [ProductController::class, 'getProductScaned'])->name('products.get-product-scaned')->middleware('auth');
 Route::get('products-fetch-history/{product_id}', [ProductController::class, 'fetchHistory'])->name('products.fetch-history')->middleware('auth');
 Route::get('products-get-by-page/{currentPage}', [ProductController::class, 'getItemsByPage'])->name('products.get-by-page')->middleware('auth');
+
+
+//history routes-------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------
+Route::resource('product-histories', ProductHistoryController::class)->middleware('auth');
+Route::get('product-histories-get-by-page/{currentPage}', [ProductHistoryController::class, 'getItemsByPage'])->name('product-histories.get-by-page')->middleware('auth');
+Route::get('product-histories-filter', [ProductHistoryController::class, 'filterHistory'])->name('product-histories.filter')->middleware('auth');
+Route::get('product-histories-get-by-id/{product_history}', [ProductHistoryController::class, 'getById'])->middleware('auth')->name('product-histories.get-by-id');
 
 
 //clients routes-------------------------------------------------------------------------------------

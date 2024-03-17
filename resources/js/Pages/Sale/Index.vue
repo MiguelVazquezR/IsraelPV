@@ -36,19 +36,12 @@
                 </div>
             </div>
 
-            <!-- <div class="lg:w-1/4 relative">
-                <input v-model="inputSearch"  @keyup.enter="searchSales" class="input w-full pl-9"
-                    placeholder="Buscar" type="text">
-                <i class="fa-solid fa-magnifying-glass text-xs text-gray99 absolute top-[10px] left-4"></i>
-            </div> -->
-
             <Loading v-if="loading" class="mt-20" />
             <div v-else class="mt-8 lg:w-11/12">
                 <p v-if="localSales.length" class="text-gray66 text-[11px]">{{ localSales.length }} de {{ total_sales }} elementos
                 </p>
-                <RegisteredSalesTable :sales="localSales" class="hidden lg:block" />
-                <SaleMobileIndex  v-for="item in localSales" :key="item.id" :saleId="item.id" class="lg:hidden" />
-                <el-empty v-if="!localSales.length" description="No hay ventas registradas" />
+                <RegisteredSalesTable :sales="localSales" class="hidden md:block" />
+                <SaleMobileIndex  v-for="item in localSales" :key="item.id" :saleId="item.id" class="md:hidden" />
                 <p v-if="localSales.length" class="text-gray66 text-[11px]">{{ localSales.length }} de {{ total_sales }} elementos
                 </p>
                 <p v-if="loadingItems" class="text-xs my-4 text-center">
@@ -77,8 +70,6 @@ data() {
     return {
         Loading: false,
         localSales: this.sales.data,
-        // search: "", //buscador
-        // inputSearch: "", //buscador
         showFilter: false, //filtro opciones
         searchDate: null, //filtro fechas
         searchClient: null, //filtro cliente

@@ -147,6 +147,9 @@ const logout = () => {
                             <ResponsiveNavLink :href="route('products.index')" :active="route().current('products.*')">
                                 Productos
                             </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('product-histories.index')" :active="route().current('product-histories.*')">
+                                Entrada de productos
+                            </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                 Análisis de venta
                             </ResponsiveNavLink>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ProductResource;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductHistory;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -155,6 +156,14 @@ class ProductController extends Controller
         // Guarda el producto
         $product->save();
 
+        //Crea un registro de entrada en historial de producto 
+        ProductHistory::create([
+            'type' => 'Entrada',
+            'quantity' => $request->quantity,
+            'notes' => null,
+            'product_id' => $product_id,
+        ]);
+        
         // // Crear egreso
         // Expense::create([
         //     'concept' => 'Compra de producto: ' . $product->name,
