@@ -19,7 +19,9 @@
         "vue": "^3.2.31"
     },
     "dependencies": {
+        "apexcharts": "^3.47.0",
         "date-fns": "^3.4.0",
-        "element-plus": "^2.6.1"
+        "element-plus": "^2.6.1",
+        "vue3-apexcharts": "^1.5.2"
     }
 }

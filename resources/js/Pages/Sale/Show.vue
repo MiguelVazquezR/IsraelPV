@@ -1,6 +1,6 @@
 <template>
     <AppLayout :title="'Venta' + sale.data.folio">
-        <div class="px-10 py-7">
+        <div class="md:px-10 px-2 py-7 text-sm md:text-base">
             <div class="flex justify-between items-center">
                 <Back />
                 <div class="flex items-center space-x-2">
@@ -27,9 +27,9 @@
             </div>
 
             <!-- Productos -->
-            <section class="mt-7 grid grid-cols-2">
+            <section class="mt-7 md:grid grid-cols-2">
                 <!-- detalle de productos -->
-                <div :class="sale.data.has_credit ? 'border-r' : '' " class="grid grid-cols-3 lg:ml-16 mr-3">
+                <div :class="sale.data.has_credit ? 'md:border-r' : '' " class="grid grid-cols-3 lg:ml-16 mr-3">
                     <p class="font-bold">Producto</p>
                     <p class="font-bold">Cantidad</p>
                     <p class="font-bold ml-8">Total</p>
@@ -48,8 +48,8 @@
                 </div>
 
                 <!-- Abonos -->
-                <div v-if="sale.data.has_credit" class="ml-3 lg:ml-8">
-                    <h2 class="font-bold mb-2">Abonos</h2>
+                <div v-if="sale.data.has_credit" class="md:ml-3 lg:ml-8 mt-4 md:mt-0">
+                    <h2 class="font-bold mb-2 border-b md:border-none py-1 md:py-0">Abonos</h2>
                     <div class="grid grid-cols-2">
                         <p class="font-bold">Fecha</p>
                         <p class="font-bold ml-8">Monto</p>
@@ -76,7 +76,7 @@
           <i @click="paymentModal = false"
             class="fa-solid fa-xmark cursor-pointer w-5 h-5 rounded-full border border-black flex items-center justify-center absolute right-3"></i>
 
-          <form class="mt-5 mb-2 grid grid-cols-2 gap-3" @submit.prevent="storePayment">
+          <form class="mt-5 mb-2 md:grid grid-cols-2 gap-3" @submit.prevent="storePayment">
             <h2 class="font-bold col-span-full">Registrar abono</h2>
             
             <div>
@@ -87,7 +87,7 @@
                 </el-select>
             </div>
 
-            <div class="flex space-x-3 items-center -mt-4">
+            <div class="flex space-x-3 items-center mt-2 md:-mt-4">
                 <div>
                     <p class="text-gray-500 border-b border-primary pb-1 mb-1">Saldo pendiente</p>
                     <p>${{ (sale.data.total - totalPaymentAmount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
@@ -100,13 +100,13 @@
                 </div>
             </div>
 
-            <div>
+            <div class="mt-2">
                 <InputLabel value="Fecha de abono" class="ml-3 mb-1" />
                 <!-- <el-date-picker v-model="form.date" type="date" placeholder="Seleccione" /> -->
-                <input type="date" v-model="form.date" placeholder="Seleccione">
+                <input class="input !rounded-md !h-8" type="date" v-model="form.date" placeholder="Seleccione">
             </div>
 
-            <div>
+            <div class="mt-2">
                 <InputLabel value="Monto abonado" class="ml-3 mb-1 text-sm" />
                 <el-input v-model="form.amount" placeholder="ingresa el monto"
                     >
@@ -116,7 +116,7 @@
                 </el-input>
             </div>
 
-            <div class="col-span-full">
+            <div class="col-span-full mt-2">
                 <InputLabel value="Notas (opcional)" class="text-sm ml-2" />
                 <el-input v-model="form.notes" :autosize="{ minRows: 3, maxRows: 5 }" type="textarea"
                     placeholder="Escribe tus notas" :maxlength="200" show-word-limit clearable />
