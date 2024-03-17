@@ -131,7 +131,7 @@
                     </div>
 
                     <div class="flex justify-end space-x-3 pt-7 pb-1 py-2">
-                        <PrimaryButton @click="entryProduct" class="!rounded-full">Ingresar producto</PrimaryButton>
+                        <PrimaryButton :disabled="!form.quantity || form.processing" @click="entryProduct" class="!rounded-full">Ingresar producto</PrimaryButton>
                         <CancelButton @click="entryProductModal = false">Cancelar</CancelButton>
                     </div>
                 </section>

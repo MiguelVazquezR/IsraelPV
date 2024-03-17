@@ -1,34 +1,57 @@
 <template>
-    <AppLayout title="Productos">
+    <AppLayout title="Ventas">
         <div class="px-2 lg:px-10 py-7">
             <!-- header botones -->
-            <div class="lg:flex justify-between items-center mx-3">
-                <h1 class="font-bold text-lg">Productos</h1>
-                <div class="my-4 lg:my-0 flex items-center space-x-3">
-                    <ThirthButton @click="openEntryModal" class="!rounded-full">Entrada de producto
-                    </ThirthButton>
-                    <PrimaryButton @click="$inertia.get(route('products.create'))" class="!rounded-full">Nuevo producto
-                    </PrimaryButton>
-                </div>
-            </div>
+            <div class="flex justify-between items-center mx-3">
+                <h1 class="font-bold text-lg">Registro de entradas de producto</h1>
 
-            <div class="lg:w-1/4 relative">
-                <input v-model="searchQuery" @keydown.enter="searchProducts" class="input w-full pl-9"
-                    placeholder="Buscar producto" type="text">
-                <i class="fa-solid fa-magnifying-glass text-xs text-gray99 absolute top-[10px] left-4"></i>
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <button @click.stop="showFilter = !showFilter" class="border border-[#D9D9D9] rounded-full py-1 px-4 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 13.5V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 9.75V10.5" />
+                            </svg>
+                            <p class="text-sm ml-2">Filtrar</p>
+                        </button>
+                        <div v-if="showFilter" class="absolute top-9 -left-64 border border[#D9D9D9] rounded-md p-4 bg-white">
+                            <div>
+                                <InputLabel value="Rango de fechas" class="ml-3 mb-1" />
+                                <el-date-picker
+                                    v-model="searchDate"
+                                    type="daterange"
+                                    range-separator="A"
+                                    start-placeholder="Fecha de inicio"
+                                    end-placeholder="Fecha de fin"
+                                    :size="size"
+                                />
+                            </div>
+                            <div class="my-3">
+                                <InputLabel value="Producto" class="ml-3 mb-1" />
+                                <el-select v-model="searchProduct" clearable filterable
+                                    placeholder="Seleccione" no-data-text="No hay opciones registradas"
+                                    no-match-text="No se encontraron coincidencias">
+                                    <el-option v-for="product in products" :key="product" :label="product.name" :value="product.id" />
+                                </el-select>
+                            </div>
+                            <PrimaryButton @click="filterHistory" class="!py-1">Aplicar</PrimaryButton>
+                        </div>
+                    </div>
+                    <PrimaryButton @click="entryProductModal = true">Registrar entrada</PrimaryButton>
+                </div>
             </div>
 
             <Loading v-if="loading" class="mt-20" />
             <div v-else class="mt-8 lg:w-11/12">
-                <p v-if="localProducts.length" class="text-gray66 text-[11px]">{{ localProducts.length }} de {{ total_products }} elementos
+                <p v-if="localHistory.length" class="text-gray66 text-[11px]">{{ localHistory.length }} de {{ total_histories }} elementos
                 </p>
-                <ProductTable :products="localProducts" />
-                <p v-if="localProducts.length" class="text-gray66 text-[11px]">{{ localProducts.length }} de {{ total_products }} elementos
+                <ProductHistoryTable :histories="localHistory" class="hidden md:block" />
+                <ProductHistoryMobileIndex  v-for="item in localHistory" :key="item.id" :historyId="item.id" class="md:hidden" />
+                <p v-if="localHistory.length" class="text-gray66 text-[11px]">{{ localHistory.length }} de {{ total_histories }} elementos
                 </p>
                 <p v-if="loadingItems" class="text-xs my-4 text-center">
                     Cargando <i class="fa-sharp fa-solid fa-circle-notch fa-spin ml-2 text-primary"></i>
                 </p>
-                <button v-else-if="total_products > 15 && localProducts.length < total_products && localProducts.length" @click="fetchItemsByPage"
+                <button v-else-if="total_histories > 20 && (localHistory.length < total_histories) && localHistory.length" @click="fetchItemsByPage"
                     class="w-full text-primary my-4 text-xs mx-auto underline ml-6">Cargar más elementos</button>
             </div>
         </div>
@@ -97,92 +120,82 @@
 
 <script>
 import AppLayout from '@/Layouts/AppLayout.vue';
+import ProductHistoryMobileIndex from '@/Components/MyComponents/ProductHistory/ProductHistoryMobileIndex.vue';
+import ProductHistoryTable from '@/Components/MyComponents/ProductHistory/ProductHistoryTable.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import ThirthButton from '@/Components/MyComponents/ThirthButton.vue';
 import CancelButton from "@/Components/MyComponents/CancelButton.vue";
-import ProductTable from '@/Components/MyComponents/Product/ProductTable.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import Pagination from '@/Components/MyComponents/Pagination.vue';
-import Loading from '@/Components/MyComponents/Loading.vue';
+import InputLabel from "@/Components/InputLabel.vue";
 import InputError from "@/Components/InputError.vue";
+import Loading from '@/Components/MyComponents/Loading.vue';
 import Modal from "@/Components/Modal.vue";
 import { useForm } from "@inertiajs/vue3";
+import axios from 'axios';
 
 export default {
-    data() {
-        const form = useForm({
+data() {
+    const form = useForm({
             code: null,
             quantity: null,
         });
 
-        return {
-            form,
-            loading: false,
-            searchQuery: null,
-            searchFocus: false,
-            entryProductModal: false,
-            productEntryFound: null,
-            localProducts: this.products.data,
-            // paginacion
-            loadingItems: false,
-            currentPage: 1,
-        };
-    },
-    components: {
-        AppLayout,
-        PrimaryButton,
-        ThirthButton,
-        CancelButton,
-        ProductTable,
-        Pagination,
-        InputError,
-        Modal,
-        Loading,
-        InputLabel
-    },
-    props: {
-        products: Object,
-        total_products: Number,
-    },
-    methods: {
-        openEntryModal() {
-            this.entryProductModal = true;
-            this.$nextTick(() => {
-                this.$refs.codeInput.focus(); // Enfocar el input de código cuando se abre el modal
-            });
+    return {
+        form,
+        Loading: false,
+        localHistory: this.history.data,
+        showFilter: false, //filtro opciones
+        searchDate: null, //filtro fechas
+        searchProduct: null, //filtro cliente
+        loadingItems: false, //para paginación
+        currentPage: 1, //para paginación
+        entryProductModal: false, //modal para entrar producto
+        productEntryFound: null, //producto encontrado
+    }
+},
+components:{
+AppLayout,
+ProductHistoryMobileIndex,
+ProductHistoryTable,
+PrimaryButton,
+CancelButton,
+InputLabel,
+InputError,
+Loading,
+Modal
+},
+props:{
+history: Object,
+products: Array,
+total_histories: Number,
+},
+methods:{
+    async filterHistory() {
+            this.loading = true;
+            try {
+                const response = await axios.get(route('product-histories.filter'), { params: { queryDate: this.searchDate, queryProduct: this.searchProduct } });
+                if (response.status == 200) {
+                    this.localHistory = response.data.items;
+                }
+
+            } catch (error) {
+                console.log(error);
+            } finally {
+                this.loading = false;
+                this.showFilter = false;
+            }
         },
         async fetchItemsByPage() {
             try {
                 this.loadingItems = true;
-                const response = await axios.get(route('products.get-by-page', this.currentPage));
+                const response = await axios.get(route('product-histories.get-by-page', this.currentPage));
 
                 if (response.status === 200) {
-                    this.localProducts = [...this.localProducts, ...response.data.items];
+                    this.localHistory = [...this.localHistory, ...response.data.items];
                     this.currentPage++;
                 }
             } catch (error) {
                 console.log(error)
             } finally {
                 this.loadingItems = false;
-            }
-        },
-        async searchProducts() {
-            this.loading = true;
-            try {
-                const response = await axios.get(route('products.search'), { params: { query: this.searchQuery } });
-                if (response.status == 200) {
-                    this.localProducts = response.data.items;
-                }
-
-            } catch (error) {
-                console.log(error);
-                this.$notify({
-                    title: "Producto no encontrado",
-                    message: 'No se encontró el producto',
-                    type: "warning",
-                });
-            } finally {
-                this.loading = false;
             }
         },
         async getProduct() {
@@ -214,10 +227,6 @@ export default {
         entryProduct() {
             this.form.put(route('products.entry', this.productEntryFound[0]?.id), {
                 onSuccess: () => {
-                    const IndexProductEntry = this.localProducts.findIndex(item => item.code === this.form.code);
-                    if (IndexProductEntry != -1) {
-                        this.localProducts[IndexProductEntry].current_stock += parseInt(this.form.quantity);
-                    }
                     this.$nextTick(() => {
                         this.$refs.codeInput.focus(); // Enfocar el input de código cuando se abre el modal
                     });
@@ -232,10 +241,11 @@ export default {
             });
         },
         closeEntryModal() {
-            this.form.reset();
-            this.productEntryFound = null;
-            this.entryProductModal = false;
+            // this.form.reset();
+            // this.productEntryFound = null;
+            // this.entryProductModal = false;
+            location.reload(); //refresco la página para cargar los nuevos registros agregados
         }
-    },
+}
 }
 </script>

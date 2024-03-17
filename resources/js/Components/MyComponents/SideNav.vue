@@ -84,9 +84,22 @@ export default {
                 {
                     label: 'Productos',
                     icon: '<i class="fa-regular fa-clipboard text-lg"></i>',
-                    route: route('products.index'),
+                    route: null,
                     active: route().current('products.*'),
-                    options: [],
+                    options: [
+                        {
+                            label: 'Lista de productos',
+                            route: route('products.index'),
+                            active: route().current('products.*'),
+                            show: true,
+                        },
+                        {
+                            label: 'Registro de entradas',
+                            route: route('product-histories.index'),
+                            active: route().current('product-histories.*'),
+                            show: true,
+                        },
+                    ],
                     dropdown: false,
                     show: true
                 },
