@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ProductResource;
 use App\Models\Category;
+use App\Models\Expense;
 use App\Models\Product;
 use App\Models\ProductHistory;
 use Illuminate\Http\Request;
@@ -164,12 +165,12 @@ class ProductController extends Controller
             'product_id' => $product_id,
         ]);
         
-        // // Crear egreso
-        // Expense::create([
-        //     'concept' => 'Compra de producto: ' . $product->name,
-        //     'current_price' => $product->cost,
-        //     'quantity' => $request->quantity
-        // ]);
+        // Crear egreso
+        Expense::create([
+            'concept' => 'Compra de producto: ' . $product->name,
+            'current_price' => $product->cost,
+            'quantity' => $request->quantity
+        ]);
     }
 
     public function getItemsByPage($currentPage)
