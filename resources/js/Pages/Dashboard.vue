@@ -2,9 +2,9 @@
     <AppLayout title="Inicio">
         <h1 class="font-bold mx-4 lg:mx-32 mt-4">Inicio</h1>
         <el-radio-group v-model="period" @change="handleChangePeriod" class="!flex justify-center my-8 mx-2 lg:mx-14">
-            <el-radio label="Hoy">Hoy</el-radio>
-            <el-radio label="Semanal">Semanal</el-radio>
-            <el-radio label="Mensual">Mensual</el-radio>
+            <el-radio value="Hoy">Hoy</el-radio>
+            <el-radio value="Semanal">Semanal</el-radio>
+            <el-radio value="Mensual">Mensual</el-radio>
         </el-radio-group>
         <Loading v-if="loading" class="my-16" />
         <main v-else class="mx-2 lg:mx-14 mt-6">
@@ -16,8 +16,8 @@
             <section class="grid-cols-1 grid lg:grid-cols-2 gap-1 lg:gap-8 mt-2">
                 <BarChart v-for="(item, index) in getBarChartOptions" :key="index" :options="item"
                     :title="getBarChartTitle(item.title)" />
-                <PieChart v-for="(item, index) in getPieChartOptions" :key="index" :options="item"
-                    title="Top 5 productos más vendidos" icon='<i class="fa-solid fa-trophy ml-2"></i>' />
+                <!-- <PieChart v-for="(item, index) in getPieChartOptions" :key="index" :options="item"
+                    title="Top 5 productos más vendidos" icon='<i class="fa-solid fa-trophy ml-2"></i>' /> -->
             </section>
         </main>
     </AppLayout>
@@ -65,7 +65,7 @@ export default {
     computed: {
         calculateTotalSale() {
             return this.salesCurrentPeriod?.reduce((acumulador, current) => {
-                return acumulador + current.quantity * current.current_price;
+                return acumulador + current.total;
             }, 0);
         },
         calculateTotalExpense() {
@@ -75,7 +75,7 @@ export default {
         },
         calculateTotalProductsSold() {
             return this.salesCurrentPeriod?.reduce((acumulador, current) => {
-                return acumulador + current.quantity;
+                return acumulador + current.products.length;
             }, 0);
         },
         calculateTotalProductsExpense() {
@@ -176,15 +176,15 @@ export default {
                 },
             ]
         },
-        getPieChartOptions() {
-            return [
-                {
-                    colors: ['#C30303', '#373737', '#999999', '#5FCB1F', '#2387FC'],
-                    labels: this.topProductsCurrentPeriod.map((item) => item.product.name),
-                    series: this.topProductsCurrentPeriod.map((item) => item.total_quantity),
-                },
-            ]
-        },
+        // getPieChartOptions() {
+        //     return [
+        //         {
+        //             colors: ['#C30303', '#373737', '#999999', '#5FCB1F', '#2387FC'],
+        //             labels: this.topProductsCurrentPeriod.map((item) => item.product.name),
+        //             series: this.topProductsCurrentPeriod.map((item) => item.total_quantity),
+        //         },
+        //     ]
+        // },
     },
     methods: {
         setElementsWithNumberFormat(set) {
@@ -207,7 +207,7 @@ export default {
                 // Convierte la fecha y hora a la hora del día en la zona horaria local
                 const saleHour = format(localSaleDateTime, 'H', { timeZone });
 
-                hourlyData[saleHour] += sale.quantity * sale.current_price;
+                hourlyData[saleHour] += sale.total;
             });
             hourlyData = this.setElementsWithNumberFormat(hourlyData);
 
@@ -220,7 +220,7 @@ export default {
                 const saleDayOfWeek = new Date(sale.created_at).getDay();
 
                 // Incrementa el total por día de la semana correspondiente
-                dailyData[saleDayOfWeek] += sale.quantity * sale.current_price;
+                dailyData[saleDayOfWeek] += sale.total;
             });
 
             dailyData = this.setElementsWithNumberFormat(dailyData);
@@ -236,15 +236,15 @@ export default {
                 const saleDay = new Date(sale.created_at).getDate();
 
                 if (saleDay >= 1 && saleDay <= 7) {
-                    weeklyData[0] += sale.quantity * sale.current_price;
+                    weeklyData[0] += sale.total;
                 } else if (saleDay >= 8 && saleDay <= 14) {
-                    weeklyData[1] += sale.quantity * sale.current_price;
+                    weeklyData[1] += sale.total;
                 } else if (saleDay >= 15 && saleDay <= 21) {
-                    weeklyData[2] += sale.quantity * sale.current_price;
+                    weeklyData[2] += sale.total;
                 } else if (saleDay >= 22 && saleDay <= 28) {
-                    weeklyData[3] += sale.quantity * sale.current_price;
+                    weeklyData[3] += sale.total;
                 } else if (saleDay >= 29 && saleDay <= 31) {
-                    weeklyData[4] += sale.quantity * sale.current_price;
+                    weeklyData[4] += sale.total;
                 }
             });
 
@@ -254,7 +254,7 @@ export default {
         },
         calculateProfit(period) {
             let sales = this.salesLastPeriod.reduce((acumulador, current) => {
-                return acumulador + current.quantity * current.current_price;
+                return acumulador + current.total;
             }, 0);
 
             let expenses = this.expensesLastPeriod.reduce((acumulador, current) => {
@@ -262,7 +262,7 @@ export default {
             }, 0);
             if (period == 'current') {
                 sales = this.salesCurrentPeriod.reduce((acumulador, current) => {
-                    return acumulador + current.quantity * current.current_price;
+                    return acumulador + current.total;
                 }, 0);
 
                 expenses = this.expensesCurrentPeriod.reduce((acumulador, current) => {

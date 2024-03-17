@@ -80,8 +80,8 @@ const submit = () => {
 
             <div class="block mt-4">
                 <label class="flex items-center">
-                    <Checkbox v-model:checked="form.remember" name="remember" />
-                    <span class="ms-2 text-sm text-gray-600">Dejar sesión abierta</span>
+                    <Checkbox v-model:checked="form.remember" name="remember" class="z-50" />
+                    <span class="ms-2 text-sm text-gray-600 z-50">Dejar sesión abierta</span>
                 </label>
             </div>
 
@@ -90,7 +90,7 @@ const submit = () => {
                     Forgot your password?
                 </Link> -->
 
-                <PrimaryButton class="mx-auto !px-12 mt-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                <PrimaryButton class="mx-auto !px-12 mt-4 z-20" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                     Ingresar
                 </PrimaryButton>
             </div>
