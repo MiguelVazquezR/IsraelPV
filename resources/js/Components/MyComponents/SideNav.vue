@@ -15,7 +15,7 @@
                 <AuthenticationCardLogo />
                 </Link>
             </div>
-            <nav class="pr-2 pt-20 text-gray-600 text-xs">
+            <nav class="pr-2 text-gray-600 text-xs" :class="small ? 'pt-20' : 'pt-14'">
                 <!-- Con barra pequeña -->
                 <template v-if="small">
                     <div v-for="(menu, index) in menus" :key="index">
