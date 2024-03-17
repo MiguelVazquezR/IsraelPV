@@ -80,9 +80,6 @@
                             <p>Existencias: <strong class="ml-2">{{ productEntryFound[0]?.current_stock }}</strong></p>
                         </div>
                     </div>
-                    <p v-else-if="!loading && form.code" class="mt-5 text-gray-500 text-center text-sm">No se encontró
-                        ningun producto</p>
-
 
                     <div class="flex justify-end space-x-3 pt-7 pb-1 py-2">
                         <PrimaryButton :disabled="!form.quantity || form.processing" @click="entryProduct" class="!rounded-full">Ingresar producto</PrimaryButton>
