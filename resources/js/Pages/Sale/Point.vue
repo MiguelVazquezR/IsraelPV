@@ -41,7 +41,7 @@
                   icon-color="#C30303" title="Se eliminará todo el registro de productos ¿Deseas continuar?"
                   @confirm="clearTab()">
                   <template #reference>
-                    <ThirthButton class="!text-[#F80505] border-[#F80505] !py-1 !px-2 mb-2"><i
+                    <ThirthButton class="!text-[#F80505] !border-[#F80505] !py-1 !px-2 mb-2"><i
                         class="fa-regular fa-trash-can mr-2"></i> Limpiar registros</ThirthButton>
                   </template>
                 </el-popconfirm>
@@ -186,6 +186,10 @@
                 </div>
               </div>
               <div>
+                <div class="mb-3">
+                    <InputLabel value="Fecha de vencimiento" class="ml-3 mb-1" />
+                    <el-date-picker v-model="editableTabs[this.editableTabsValue - 1].limit_date" type="date" placeholder="Seleccione" :disabled-date="disabledDate" />
+                </div>
                 <InputLabel value="Notas (opcional)" class="text-sm ml-2 !text-gray-400" />
                 <el-input v-model="editableTabs[this.editableTabsValue - 1].deposit_notes"
                   :autosize="{ minRows: 3, maxRows: 5 }" type="textarea" placeholder="Escribe tus notas"
@@ -301,6 +305,7 @@ export default {
           deposit: null,
           deposit_notes: null,
           has_credit: false,
+          limit_date: null,
         },
         // {
         //   title: "Registro 2",
@@ -345,6 +350,7 @@ export default {
             client_id: this.editableTabs[this.editableTabsValue - 1]?.client_id,
             deposit: this.editableTabs[this.editableTabsValue - 1]?.deposit,
             deposit_notes: this.editableTabs[this.editableTabsValue - 1]?.deposit_notes,
+            limit_date: this.editableTabs[this.editableTabsValue - 1]?.limit_date,
             total: this.calculateTotal(),
           }
         });
@@ -445,6 +451,7 @@ export default {
       this.editableTabs[this.editableTabsValue - 1].cash = false;
       this.editableTabs[this.editableTabsValue - 1].credit = false;
       this.editableTabs[this.editableTabsValue - 1].moneyReceived = null;
+      this.editableTabs[this.editableTabsValue - 1].limit_date = null;
       // this.scanInputFocus();
     },
     calculateTotal() {
@@ -484,6 +491,11 @@ export default {
           this.showClientFormModal = false;
         },
       });
+    },
+     disabledDate(time) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return time.getTime() < today.getTime();
     },
   },
   mounted() {
