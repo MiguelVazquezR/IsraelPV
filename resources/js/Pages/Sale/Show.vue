@@ -29,7 +29,7 @@
             <!-- Productos -->
             <section class="mt-7 md:grid grid-cols-2">
                 <!-- detalle de productos -->
-                <div :class="sale.data.has_credit ? 'md:border-r' : '' " class="grid grid-cols-3 lg:ml-16 mr-3">
+                <div :class="sale.data.has_credit ? 'md:border-r' : '' " class="grid grid-cols-3 lg:ml-16 mr-3 self-start">
                     <p class="font-bold">Producto</p>
                     <p class="font-bold">Cantidad</p>
                     <p class="font-bold ml-8">Total</p>
