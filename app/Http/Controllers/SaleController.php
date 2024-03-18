@@ -53,12 +53,14 @@ class SaleController extends Controller
 
         // Agrega todos los productos a la venta
         foreach ($request->data['saleProducts'] as $prd) {
+
+            $product_price = $prd['product']['public_price']; //Es el precio que se manejó en la venta con o sin descuento.
             $product = Product::find($prd['product']['id']);
             
             // Asociar producto a la venta con sus atributos adicionales
             $sale->products()->attach($product->id, [
                 'quantity' => $prd['quantity'],
-                'price' => $product->public_price
+                'price' => $product_price
             ]);
 
             // restar de inventario

@@ -342,6 +342,7 @@ export default {
       }
     },
     async store() {
+      console.log(this.editableTabs[this.editableTabsValue - 1]?.saleProducts);
       try {
         this.storeProcessing = true;
         const response = await axios.post(route('sales.store'), {
