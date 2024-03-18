@@ -2,35 +2,46 @@
     <AppLayout title="Ventas">
         <div class="px-2 lg:px-10 py-7">
             <!-- header botones -->
-            <div class="flex justify-between items-center mx-3">
+            <div class="lg:flex justify-between items-center lg:mx-3">
                 <h1 class="font-bold text-lg">Registro de entradas de producto</h1>
 
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center justify-end space-x-1 mt-3 lg:mt-0">
                     <div class="relative">
-                        <button @click.stop="showFilter = !showFilter" class="border border-[#D9D9D9] rounded-full py-1 px-4 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                        <button @click.stop="showFilter = !showFilter"
+                            class="border border-[#D9D9D9] rounded-full py-2 px-4 flex items-center">
+                            <!-- <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 13.5V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 9.75V10.5" />
+                            </svg> -->
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="16" width="16"
+                                id="Filter-Sort-Lines-Descending--Streamline-Ultimate">
+                                <desc>Filter Sort Lines Descending Streamline Icon: https://streamlinehq.com</desc>
+                                <defs></defs>
+                                <title>filter</title>
+                                <path d="M0.73 4.2791H23.27" fill="none" stroke="#000000" stroke-linecap="round"
+                                    stroke-linejoin="round" stroke-width="1"></path>
+                                <path d="M3.131 9.426H20.869" fill="none" stroke="#000000" stroke-linecap="round"
+                                    stroke-linejoin="round" stroke-width="1"></path>
+                                <path d="M8.7141 19.7209H15.2859" fill="none" stroke="#000000" stroke-linecap="round"
+                                    stroke-linejoin="round" stroke-width="1"></path>
+                                <path d="M5.531 14.573H18.469" fill="none" stroke="#000000" stroke-linecap="round"
+                                    stroke-linejoin="round" stroke-width="1"></path>
                             </svg>
                             <p class="text-sm ml-2">Filtrar</p>
                         </button>
-                        <div v-if="showFilter" class="absolute top-9 -left-64 border border[#D9D9D9] rounded-md p-4 bg-white">
+                        <div v-if="showFilter"
+                            class="absolute top-11 lg:top-9 -left-36 lg:-left-64 border border[#D9D9D9] rounded-md p-4 bg-white">
                             <div>
                                 <InputLabel value="Rango de fechas" class="ml-3 mb-1" />
-                                <el-date-picker
-                                    v-model="searchDate"
-                                    type="daterange"
-                                    range-separator="A"
-                                    start-placeholder="Fecha de inicio"
-                                    end-placeholder="Fecha de fin"
-                                    :size="size"
-                                />
+                                <el-date-picker v-model="searchDate" type="daterange" range-separator="A"
+                                    start-placeholder="Fecha de inicio" end-placeholder="Fecha de fin" />
                             </div>
                             <div class="my-3">
                                 <InputLabel value="Producto" class="ml-3 mb-1" />
-                                <el-select v-model="searchProduct" clearable filterable
-                                    placeholder="Seleccione" no-data-text="No hay opciones registradas"
+                                <el-select v-model="searchProduct" clearable filterable placeholder="Seleccione"
+                                    no-data-text="No hay opciones registradas"
                                     no-match-text="No se encontraron coincidencias">
-                                    <el-option v-for="product in products" :key="product" :label="product.name" :value="product.id" />
+                                    <el-option v-for="product in products" :key="product" :label="product.name"
+                                        :value="product.id" />
                                 </el-select>
                             </div>
                             <PrimaryButton @click="filterHistory" class="!py-1">Aplicar</PrimaryButton>
@@ -42,17 +53,22 @@
 
             <Loading v-if="loading" class="mt-20" />
             <div v-else class="mt-8 lg:w-11/12">
-                <p v-if="localHistory.length" class="text-gray66 text-[11px]">{{ localHistory.length }} de {{ total_histories }} elementos
+                <p v-if="localHistory.length" class="text-gray66 text-[11px]">{{ localHistory.length }} de {{
+                            total_histories }} elementos
                 </p>
                 <ProductHistoryTable :histories="localHistory" class="hidden md:block" />
-                <ProductHistoryMobileIndex  v-for="item in localHistory" :key="item.id" :historyId="item.id" class="md:hidden" />
-                <p v-if="localHistory.length" class="text-gray66 text-[11px]">{{ localHistory.length }} de {{ total_histories }} elementos
+                <ProductHistoryMobileIndex v-for="item in localHistory" :key="item.id" :historyId="item.id"
+                    class="md:hidden" />
+                <p v-if="localHistory.length" class="text-gray66 text-[11px]">{{ localHistory.length }} de {{
+                            total_histories }} elementos
                 </p>
                 <p v-if="loadingItems" class="text-xs my-4 text-center">
                     Cargando <i class="fa-sharp fa-solid fa-circle-notch fa-spin ml-2 text-primary"></i>
                 </p>
-                <button v-else-if="total_histories > 20 && (localHistory.length < total_histories) && localHistory.length" @click="fetchItemsByPage"
-                    class="w-full text-primary my-4 text-xs mx-auto underline ml-6">Cargar más elementos</button>
+                <button
+                    v-else-if="total_histories > 20 && (localHistory.length < total_histories) && localHistory.length"
+                    @click="fetchItemsByPage" class="w-full text-primary my-4 text-xs mx-auto underline ml-6">Cargar más
+                    elementos</button>
             </div>
         </div>
 
@@ -76,8 +92,7 @@
                     <div v-if="productEntryFound?.length > 0" class="mt-3">
                         <InputLabel value="Cantidad" class="ml-3 mb-1 text-sm" />
                         <el-input v-model="form.quantity" ref="quantityInput" autofocus @keydown.enter="entryProduct"
-                            placeholder="Catidad que entra a almacén"
-                            >
+                            placeholder="Catidad que entra a almacén">
                             <template #prefix>
                                 <i class="fa-solid fa-hashtag"></i>
                             </template>
@@ -91,24 +106,25 @@
                     </div>
 
                     <!-- informacion del producto escaneado -->
-                    <div v-if="productEntryFound?.length > 0" class="mt-5 grid grid-cols-3">
-                        <figure class="w-32 ml-16">
-                            <img class="w-32 object-contain" :src="productEntryFound[0]?.imageCover[0]?.original_url"
-                                alt="">
+                    <div v-if="productEntryFound?.length > 0" class="mt-5 lg:grid grid-cols-3">
+                        <figure class="w-24 lg:w-32 mx-auto lg:ml-16">
+                            <img class="w-24 lg:w-32 object-contain" :src="productEntryFound[0]?.imageCover[0]?.original_url">
                         </figure>
 
-                        <div class="col-span-2 text-left">
+                        <div class="col-span-2 text-left text-xs lg:text-sm">
                             <p>Nombre: <strong class="ml-2">{{ productEntryFound[0]?.name }}</strong></p>
                             <p>Precio: <strong class="ml-2">${{ productEntryFound[0]?.public_price }}</strong></p>
                             <p>Existencias: <strong class="ml-2">{{ productEntryFound[0]?.current_stock }}</strong></p>
                         </div>
                     </div>
 
-                    <div class="flex justify-end space-x-3 pt-7 pb-1 py-2">
-                        <PrimaryButton :disabled="!form.quantity || form.processing" @click="entryProduct" class="!rounded-full">Ingresar producto</PrimaryButton>
-                        <CancelButton @click="closeEntryModal">Cancelar</CancelButton>
-                    </div>
                 </section>
+                <footer class="flex justify-end space-x-1 mt-5">
+                    <CancelButton @click="closeEntryModal">Cancelar</CancelButton>
+                    <PrimaryButton :disabled="!form.quantity || form.processing" @click="entryProduct"
+                        class="!rounded-full">Ingresar
+                        producto</PrimaryButton>
+                </footer>
             </div>
         </Modal>
         <!-- --------------------------- Modal ends ------------------------------------ -->
@@ -129,44 +145,45 @@ import { useForm } from "@inertiajs/vue3";
 import axios from 'axios';
 
 export default {
-data() {
-    const form = useForm({
+    data() {
+        const form = useForm({
             code: null,
             quantity: null,
         });
 
-    return {
-        form,
-        Loading: false,
-        localHistory: this.history.data,
-        showFilter: false, //filtro opciones
-        searchDate: null, //filtro fechas
-        searchProduct: null, //filtro cliente
-        loadingItems: false, //para paginación
-        currentPage: 1, //para paginación
-        entryProductModal: false, //modal para entrar producto
-        productEntryFound: null, //producto encontrado
-    }
-},
-components:{
-AppLayout,
-ProductHistoryMobileIndex,
-ProductHistoryTable,
-PrimaryButton,
-CancelButton,
-InputLabel,
-InputError,
-Loading,
-Modal
-},
-props:{
-history: Object,
-products: Array,
-total_histories: Number,
-},
-methods:{
-    async filterHistory() {
+        return {
+            form,
+            loading: false,
+            localHistory: this.history.data,
+            showFilter: false, //filtro opciones
+            searchDate: null, //filtro fechas
+            searchProduct: null, //filtro cliente
+            loadingItems: false, //para paginación
+            currentPage: 1, //para paginación
+            entryProductModal: false, //modal para entrar producto
+            productEntryFound: null, //producto encontrado
+        }
+    },
+    components: {
+        AppLayout,
+        ProductHistoryMobileIndex,
+        ProductHistoryTable,
+        PrimaryButton,
+        CancelButton,
+        InputLabel,
+        InputError,
+        Loading,
+        Modal
+    },
+    props: {
+        history: Object,
+        products: Array,
+        total_histories: Number,
+    },
+    methods: {
+        async filterHistory() {
             this.loading = true;
+            this.showFilter = false;
             try {
                 const response = await axios.get(route('product-histories.filter'), { params: { queryDate: this.searchDate, queryProduct: this.searchProduct } });
                 if (response.status == 200) {
@@ -201,9 +218,8 @@ methods:{
                 const response = await axios.get(route('products.search'), { params: { query: this.form.code } });
                 if (response.status == 200) {
                     this.productEntryFound = response.data.items;
-                    console.log(this.productEntryFound);
                     if (this.productEntryFound?.length > 0) {
-                            this.$nextTick(() => {
+                        this.$nextTick(() => {
                             this.$refs.quantityInput?.focus(); // Enfocar el input de cantidad cuando se encuentra el producto
                         });
                     } else {
@@ -232,8 +248,8 @@ methods:{
                         message: 'Se ha ingresado ' + this.form.quantity + ' unidades de ' + this.productEntryFound[0].name,
                         type: "success",
                     });
-                        this.form.reset();
-                        this.productEntryFound = null;
+                    this.form.reset();
+                    this.productEntryFound = null;
                 },
             });
         },
@@ -243,6 +259,6 @@ methods:{
             // this.entryProductModal = false;
             location.reload(); //refresco la página para cargar los nuevos registros agregados
         }
-}
+    }
 }
 </script>

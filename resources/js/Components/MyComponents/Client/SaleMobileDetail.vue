@@ -11,8 +11,8 @@
                 <i v-if="sale.has_credit" class="fa-solid fa-minus"></i>
                 <p v-if="sale.has_credit">Crédito vence el: <span class="text-black">{{ format(sale.limit_date) }}</span></p>
             </div>
+            <p>Total: <span class="text-black">${{ getTotal.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span></p>
             <div v-if="sale.has_credit">
-                <p>Total: <span class="text-black">${{ getTotal.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span></p>
                 <p>Abonado: <span class="text-black">${{ getTotalPaid.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span></p>
                 <p class="font-bold">Saldo pendinte: <span class="text-black">${{ (getTotal - getTotalPaid).toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span></p>
             </div>

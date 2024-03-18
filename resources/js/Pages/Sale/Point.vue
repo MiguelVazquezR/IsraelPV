@@ -28,11 +28,11 @@
                     no-match-text="No se encontraron coincidencias">
                     <el-option v-for="client in clients" :key="client" :label="client.name" :value="client.id" />
                   </el-select>
-                  <i :class="editableTabs[this.editableTabsValue - 1].client_id ? 'text-green-500' : 'text-gray-400'"
-                    class="fa-solid fa-user-check text-sm"></i>
+                  <!-- <i :class="editableTabs[this.editableTabsValue - 1].client_id ? 'text-green-500' : 'text-gray-400'"
+                    class="fa-solid fa-user-check text-sm"></i> -->
                   <button @click="showClientFormModal = true" type="button"
-                    class="rounded-full border border-primary size-5 flex px-1 items-center justify-center">
-                    <i class="fa-solid fa-plus text-primary text-[9px] pb-[1px] pr-[1px]"></i>
+                    class="rounded-full  border-primary size-5 flex items-center justify-center text-primary text-lg">
+                    <i class="fa-solid fa-circle-plus"></i>
                   </button>
                 </div>
               </div>
@@ -67,8 +67,8 @@
                   v-for="(product, index) in productsFound" :key="index"
                   class="hover:bg-gray-200 cursor-default text-sm px-5 py-2">{{ product.name }}</li>
               </ul>
-              <p v-else-if="!loading" class="text-center text-sm text-gray-600 px-5 py-2">No se encontraron
-                coincidencias
+              <p v-else-if="!loading" class="text-center text-sm text-gray-600 px-5 py-2">
+                No se encontraron coincidencias
               </p>
               <!-- estado de carga -->
               <div v-if="loading" class="flex justify-center items-center py-10">
@@ -167,17 +167,17 @@
               </div>
               <h3 class="text-lg font-bold">Registrar abono de la venta</h3>
               <div class="flex items-center justify-between space-x-7 my-3">
-                <div>
+                <div class="w-2/3">
                   <InputLabel value="Monto abonado (opcional)" class="text-sm ml-2 !text-gray-400" />
-                  <el-input type="number" v-model="editableTabs[this.editableTabsValue - 1].deposit"
+                  <el-input type="number" class="" v-model="editableTabs[this.editableTabsValue - 1].deposit"
                     placeholder="ingresa el abono">
                     <template #prefix>
                       <i class="fa-solid fa-dollar-sign"></i>
                     </template>
                   </el-input>
                 </div>
-                <div>
-                  <InputLabel value="Saldo restante" class="text-sm ml-2 !text-gray-400" />
+                <div class="w-1/3">
+                  <InputLabel value="Saldo restante" class="text-sm !text-gray-400" />
                   <p v-if="(calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit) > 0">${{
               (calculateTotal() -
                 editableTabs[this.editableTabsValue - 1].deposit)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -185,11 +185,12 @@
                   <p class="text-red-600 text-xs" v-else>La cantidad abonada debe de ser menor al monto total</p>
                 </div>
               </div>
-              <div>
-                <div class="mb-3">
-                    <InputLabel value="Fecha de vencimiento" class="ml-3 mb-1" />
-                    <el-date-picker v-model="editableTabs[this.editableTabsValue - 1].limit_date" type="date" placeholder="Seleccione" :disabled-date="disabledDate" />
-                </div>
+              <div class="w-2/3 pr-5">
+                <InputLabel value="Fecha de vencimiento"  class="text-sm !text-gray-400 ml-2" />
+                <el-date-picker v-model="editableTabs[this.editableTabsValue - 1].limit_date" class="!w-full" type="date"
+                  placeholder="Seleccione" :disabled-date="disabledDate" />
+              </div>
+              <div class="mt-3">
                 <InputLabel value="Notas (opcional)" class="text-sm ml-2 !text-gray-400" />
                 <el-input v-model="editableTabs[this.editableTabsValue - 1].deposit_notes"
                   :autosize="{ minRows: 3, maxRows: 5 }" type="textarea" placeholder="Escribe tus notas"
@@ -295,7 +296,7 @@ export default {
       editableTabsValue: "1", //tab seleccionado - componente de tabs
       editableTabs: [ //Informacion del tab - componente de tabs
         {
-          title: "Registro de venta",
+          title: "Carrito de compras",
           name: "1",
           saleProducts: [],
           cash: false,
@@ -492,7 +493,7 @@ export default {
         },
       });
     },
-     disabledDate(time) {
+    disabledDate(time) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       return time.getTime() < today.getTime();

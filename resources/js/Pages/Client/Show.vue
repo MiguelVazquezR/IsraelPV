@@ -36,16 +36,16 @@
             <el-tabs v-model="activeTab">
                 <el-tab-pane label="Todas las ventas" name="1">
                     <SaleMobileDetail v-for="item in client.sales" :key="item.id" :saleId="item.id"
-                        class="lg:hidden mb-2" />
-                    <SaleDesktopDetail :salesId="client.sales.map(item => item.id)" class="hidden lg:block mb-2" />
+                        class="md:hidden mb-2" />
+                    <SaleDesktopDetail :salesId="client.sales.map(item => item.id)" class="hidden md:block mb-2" />
                 </el-tab-pane>
                 <el-tab-pane label="Ventas sin liquidar" name="2">
                     <SaleMobileDetail
                         v-for="item in client.sales.filter(sale => sale.has_credit && sale.paid_at === null)"
-                        :key="item.id" :saleId="item.id" class="lg:hidden mb-2" />
+                        :key="item.id" :saleId="item.id" class="md:hidden mb-2" />
                     <SaleDesktopDetail
                         :salesId="client.sales.filter(sale => sale.has_credit && sale.paid_at === null).map(item => item.id)"
-                        class="hidden lg:block mb-2" />
+                        class="hidden md:block mb-2" />
                 </el-tab-pane>
             </el-tabs>
 

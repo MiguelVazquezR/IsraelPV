@@ -1,25 +1,24 @@
 <template>
     <AppLayout title="Productos">
         <div class="px-2 lg:px-10 py-7">
-            <!-- header botones -->
-            <div class="lg:flex justify-between items-center mx-3">
-                <h1 class="font-bold text-lg">Productos</h1>
-                <div class="my-4 lg:my-0 flex items-center space-x-3">
-                    <ThirthButton @click="openEntryModal" class="!rounded-full">Entrada de producto
-                    </ThirthButton>
-                    <PrimaryButton @click="$inertia.get(route('products.create'))" class="!rounded-full">Nuevo producto
-                    </PrimaryButton>
-                </div>
-            </div>
-
+            <h1 class="font-bold text-lg">Productos</h1>
             <div class="lg:w-1/4 relative">
                 <input v-model="searchQuery" @keydown.enter="searchProducts" class="input w-full pl-9"
                     placeholder="Buscar producto" type="text">
                 <i class="fa-solid fa-magnifying-glass text-xs text-gray99 absolute top-[10px] left-4"></i>
             </div>
 
+            <!-- header botones -->
+            <div class="flex justify-end items-center">
+                <div class="my-2 lg:my-0 flex items-center space-x-1">
+                    <ThirthButton @click="openEntryModal" class="!rounded-full">Entrada de producto
+                    </ThirthButton>
+                    <PrimaryButton @click="$inertia.get(route('products.create'))" class="!rounded-full">Nuevo producto
+                    </PrimaryButton>
+                </div>
+            </div>
             <Loading v-if="loading" class="mt-20" />
-            <div v-else class="mt-8 lg:w-11/12">
+            <div v-else class="mt-8">
                 <p v-if="localProducts.length" class="text-gray66 text-[11px]">{{ localProducts.length }} de {{ total_products }} elementos
                 </p>
                 <ProductTable :products="localProducts" />
