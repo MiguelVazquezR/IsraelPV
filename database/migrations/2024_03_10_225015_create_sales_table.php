@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('limit_date')->nullable();
             $table->unsignedDouble('total');
             $table->foreignId('client_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->timestamp('paid_at')->default(null);
+            $table->timestamp('paid_at')->nullable();
             $table->timestamps();
         });
     }

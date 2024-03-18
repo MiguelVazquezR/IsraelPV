@@ -18,10 +18,12 @@
                 <div class="w-[15%] md:w-[10%]">{{ product.id }}</div>
                 <div class="w-[35%] md:w-[30%]">{{ product.name }}</div>
                 <div class="w-[10%]">${{ product.public_price }}</div>
-                <div :class="product.current_stock < product.min_stock ? 'text-primary' : ''" class="w-[10%]">
-                    {{ product.current_stock }}
-                    <i v-if="product.current_stock < product.min_stock" class="fa-solid fa-arrow-down mx-1 text-[11px]"></i>
-                    <span v-if="product.current_stock < product.min_stock" class="text-[11px]">Bajo stock</span>
+                <div :class="product.current_stock <= product.min_stock ? 'text-[#F80505]' : ''" class="w-[10%] flex items-center space-x-2">
+                    <span>{{ product.current_stock }}</span>
+                    <p v-if="product.current_stock <= product.min_stock" class="flex items-center space-x-1 text-[10px] mt-px">
+                        <i class="fa-solid fa-arrow-down"></i>
+                        <span>Bajo stock</span>
+                    </p>
                 </div>
                 <div class="w-[10%]">{{ product.min_stock }}</div>
                 <div class="rounded-r-full w-[15%] text-right">

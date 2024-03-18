@@ -90,21 +90,21 @@ export default {
                     icon: "fa-solid fa-dollar-sign",
                     value: "$" + this.calculateTotalSale?.toLocaleString('en-US', { minimumFractionDigits: 2 }) //,
                 },
-                {
-                    title: "Productos vendidos",
-                    icon: "fa-solid fa-clipboard-list",
-                    value: this.calculateTotalProductsSold?.toLocaleString('en-US', { minimumFractionDigits: 2 }) //,
-                },
+                // {
+                //     title: "Productos vendidos",
+                //     icon: "fa-solid fa-clipboard-list",
+                //     value: this.calculateTotalProductsSold?.toLocaleString('en-US', { minimumFractionDigits: 2 }) //,
+                // },
                 {
                     title: "Compras (Egresos)",
                     icon: "fa-solid fa-dollar-sign",
                     value: "$" + this.calculateTotalExpense?.toLocaleString('en-US', { minimumFractionDigits: 2 }) //,
                 },
-                {
-                    title: "Productos comprados",
-                    icon: "fa-solid fa-clipboard-list",
-                    value: this.calculateTotalProductsExpense?.toLocaleString('en-US', { minimumFractionDigits: 2 }) //,
-                },
+                // {
+                //     title: "Productos comprados",
+                //     icon: "fa-solid fa-clipboard-list",
+                //     value: this.calculateTotalProductsExpense?.toLocaleString('en-US', { minimumFractionDigits: 2 }) //,
+                // },
             ]
         },
         getKpiOptions() {
@@ -130,17 +130,17 @@ export default {
         },
         getTimeLine() {
             let timeLine = ['6AM', '7AM', '8AM', '9PM', '10AM', '11AM', '12PM', '1PM', '2PM', '3PM', '4PM', '5PM', '6PM', '7PM', '8PM', '9PM', '10PM', '11PM'];
-            let last = { name: "Ayer", data: { sales: this.calculateHourlySales(this.salesLastPeriod), expenses: this.calculateHourlySales(this.expensesLastPeriod) } };
-            let current = { name: "Hoy", data: { sales: this.calculateHourlySales(this.salesCurrentPeriod), expenses: this.calculateHourlySales(this.expensesCurrentPeriod) } };
+            let last = { name: "Ayer", data: { sales: this.calculateHourlySales(this.salesLastPeriod), expenses: this.calculateHourlySales(this.expensesLastPeriod, false) } };
+            let current = { name: "Hoy", data: { sales: this.calculateHourlySales(this.salesCurrentPeriod), expenses: this.calculateHourlySales(this.expensesCurrentPeriod, false) } };
 
             if (this.period == 'Semanal') {
                 timeLine = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'];
-                last = { name: "Semana pasada", data: { sales: this.calculateDailySales(this.salesLastPeriod), expenses: this.calculateDailySales(this.expensesLastPeriod) } };
-                current = { name: "Esta semana", data: { sales: this.calculateDailySales(this.salesCurrentPeriod), expenses: this.calculateDailySales(this.expensesCurrentPeriod) } };
+                last = { name: "Semana pasada", data: { sales: this.calculateDailySales(this.salesLastPeriod), expenses: this.calculateDailySales(this.expensesLastPeriod, false) } };
+                current = { name: "Esta semana", data: { sales: this.calculateDailySales(this.salesCurrentPeriod), expenses: this.calculateDailySales(this.expensesCurrentPeriod, false) } };
             } else if (this.period == 'Mensual') {
                 timeLine = ['Del 1 al 7', 'Del 8 al 14', 'Del 15 al 21', 'Del 22 al 28', 'Del 29 al 31'];
-                last = { name: "Mes pasado", data: { sales: this.calculateWeeklySales(this.salesLastPeriod), expenses: this.calculateWeeklySales(this.expensesLastPeriod) } };
-                current = { name: "Este mes", data: { sales: this.calculateWeeklySales(this.salesCurrentPeriod), expenses: this.calculateWeeklySales(this.expensesCurrentPeriod) } };
+                last = { name: "Mes pasado", data: { sales: this.calculateWeeklySales(this.salesLastPeriod), expenses: this.calculateWeeklySales(this.expensesLastPeriod, false) } };
+                current = { name: "Este mes", data: { sales: this.calculateWeeklySales(this.salesCurrentPeriod), expenses: this.calculateWeeklySales(this.expensesCurrentPeriod, false) } };
             }
 
             return { timeline: timeLine, last: last, current: current };
@@ -150,7 +150,7 @@ export default {
             return [
                 {
                     title: 'Ingresos (ventas)',
-                    colors: ['#C30303', '#F07209'],
+                    colors: ['#9a9a9a', '#C30303'],
                     categories: timeline.timeline,
                     series: [{
                         name: timeline.last.name,
@@ -163,7 +163,7 @@ export default {
                 },
                 {
                     title: 'Egresos (compras)',
-                    colors: ['#C30303', '#F07209'],
+                    colors: ['#9a9a9a', '#C30303'],
                     categories: timeline.timeline,
                     series: [{
                         name: timeline.last.name,
@@ -190,7 +190,7 @@ export default {
         setElementsWithNumberFormat(set) {
             return set.map(item => item.toFixed(2));
         },
-        calculateHourlySales(data) {
+        calculateHourlySales(data, isSale = true) {
             // Inicializa el array hourlyData con ceros para cada hora del día
             let hourlyData = Array(18).fill(0);
 
@@ -207,27 +207,35 @@ export default {
                 // Convierte la fecha y hora a la hora del día en la zona horaria local
                 const saleHour = format(localSaleDateTime, 'H', { timeZone });
 
-                hourlyData[saleHour] += sale.total;
+                if (isSale) {
+                    hourlyData[saleHour] += sale.total;
+                } else {
+                    hourlyData[saleHour] += sale.quantity * sale.current_price;
+                }
             });
             hourlyData = this.setElementsWithNumberFormat(hourlyData);
 
             return hourlyData;
         },
-        calculateDailySales(data) {
+        calculateDailySales(data, isSale = true) {
             let dailyData = Array(7).fill(0);
 
             data.forEach((sale) => {
                 const saleDayOfWeek = new Date(sale.created_at).getDay();
 
                 // Incrementa el total por día de la semana correspondiente
-                dailyData[saleDayOfWeek] += sale.total;
+                if (isSale) {
+                    dailyData[saleDayOfWeek] += sale.total;
+                } else {
+                    dailyData[saleDayOfWeek] += sale.quantity * sale.current_price;
+                }
             });
 
             dailyData = this.setElementsWithNumberFormat(dailyData);
 
             return dailyData;
         },
-        calculateWeeklySales(data) {
+        calculateWeeklySales(data, isSale = true) {
             // Inicializa el array weeklyData con ceros para cada rango semanal
             let weeklyData = Array(5).fill(0);
 
@@ -235,16 +243,30 @@ export default {
             data.forEach((sale) => {
                 const saleDay = new Date(sale.created_at).getDate();
 
-                if (saleDay >= 1 && saleDay <= 7) {
-                    weeklyData[0] += sale.total;
-                } else if (saleDay >= 8 && saleDay <= 14) {
-                    weeklyData[1] += sale.total;
-                } else if (saleDay >= 15 && saleDay <= 21) {
-                    weeklyData[2] += sale.total;
-                } else if (saleDay >= 22 && saleDay <= 28) {
-                    weeklyData[3] += sale.total;
-                } else if (saleDay >= 29 && saleDay <= 31) {
-                    weeklyData[4] += sale.total;
+                if (isSale) {
+                    if (saleDay >= 1 && saleDay <= 7) {
+                        weeklyData[0] += sale.total;
+                    } else if (saleDay >= 8 && saleDay <= 14) {
+                        weeklyData[1] += sale.total;
+                    } else if (saleDay >= 15 && saleDay <= 21) {
+                        weeklyData[2] += sale.total;
+                    } else if (saleDay >= 22 && saleDay <= 28) {
+                        weeklyData[3] += sale.total;
+                    } else if (saleDay >= 29 && saleDay <= 31) {
+                        weeklyData[4] += sale.total;
+                    }
+                } else {
+                    if (saleDay >= 1 && saleDay <= 7) {
+                        weeklyData[0] += sale.quantity * sale.current_price;
+                    } else if (saleDay >= 8 && saleDay <= 14) {
+                        weeklyData[1] += sale.quantity * sale.current_price;
+                    } else if (saleDay >= 15 && saleDay <= 21) {
+                        weeklyData[2] += sale.quantity * sale.current_price;
+                    } else if (saleDay >= 22 && saleDay <= 28) {
+                        weeklyData[3] += sale.quantity * sale.current_price;
+                    } else if (saleDay >= 29 && saleDay <= 31) {
+                        weeklyData[4] += sale.quantity * sale.current_price;
+                    }
                 }
             });
 

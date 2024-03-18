@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Notifications\BasicNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -41,8 +42,6 @@ class SaleController extends Controller
 
     public function store(Request $request)
     {
-        // return $request;
-
         // Registra la venta
         $sale = Sale::create([
             'has_credit' => $request->data['has_credit'],
@@ -53,12 +52,26 @@ class SaleController extends Controller
         ]);
 
         // Agrega todos los productos a la venta
-        foreach ($request->data['saleProducts'] as $product) {
+        foreach ($request->data['saleProducts'] as $prd) {
+            $product = Product::find($prd['product']['id']);
+            
             // Asociar producto a la venta con sus atributos adicionales
-            $sale->products()->attach($product['product']['id'], [
-                'quantity' => $product['quantity'],
-                'price' => $product['product']['public_price']
+            $sale->products()->attach($product->id, [
+                'quantity' => $prd['quantity'],
+                'price' => $product->public_price
             ]);
+
+            // restar de inventario
+            $product->decrement('current_stock', $prd['quantity']);
+
+            // notificar si ha llegado al limite de existencias bajas
+            if ($product->current_stock <= $product->min_stock) {
+                $title = "Bajo stock";
+                $description = "Producto <span class='text-primary'>$product->name</span> alcanzó el nivel mínimo establecido";
+                $url = route('products.show', $product->id);
+
+                auth()->user()->notify(new BasicNotification($title, $description, $url));
+            }
         }
 
         // si la variable del abono no es null se crea un registro de abono
@@ -71,7 +84,6 @@ class SaleController extends Controller
         }
     }
 
-    
     public function show($sale_id)
     {
         $sale = SaleResource::make(Sale::with('client', 'payments', 'products')->find($sale_id));
@@ -95,17 +107,14 @@ class SaleController extends Controller
     public function destroy(Sale $sale)
     {
         $sale->delete();
-
     }
 
     // API
     public function getById(Sale $sale)
     {
-        // $item = $sale->load(['client:id,name', 'products:id,name']);
+        $item = $sale->load(['products', 'payments']);
 
-        $sale = SaleResource::make(Sale::with(['client:id,name', 'products:id,name'])->find($sale->id));
-
-        return response()->json(compact('sale'));
+        return response()->json(compact('item'));
     }
 
 
