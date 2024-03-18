@@ -1,12 +1,12 @@
 <template>
     <div v-if="products.length" class="w-full mx-auto text-[11px] md:text-sm overflow-auto">
-        <div class="text-center md:text-sm lg:text-base flex items-center space-x-4 mb-2">
-            <div class="hidden md:block w-[10%]"></div>
-            <div class="font-bold pb-3 pl-2 text-left w-[18%] md:w-[13%]">Código</div>
+        <div class="text-center md:text-sm flex items-center space-x-1 mb-2 *:px-2">
+            <div class="w-[35%] md:w-[10%]"></div>
+            <div class="font-bold pb-3 text-left w-[15%] md:w-[10%]">Código</div>
             <div class="font-bold pb-3 text-left w-[35%] md:w-[30%]">Nombre de producto</div>
-            <div class="font-bold pb-3 text-left w-[10%]">Precio</div>
-            <div class="font-bold pb-3 text-left w-[10%]">Existencias</div>
-            <div class="font-bold pb-3 text-left w-[10%]">Existencias mínimas</div>
+            <div class="font-bold pb-3 text-left w-[16%] md:w-[10%]">Precio</div>
+            <div class="font-bold pb-3 text-left w-[16%] md:w-[10%]">Existencias</div>
+            <div class="hidden md:block font-bold pb-3 text-left w-[10%]">Existencias mínimas</div>
             <div class="w-[15%]"></div>
         </div>
         <div>
@@ -25,7 +25,7 @@
                         <span>Bajo stock</span>
                     </p>
                 </div>
-                <div class="w-[10%]">{{ product.min_stock }}</div>
+                <div class="hidden md:block w-[10%]">{{ product.min_stock }}</div>
                 <div class="rounded-r-full w-[15%] text-right">
                     <i @click.stop="$inertia.get(route('products.edit', product.id))" class="fa-solid fa-pencil text-primary cursor-pointer hover:bg-gray-200 rounded-full mr-1 p-2"></i>
                     <el-popconfirm confirm-button-text="Si" cancel-button-text="No" icon-color="#C30303" title="¿Continuar?" @confirm="deleteItem(product.id)">

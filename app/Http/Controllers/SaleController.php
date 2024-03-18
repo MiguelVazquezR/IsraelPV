@@ -151,7 +151,6 @@ class SaleController extends Controller
         return response()->json(['items' => $sales]);
     }
 
-
     public function getItemsByPage($currentPage)
     {
         $offset = $currentPage * 20;

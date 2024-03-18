@@ -1,4 +1,4 @@
-<template>
+?? '-'<template>
     <div>
         <div class="border border-grayD9 rounded-[20px] py-2 px-4 min-h-32 text-xs mb-2">
             <Loading v-if="loading" class="pt-4" />
@@ -29,14 +29,16 @@
                     </div>
                 </header>
                 <Link :href="route('clients.show', clientId)">
-                <main class="text-gray99 mt-1 *:flex *:items-center *:space-x-1 *:text-gray37">
+                <main class="text-gray99 mt-1 *:flex *:items-center *:space-x-1">
                     <p>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="size-3">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                         </svg>
-                        <span class="font-bold">{{ client.name }}</span>
+                        <span>Nombre </span>
+
+                        <span class="text-gray37">{{ client.name }}</span>
                     </p>
                     <p>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -44,7 +46,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
                         </svg>
-                        <span>{{ client.phone }}</span>
+                        <span>Teléfono </span>
+
+                        <span class="text-gray37">{{ client.phone }}</span>
                     </p>
                     <p>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -54,7 +58,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                         </svg>
-                        <span>{{ client.address }}</span>
+                        <span>Dirección </span>
+
+                        <span class="text-gray37">{{ client.address ?? '-' }}</span>
                     </p>
                     <p>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -62,7 +68,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5-3.9 19.5m-2.1-19.5-3.9 19.5" />
                         </svg>
-                        <span>{{ client.rfc }}</span>
+                        <span>Rfc </span>
+
+                        <span class="text-gray37">{{ client.rfc ?? '-' }}</span>
                     </p>
                 </main>
                 <footer class="mt-2 mx-5">
@@ -114,14 +122,14 @@ export default {
             this.loading = true;
             try {
                 const response = await axios.get(route('clients.get-pendent-amount', this.clientId));
-                if (response.status == 200) {
+                if (response.status === 200) {
                     this.pendentAmount = response.data.item;
                 }
             } catch (error) {
                 console.log(error);
                 this.$notify({
                     title: 'Error',
-                    message: 'No se pudo eliminar calcular el saldo pendiente del cliente',
+                    message: 'No se pudo calcular el saldo pendiente del cliente',
                     type: 'error',
                 });
             } finally {

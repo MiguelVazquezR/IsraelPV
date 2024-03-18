@@ -82,6 +82,9 @@ Route::get('product-histories-get-by-id/{product_history}', [ProductHistoryContr
 Route::resource('clients', ClientController::class)->middleware('auth');
 Route::get('clients-get-pendent-amount/{client}', [ClientController::class, 'getClientPendentAmount'])->name('clients.get-pendent-amount')->middleware('auth');
 Route::get('clients-get-by-id/{client}', [ClientController::class, 'getById'])->middleware('auth')->name('clients.get-by-id');
+Route::get('clients-get-by-page/{currentPage}', [ClientController::class, 'getItemsByPage'])->name('clients.get-by-page')->middleware('auth');
+Route::get('clients-search', [ClientController::class, 'search'])->name('clients.search')->middleware('auth');
+
 
 //categories routes-------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------

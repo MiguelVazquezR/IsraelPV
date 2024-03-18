@@ -13,10 +13,10 @@ class ClientController extends Controller
 
     public function index()
     {
-        $clients = ClientResource::collection(Client::get()->take(20));
+        $clients = ClientResource::collection(Client::latest()->get()->take(20));
+        $total_clients = Client::all()->count();
 
-        // return $clients;
-        return inertia('Client/Index', compact('clients'));
+        return inertia('Client/Index', compact('clients', 'total_clients'));
     }
 
 
@@ -29,9 +29,9 @@ class ClientController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:100',
-            'rfc' => 'nullable|string|max:100',
-            'phone' => 'required|string|min:8|max:13',
+            'name' => 'required|string|max:255',
+            'rfc' => 'nullable|string|max:255',
+            'phone' => 'required|string|min:10|max:13',
             'address' => 'nullable|string',
         ]);
 
@@ -59,9 +59,9 @@ class ClientController extends Controller
     public function update(Request $request, Client $client)
     {
         $request->validate([
-            'name' => 'required|string|max:100',
-            'rfc' => 'nullable|string|max:100',
-            'phone' => 'required|string|min:8|max:13',
+            'name' => 'required|string|max:255',
+            'rfc' => 'nullable|string|max:255',
+            'phone' => 'required|string|min:10|max:13',
             'address' => 'nullable|string',
         ]);
 
@@ -103,5 +103,18 @@ class ClientController extends Controller
         }
 
         return response()->json(['item' => $pendentAmount]);
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+        // Realiza la búsqueda en la base de datos
+        $clients = ClientResource::collection(Client::where('name', 'like', "%$query%")
+            ->orWhere('phone', 'like', "%$query%")
+            ->get()
+            ->take(20));
+
+        return response()->json(['items' => $clients]);
     }
 }

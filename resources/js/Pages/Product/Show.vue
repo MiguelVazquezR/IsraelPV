@@ -1,15 +1,7 @@
 <template>
     <AppLayout :title="product.data.name">
         <div class="px-2 lg:px-10 py-7 text-sm">
-            <!-- header botones -->
-            <div class="lg:flex justify-between items-center mx-3">
-                <h1 class="font-bold text-lg">Productos</h1>
-                <div class="flex items-center space-x-3 my-2 lg:my-0">
-                    <ThirthButton @click="openEntryModal" class="!rounded-full">Entrada de producto</ThirthButton>
-                    <PrimaryButton @click="$inertia.get(route('products.edit', product.data.id))" class="!rounded-full">
-                        Editar</PrimaryButton>
-                </div>
-            </div>
+            <h1 class="font-bold text-lg">Productos</h1>
             <div class="lg:w-1/4 relative">
                 <input v-model="searchQuery" @focus="searchFocus = true" @blur="handleBlur" @input="searchProducts"
                     class="input w-full pl-9" placeholder="Buscar código o nombre de producto" type="search">
@@ -26,7 +18,15 @@
                     <p v-else class="text-center text-sm text-gray-600 px-5 py-2">No se encontraron coincidencias</p>
                 </div>
             </div>
-            <div class="mt-5">
+            <!-- header botones -->
+            <div class="flex justify-end items-center">
+                <div class="flex items-center space-x-1 my-2 lg:my-0">
+                    <ThirthButton @click="openEntryModal" class="!rounded-full">Entrada de producto</ThirthButton>
+                    <PrimaryButton @click="$inertia.get(route('products.edit', product.data.id))" class="!rounded-full">
+                        Editar</PrimaryButton>
+                </div>
+            </div>
+            <div class="mt-3">
                 <Back :route="'products.index'" />
             </div>
 
@@ -54,22 +54,22 @@
                     <div v-if="currentTab == 1" class="mt-7 lg:mx-16">
                         <div class="lg:flex justify-between items-center">
                             <p class="text-gray37">
-                                Código: 
+                                Código:
                                 <span class="text-black">{{ String(product.data.id).padStart(3, '0') }}</span>
                             </p>
                             <p class="text-gray37">
-                                Fecha de alta: 
+                                Fecha de alta:
                                 <span class="text-black">{{ product.data.created_at }}</span>
                             </p>
                         </div>
                         <p class="text-gray37">
-                            categoría: 
+                            categoría:
                             <span class="text-black">{{ product.data.category.name }}</span>
                         </p>
                         <p class="text-gray37 mt-2">
-                            Nombre: 
+                            Nombre:
                             <span class="text-black font-bold">{{ product.data.name }}</span>
-                         </p>
+                        </p>
 
                         <div class="w-5/6 lg:w-1/2 mt-3 lg:mt-10 lg:-ml-7 space-y-2">
                             <div class="grid grid-cols-2 border border-grayD9 rounded-full px-5 py-1">
@@ -131,7 +131,9 @@
                     </div>
 
                     <div class="flex justify-end space-x-3 pt-7 pb-1 py-2">
-                        <PrimaryButton :disabled="!form.quantity || form.processing" @click="entryProduct" class="!rounded-full">Ingresar producto</PrimaryButton>
+                        <PrimaryButton :disabled="!form.quantity || form.processing" @click="entryProduct"
+                            class="!rounded-full">Ingresar
+                            producto</PrimaryButton>
                         <CancelButton @click="entryProductModal = false">Cancelar</CancelButton>
                     </div>
                 </section>
