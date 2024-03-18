@@ -248,16 +248,30 @@ export default {
                         message: 'Se ha ingresado ' + this.form.quantity + ' unidades de ' + this.productEntryFound[0].name,
                         type: "success",
                     });
+                    this.fetchHistories();
                     this.form.reset();
                     this.productEntryFound = null;
                 },
             });
         },
+        async fetchHistories() {
+            try {
+                this.loading = true;
+                const response = await axios.get(route('product-histories.fetch'));
+                if (response.status == 200) {
+                   this.localHistory = response.data.histories;
+                }
+
+            } catch (error) {
+                console.log(error);
+            } finally {
+                this.loading = false;
+            }
+        },
         closeEntryModal() {
-            // this.form.reset();
-            // this.productEntryFound = null;
-            // this.entryProductModal = false;
-            location.reload(); //refresco la página para cargar los nuevos registros agregados
+            this.form.reset();
+            this.productEntryFound = null;
+            this.entryProductModal = false;
         }
     }
 }

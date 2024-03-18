@@ -118,6 +118,15 @@ class SaleController extends Controller
     }
 
 
+    public function getByIdCopy(Sale $sale)
+    {
+        $sale = SaleResource::make(Sale::latest()->with('client:id,name', 'products:id,name,cost')->find($sale->id));
+
+
+        return response()->json(compact('sale'));
+    }
+
+
     public function getByIds(Request $request)
     {
         $items = Sale::whereIn('id', $request->ids)->with(['payments', 'products'])->get();
