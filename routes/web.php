@@ -56,6 +56,7 @@ Route::post('sales-get-by-ids', [SaleController::class, 'getByIds'])->middleware
 Route::get('sales-point', [SaleController::class, 'pointIndex'])->name('sales.point')->middleware('auth');
 Route::get('sales-get-by-page/{currentPage}', [SaleController::class, 'getItemsByPage'])->name('sales.get-by-page')->middleware('auth');
 Route::get('sales-get-by-id/{sale}', [SaleController::class, 'getById'])->middleware('auth')->name('sales.get-by-id');
+Route::get('sales-get-by-id-copy/{sale}', [SaleController::class, 'getByIdCopy'])->middleware('auth')->name('sales.get-by-id-copy'); //es lo mismo que la de arriba pero con resource
 
 
 //products routes-------------------------------------------------------------------------------------
@@ -75,6 +76,7 @@ Route::resource('product-histories', ProductHistoryController::class)->middlewar
 Route::get('product-histories-get-by-page/{currentPage}', [ProductHistoryController::class, 'getItemsByPage'])->name('product-histories.get-by-page')->middleware('auth');
 Route::get('product-histories-filter', [ProductHistoryController::class, 'filterHistory'])->name('product-histories.filter')->middleware('auth');
 Route::get('product-histories-get-by-id/{product_history}', [ProductHistoryController::class, 'getById'])->middleware('auth')->name('product-histories.get-by-id');
+Route::get('product-histories-fetch', [ProductHistoryController::class, 'fetch'])->middleware('auth')->name('product-histories.fetch');
 
 
 //clients routes-------------------------------------------------------------------------------------

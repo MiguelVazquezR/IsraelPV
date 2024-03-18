@@ -57,7 +57,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>
 
-                        <span>{{ sale.total }}</span>
+                        <span>${{ sale.total }}</span>
                     </p>
                     <p>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3">
@@ -67,11 +67,6 @@
                         <span :class="sale.status?.color">{{ sale.status?.label }}</span>
                     </p>
                 </main>
-                <footer class="mt-2 mx-5">
-                    <p class="text-gray99">
-                        <!-- Saldo pendiente: ${{ pendentAmount.toLocaleString('en-US', { minimumFractionDigits: 2 }) }} -->
-                    </p>
-                </footer>
                 </Link>
             </div>
         </div>
@@ -100,7 +95,7 @@ data() {
     methods:{
         async fetchSale() {
             try {
-                const response = await axios.get(route('sales.get-by-id', this.saleId));
+                const response = await axios.get(route('sales.get-by-id-copy', this.saleId));
 
                 if (response.status === 200) {
                     this.sale = response.data.sale;

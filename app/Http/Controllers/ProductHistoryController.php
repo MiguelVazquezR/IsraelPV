@@ -105,4 +105,13 @@ class ProductHistoryController extends Controller
  
          return response()->json(compact('history'));
      }
+
+
+     public function fetch()
+     {
+ 
+        $histories = ProductHistoryResource::collection(ProductHistory::latest()->with('product:id,name,cost')->get()->take(20));
+ 
+        return response()->json(compact('histories'));
+     }
 }
