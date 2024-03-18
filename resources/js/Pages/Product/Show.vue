@@ -80,7 +80,7 @@
                                 <p class="text-gray37">Precio de venta: </p>
                                 <p class="text-right text-black">${{ product.data.public_price }}</p>
                             </div>
-                            <div v-if="product.data.current_stock >= product.data.min_stock"
+                            <div v-if="product.data.current_stock > product.data.min_stock"
                                 class="grid grid-cols-2 border border-grayD9 rounded-full px-5 py-1">
                                 <p class="text-gray37">Existencias: </p>
                                 <p class="text-right text-[#5FCB1F]">{{ product.data.current_stock }}</p>

@@ -150,7 +150,7 @@ export default {
             return [
                 {
                     title: 'Ingresos (ventas)',
-                    colors: ['#C30303', '#F07209'],
+                    colors: ['#9a9a9a', '#C30303'],
                     categories: timeline.timeline,
                     series: [{
                         name: timeline.last.name,
@@ -163,7 +163,7 @@ export default {
                 },
                 {
                     title: 'Egresos (compras)',
-                    colors: ['#C30303', '#F07209'],
+                    colors: ['#9a9a9a', '#C30303'],
                     categories: timeline.timeline,
                     series: [{
                         name: timeline.last.name,

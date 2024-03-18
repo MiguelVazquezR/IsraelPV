@@ -11,7 +11,7 @@
                         </svg>
                         <p class="text-sm ml-2">Filtrar</p>
                     </button>
-                    <div v-if="showFilter" class="absolute top-9 -left-64 border border[#D9D9D9] rounded-md p-4 bg-white">
+                    <div v-if="showFilter" class="absolute top-9 -left-64 border border[#D9D9D9] rounded-md p-4 bg-white shadow-lg">
                         <div>
                             <InputLabel value="Rango de fechas" class="ml-3 mb-1" />
                             <el-date-picker

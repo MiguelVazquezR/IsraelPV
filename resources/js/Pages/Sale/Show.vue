@@ -102,7 +102,7 @@
 
             <div class="mt-2">
                 <InputLabel value="Fecha de abono" class="ml-3 mb-1" />
-                <!-- <el-date-picker v-model="form.date" type="date" placeholder="Seleccione" /> -->
+                <!-- <el-date-picker v-model="form.date" type="date" placeholder="Seleccione" class="!w-full" /> -->
                 <input class="input !rounded-md !h-8" type="date" v-model="form.date" placeholder="Seleccione">
             </div>
 
@@ -123,8 +123,8 @@
             </div>
 
             <div class="flex justify-end space-x-3 pt-2 pb-1 py-2 col-span-full">
-              <PrimaryButton :disabled="((sale.data.total - totalPaymentAmount) - form.amount) < 0 || !form.amount || !form.date">Abonar</PrimaryButton>
-              <CancelButton @click="paymentModal = false; form.reset();">Cancelar</CancelButton>
+                <CancelButton @click="paymentModal = false; form.reset();">Cancelar</CancelButton>
+                <PrimaryButton :disabled="((sale.data.total - totalPaymentAmount) - form.amount) < 0 || !form.amount || !form.date">Abonar</PrimaryButton>
             </div>
           </form>
         </div>

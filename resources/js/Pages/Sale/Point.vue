@@ -83,7 +83,7 @@
               <i @click="productFoundSelected = null"
                 class="fa-solid fa-xmark cursor-pointer size-5 rounded-full flex items-center justify-center absolute right-3"></i>
               <figure class="h-32">
-                <img class="object-contain w-32 mx-auto" :src="productFoundSelected?.imageCover[0]?.original_url">
+                <img class="object-contain h-32 mx-auto" :src="productFoundSelected?.imageCover[0]?.original_url">
               </figure>
               <div class="flex justify-between items-center mt-2 mb-4">
                 <p class="font-bold">{{ productFoundSelected?.name }}</p>

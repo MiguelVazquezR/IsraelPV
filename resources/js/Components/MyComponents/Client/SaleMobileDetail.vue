@@ -5,7 +5,7 @@
         <header class="flex items-center justify-between">
             <h1 class="text-gray99"><b class="mr-1">Folio</b>{{ 'V-' + String(saleId).padStart(4, '0') }}</h1>
         </header>
-        <main class="text-gray99 mt-1">
+        <main v-if="sale" class="text-gray99 mt-1">
             <div class="flex items-center space-x-1">
                 <p>Creado el: <span class="text-black">{{ format(sale.created_at, true) }}</span></p>
                 <i v-if="sale.has_credit" class="fa-solid fa-minus"></i>
