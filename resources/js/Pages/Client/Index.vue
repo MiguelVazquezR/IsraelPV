@@ -20,8 +20,8 @@
                 <p v-if="localClients.length" class="text-gray66 text-[11px]">{{ localClients.length }} de {{
                     total_clients }} elementos
                 </p>
-                <ClientTable :clients="localClients" class="hidden lg:block" />
-                <ClientMobileIndex v-for="item in localClients" :key="item.id" :clientId="item.id" class="lg:hidden" />
+                <ClientTable :clients="localClients" class="hidden md:block" />
+                <ClientMobileIndex v-for="item in localClients" :key="item.id" :clientId="item.id" class="md:hidden" />
                 <el-empty v-if="!localClients.length" description="No hay clientes registrados" />
                 <p v-if="localClients.length" class="text-gray66 text-[11px]">{{ localClients.length }} de {{
                     total_clients }} elementos
