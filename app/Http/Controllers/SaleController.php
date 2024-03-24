@@ -83,7 +83,9 @@ class SaleController extends Controller
                 'notes' => $request->data['deposit_notes'],
                 'sale_id' => $sale->id,
             ]);
+
         }
+        return response()->json(['item' => $sale]);
     }
 
     public function show($sale_id)
@@ -171,5 +173,14 @@ class SaleController extends Controller
             ->get());
 
         return response()->json(['items' => $sales]);
+    }
+
+    
+    public function printTicket($sale_id)
+    {
+        $sale = SaleResource::make(Sale::with(['client', 'products'])->find($sale_id));
+
+        // return $sale;
+        return inertia('Sale/PrintTicket', compact('sale'));
     }
 }

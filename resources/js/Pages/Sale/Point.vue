@@ -357,13 +357,14 @@ export default {
           }
         });
         if (response.status === 200) {
-          this.$notify({
-            title: "Correcto",
-            text: "Se ha registrado la venta con éxito!",
-            type: "success",
-          });
+          // this.$notify({
+          //   title: "Correcto",
+          //   text: "Se ha registrado la venta con éxito!",
+          //   type: "success",
+          // });
           this.storeProcessing = false;
           this.clearTab();
+          this.$inertia.get(route('sales.print-ticket', response.data.item.id));
         }
       } catch (error) {
         console.log(error);
