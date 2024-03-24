@@ -52,8 +52,14 @@
             <div class="border-b border-black w-[170px] mx-auto mt-9"></div>
             <p class="text-center">FIRMA</p>
         </footer>
-
     </div>
+
+    <button @click="conectarBluetooth" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
+            Conectar a la impresora vía Bluetooth
+        </button>
+    <button @click="print" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4">
+            Imprimir
+        </button>
 </template>
 
 <script>
@@ -143,10 +149,28 @@ methods: {
       }
 
       return centenasEnLetra;
+    },
+    conectarBluetooth() {
+      // Solicitar al usuario que seleccione la impresora vía Bluetooth
+      navigator.bluetooth.requestDevice({
+        acceptAllDevices: true, // Aceptar cualquier dispositivo Bluetooth
+        // optionalServices: ['printer_service_uuid'] // UUID del servicio de la impresora
+      })
+      .then(device => {
+        console.log('Dispositivo Bluetooth conectado:', device);
+        // Aquí puedes continuar con el proceso de impresión
+      })
+      .catch(error => {
+        console.error('Error al conectar con dispositivo Bluetooth:', error);
+      });
+    },
+    print() {
+        window.print()
     }
   },
   mounted(){
-    window.print();
+    // this.conectarBluetooth();
+    // window.print();
   }
 }
 </script>
