@@ -158,12 +158,32 @@ methods: {
       })
       .then(device => {
         console.log('Dispositivo Bluetooth conectado:', device);
-        // Aquí puedes continuar con el proceso de impresión
+        // Llamar a la función para enviar datos de impresión después de que se haya emparejado el dispositivo
+        this.enviarDatosImpresion(device);
+
       })
       .catch(error => {
         console.error('Error al conectar con dispositivo Bluetooth:', error);
       });
     },
+     async enviarDatosImpresion(device) {
+    try {
+      // Obtener el servicio de impresión
+      const service = await device.gatt.connect().then(server => server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb'));
+
+      // Obtener el carácterística de escritura
+      const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+
+      // Aquí puedes enviar los datos de impresión a través de la característica de escritura
+      // Por ejemplo, puedes enviar una cadena de texto a imprimir
+      const data = 'Este es un ejemplo de texto a imprimir';
+      await characteristic.writeValue(new TextEncoder().encode(data));
+
+      console.log('Datos de impresión enviados correctamente');
+    } catch (error) {
+      console.error('Error al enviar datos de impresión:', error);
+    }
+  },
     print() {
         window.print()
     }
