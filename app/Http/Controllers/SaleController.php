@@ -83,7 +83,9 @@ class SaleController extends Controller
                 'notes' => $request->data['deposit_notes'],
                 'sale_id' => $sale->id,
             ]);
+
         }
+        return response()->json(['item' => $sale]);
     }
 
     public function show($sale_id)
