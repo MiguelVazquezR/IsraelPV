@@ -172,4 +172,13 @@ class SaleController extends Controller
 
         return response()->json(['items' => $sales]);
     }
+
+    
+    public function printTicket($sale_id)
+    {
+        $sale = SaleResource::make(Sale::with(['client', 'products'])->find($sale_id));
+
+        // return $sale;
+        return inertia('Sale/PrintTicket', compact('sale'));
+    }
 }

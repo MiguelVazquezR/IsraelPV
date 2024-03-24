@@ -57,6 +57,7 @@ Route::get('sales-point', [SaleController::class, 'pointIndex'])->name('sales.po
 Route::get('sales-get-by-page/{currentPage}', [SaleController::class, 'getItemsByPage'])->name('sales.get-by-page')->middleware('auth');
 Route::get('sales-get-by-id/{sale}', [SaleController::class, 'getById'])->middleware('auth')->name('sales.get-by-id');
 Route::get('sales-get-by-id-copy/{sale}', [SaleController::class, 'getByIdCopy'])->middleware('auth')->name('sales.get-by-id-copy'); //es lo mismo que la de arriba pero con resource
+Route::get('sales-print-ticket/{sale_id}', [SaleController::class, 'printTicket'])->middleware('auth')->name('sales.print-ticket');
 
 
 //products routes-------------------------------------------------------------------------------------

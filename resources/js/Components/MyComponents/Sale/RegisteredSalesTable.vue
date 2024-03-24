@@ -25,6 +25,11 @@
                             <i @click.stop class="fa-regular fa-trash-can text-primary cursor-pointer hover:bg-gray-200 rounded-full p-2"></i>
                         </template>
                     </el-popconfirm>
+                    <el-popconfirm confirm-button-text="Si" cancel-button-text="No" icon-color="#C30303" title="¿Continuar?" @confirm="print(sale)">
+                        <template #reference>
+                            <i @click.stop class="fa-solid fa-print text-primary cursor-pointer hover:bg-gray-200 rounded-full p-2"></i>
+                        </template>
+                    </el-popconfirm>
                 </div>
             </div>
         </div>
@@ -72,6 +77,9 @@ methods:{
                 position: 'bottom-right',
             });
         }
+    },
+    print(sale) {
+        this.$inertia.get(route('sales.print-ticket', sale.id));
     }
 }
 }
