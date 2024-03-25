@@ -126,14 +126,13 @@ class SaleController extends Controller
     {
         $sale = SaleResource::make(Sale::latest()->with('client:id,name', 'products:id,name,cost')->find($sale->id));
 
-
         return response()->json(compact('sale'));
     }
 
 
     public function getByIds(Request $request)
     {
-        $items = Sale::whereIn('id', $request->ids)->with(['payments', 'products'])->get();
+        $items = Sale::whereIn('id', $request->ids)->with(['payments', 'products'])->latest()->get();
 
         return response()->json(compact('items'));
     }

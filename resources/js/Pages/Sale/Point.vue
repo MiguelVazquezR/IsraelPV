@@ -22,7 +22,6 @@
                       <i class="fa-solid fa-info text-primary text-[7px]"></i>
                     </div>
                   </el-tooltip>
-
                   <el-select v-model="editableTabs[this.editableTabsValue - 1].client_id" clearable filterable
                     placeholder="Seleccione" no-data-text="No hay opciones registradas"
                     no-match-text="No se encontraron coincidencias">
@@ -128,9 +127,14 @@
 
             <!-- cobrando al contado -->
             <div v-if="editableTabs[this.editableTabsValue - 1]?.cash">
-              <p class="text-gray-99 text-center mb-3 text-lg">Total $ <strong>{{
+              <div class="flex items-center justify-between mb-3">
+                <button @click="editableTabs[this.editableTabsValue - 1].cash = false; editableTabs[this.editableTabsValue - 1].moneyReceived = null">
+                  <i class="fa-solid fa-angle-left text-xs px-2 cursor-pointer"></i>
+                </button>
+                <p class="text-gray-99 text-sm">Total $ <strong>{{
               calculateTotal().toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</strong>
-              </p>
+                </p>
+              </div>
               <div class="flex items-center justify-between mx-5 space-x-10">
                 <p>Entregado</p>
                 <input v-model="editableTabs[this.editableTabsValue - 1].moneyReceived" @keydown.enter="store"
@@ -148,9 +152,9 @@
                 cantidad
                 igual o mayor al total de compra.</p>
               <div class="flex space-x-2 justify-end">
-                <CancelButton
+                <!-- <CancelButton
                   @click="editableTabs[this.editableTabsValue - 1].cash = false; editableTabs[this.editableTabsValue - 1].moneyReceived = null">
-                  Cancelar</CancelButton>
+                  Cancelar</CancelButton> -->
                 <PrimaryButton :disabled="storeProcessing" @click="checkClientExist" class="!rounded-full">Aceptar
                 </PrimaryButton>
               </div>
@@ -186,9 +190,9 @@
                 </div>
               </div>
               <div class="w-2/3 pr-5">
-                <InputLabel value="Fecha de vencimiento"  class="text-sm !text-gray-400 ml-2" />
-                <el-date-picker v-model="editableTabs[this.editableTabsValue - 1].limit_date" class="!w-full" type="date"
-                  placeholder="Seleccione" :disabled-date="disabledDate" />
+                <InputLabel value="Fecha de vencimiento" class="text-sm !text-gray-400 ml-2" />
+                <el-date-picker v-model="editableTabs[this.editableTabsValue - 1].limit_date" class="!w-full"
+                  type="date" placeholder="Seleccione" :disabled-date="disabledDate" />
               </div>
               <div class="mt-3">
                 <InputLabel value="Notas (opcional)" class="text-sm ml-2 !text-gray-400" />
@@ -342,7 +346,6 @@ export default {
       }
     },
     async store() {
-      console.log(this.editableTabs[this.editableTabsValue - 1]?.saleProducts);
       try {
         this.storeProcessing = true;
         const response = await axios.post(route('sales.store'), {

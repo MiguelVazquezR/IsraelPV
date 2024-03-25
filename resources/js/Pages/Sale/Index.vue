@@ -31,7 +31,7 @@
                         <div>
                             <InputLabel value="Rango de fechas" class="ml-3 mb-1" />
                             <el-date-picker v-model="searchDate" type="daterange" range-separator="A"
-                                start-placeholder="Fecha de inicio" end-placeholder="Fecha de fin" />
+                                start-placeholder="Fecha de inicio" end-placeholder="Fecha de fin" class="!w-full" />
                         </div>
                         <div class="my-3">
                             <InputLabel value="Cliente" class="ml-3 mb-1" />

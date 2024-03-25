@@ -120,7 +120,7 @@ data() {
                 const response = await axios.delete(route('product-histories.destroy', historyId));
                 if (response.status == 200) {
                     this.$notify({
-                        title: 'Success',
+                        title: 'Correcto',
                         message: 'Se ha eliminado el registro',
                         type: 'success',
                     });
