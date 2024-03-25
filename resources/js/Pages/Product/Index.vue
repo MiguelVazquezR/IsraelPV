@@ -19,16 +19,19 @@
             </div>
             <Loading v-if="loading" class="mt-20" />
             <div v-else class="mt-8">
-                <p v-if="localProducts.length" class="text-gray66 text-[11px]">{{ localProducts.length }} de {{ total_products }} elementos
+                <p v-if="localProducts.length" class="text-gray66 text-[11px]">{{ localProducts.length }} de {{
+                    total_products }} elementos
                 </p>
                 <ProductTable :products="localProducts" />
-                <p v-if="localProducts.length" class="text-gray66 text-[11px]">{{ localProducts.length }} de {{ total_products }} elementos
+                <p v-if="localProducts.length" class="text-gray66 text-[11px]">{{ localProducts.length }} de {{
+                    total_products }} elementos
                 </p>
                 <p v-if="loadingItems" class="text-xs my-4 text-center">
                     Cargando <i class="fa-sharp fa-solid fa-circle-notch fa-spin ml-2 text-primary"></i>
                 </p>
-                <button v-else-if="total_products > 15 && localProducts.length < total_products && localProducts.length" @click="fetchItemsByPage"
-                    class="w-full text-primary my-4 text-xs mx-auto underline ml-6">Cargar más elementos</button>
+                <button v-else-if="total_products > 15 && localProducts.length < total_products && localProducts.length"
+                    @click="fetchItemsByPage" class="w-full text-primary my-4 text-xs mx-auto underline ml-6">Cargar más
+                    elementos</button>
             </div>
         </div>
 
@@ -52,8 +55,9 @@
                     <div v-if="productEntryFound?.length > 0" class="mt-3">
                         <InputLabel value="Cantidad" class="ml-3 mb-1 text-sm" />
                         <el-input v-model="form.quantity" ref="quantityInput" autofocus @keydown.enter="entryProduct"
-                            placeholder="Catidad que entra a almacén"
-                            >
+                            placeholder="Cantidad que entra a almacén"
+                            :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                            :parser="(value) => value.replace(/\D/g, '')">
                             <template #prefix>
                                 <i class="fa-solid fa-hashtag"></i>
                             </template>
@@ -69,8 +73,7 @@
                     <!-- informacion del producto escaneado -->
                     <div v-if="productEntryFound?.length > 0" class="mt-5 grid grid-cols-3">
                         <figure class="w-32 ml-16">
-                            <img class="w-32 object-contain" :src="productEntryFound[0]?.imageCover[0]?.original_url"
-                                alt="">
+                            <img class="w-32 object-contain" :src="productEntryFound[0]?.imageCover[0]?.original_url">
                         </figure>
 
                         <div class="col-span-2 text-left">
@@ -81,7 +84,8 @@
                     </div>
 
                     <div class="flex justify-end space-x-3 pt-7 pb-1 py-2">
-                        <PrimaryButton :disabled="!form.quantity || form.processing" @click="entryProduct" class="!rounded-full">Ingresar producto</PrimaryButton>
+                        <PrimaryButton :disabled="!form.quantity || form.processing" @click="entryProduct"
+                            class="!rounded-full">Ingresar producto</PrimaryButton>
                         <CancelButton @click="closeEntryModal">Cancelar</CancelButton>
                     </div>
                 </section>
@@ -187,9 +191,8 @@ export default {
                 const response = await axios.get(route('products.search'), { params: { query: this.form.code } });
                 if (response.status == 200) {
                     this.productEntryFound = response.data.items;
-                    console.log(this.productEntryFound);
                     if (this.productEntryFound?.length > 0) {
-                            this.$nextTick(() => {
+                        this.$nextTick(() => {
                             this.$refs.quantityInput?.focus(); // Enfocar el input de cantidad cuando se encuentra el producto
                         });
                     } else {
@@ -210,7 +213,7 @@ export default {
         entryProduct() {
             this.form.put(route('products.entry', this.productEntryFound[0]?.id), {
                 onSuccess: () => {
-                    const IndexProductEntry = this.localProducts.findIndex(item => item.code === this.form.code);
+                    const IndexProductEntry = this.localProducts.findIndex(item => item.id == this.productEntryFound[0].id);
                     if (IndexProductEntry != -1) {
                         this.localProducts[IndexProductEntry].current_stock += parseInt(this.form.quantity);
                     }
@@ -222,8 +225,8 @@ export default {
                         message: 'Se ha ingresado ' + this.form.quantity + ' unidades de ' + this.productEntryFound[0].name,
                         type: "success",
                     });
-                        this.form.reset();
-                        this.productEntryFound = null;
+                    this.form.reset();
+                    this.productEntryFound = null;
                 },
             });
         },

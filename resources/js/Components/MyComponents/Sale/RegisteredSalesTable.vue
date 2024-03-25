@@ -62,7 +62,7 @@ methods:{
                 this.sales.splice(indexToDelete, 1);
 
                 ElNotification({
-                title: 'Success',
+                title: 'Correcto',
                 message: 'Se ha eliminado la venta',
                 type: 'success',
                 position: 'bottom-right',
