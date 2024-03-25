@@ -364,7 +364,8 @@ export default {
           // });
           this.storeProcessing = false;
           this.clearTab();
-          this.$inertia.get(route('sales.print-ticket', response.data.item.id));
+          window.open(route('sales.print-ticket', response.data.item.id), '_blank');
+          // this.$inertia.get(route('sales.print-ticket', response.data.item.id));
         }
       } catch (error) {
         console.log(error);

@@ -79,7 +79,7 @@ methods:{
         }
     },
     print(sale) {
-        this.$inertia.get(route('sales.print-ticket', sale.id));
+        window.open(route('sales.print-ticket', sale.id), '_blank');
     }
 }
 }
