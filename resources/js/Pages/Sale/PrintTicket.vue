@@ -1,7 +1,9 @@
 <template>
-    <div class="w-[220px] mx-auto text-sm">
-        <p class="h-2">-------------------------------------</p>
-        <p class="h-2">-------------------------------------</p>
+<Head :title="sale.data.folio" />
+
+    <div class="w-full lg:w-[220px] mx-auto text-sm">
+        <p class="h-2 border-dashed border-b border-gray-900"></p>
+        <p class="h-2 border-dashed border-b border-gray-900"></p>
         <p class="text-right mt-2">Folio: {{ sale.data.folio }}</p>
 
         <div class="grid grid-cols-2 mt-3">
@@ -11,7 +13,7 @@
             <p>Cliente: {{ sale.data.client?.name }}</p>
             <p class="text-right">{{ sale.data.created_at.split(',')[1] }}</p>
         </div>
-        <p class="h-2">-------------------------------------</p>
+        <p class="h-2 border-dashed border-b border-gray-900"></p>
 
         <!-- tabla de productos -->
         <table class="mt-2 w-full text-xs">
@@ -30,47 +32,57 @@
         </table>
 
         <p class="font-bold text-base my-2">TOTAL ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} </p>
-        <p class="h-2">-------------------------------------</p>
+        <p class="h-2 border-dashed border-b border-gray-900"></p>
         <p class="uppercase text-s mt-2">{{ '(' + convertirNumeroALetra(sale.data.total) + ' PESOS)' }}</p>
         <p class="font-bold text-xs mt-1">TOTAL DE ARTÍCULOS: {{ sale.data.products?.length }}</p>
         <p class="font-bold">GRACIAS POR SU COMPRA</p>
 
         <!-- Pagaré en caso de crédito -->
-        <div v-if="sale.data.has_credit" class="mt-3 text-xs">
+        <div v-if="sale.data.has_credit" class="mt-1 text-xs">
             <p>DEBO Y PAGARÉ INCONDICIONALMENTE A LA ORDEN DE ISAAC DÍAZ EN ESTA CIUDAD O EN LA QUE SE ME REQUIERA EL DÍA</p>
             <p>DE____________DEL 20_______LA CANTIDAD</p>
             <p>DE $__________________MXN.</p>
         </div>
 
         <!-- texto y firma -->
-        <footer v-if="sale.data.has_credit" class="mt-3 text-xs">
+        <footer v-if="sale.data.has_credit" class="mt-2 text-xs">
             <p>
                 VALOR DE LAS MERCANCÍAS RECIBIDAS A MI ENTERA SATISFACCIÓNESTE PAGARÉ ES MERCANTÍL Y ESTÁ REGIDO POR LA LEY
                 GENERAL DE TÍTULOS Y OPERACIONES DE CRÉDITO EN SU ARTÍCULO 173 PARTE FINAL Y ARTÍCULOS CORRELATIVOS POR NO SER
                 PAGARÉ DOMICILIARIO.
             </p>
-            <div class="border-b border-black w-[170px] mx-auto mt-9"></div>
+            <div class="border-b border-black w-[170px] mx-auto mt-8"></div>
             <p class="text-center">FIRMA</p>
         </footer>
     </div>
 
-    <button @click="conectarBluetooth" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
-            Conectar a la impresora vía Bluetooth
-        </button>
+    <!-- <button @click="conectarBluetooth" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
+        Conectar a la impresora vía Bluetooth
+    </button>
     <button @click="print" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4">
-            Imprimir
-        </button>
+        Imprimir
+    </button>
+
+    <div>
+      <p>Nombre del dispositivo: {{ infoDispositivo.name }}</p>
+      <p>ID del dispositivo: {{ infoDispositivo.id }}</p>
+      <p>UUIDs del dispositivo: {{ infoDispositivo?.uuids?.join(', ') }}</p>
+      <p>Versión de Bluetooth: {{ infoDispositivo.version }}</p>
+      <p>RSSI (Received Signal Strength Indicator): {{ infoDispositivo.rssi }}</p>
+      <p>Fabricante: {{ infoDispositivo.manufacturer }}</p>
+    </div> -->
 </template>
 
 <script>
+import { Head } from '@inertiajs/vue3';
 export default {
 data() {
     return {
-
+      infoDispositivo: 'nullo'
     }
 },
 components:{
-
+Head
 },
 props:{
 sale: Object
@@ -161,6 +173,22 @@ methods: {
         // Llamar a la función para enviar datos de impresión después de que se haya emparejado el dispositivo
         this.enviarDatosImpresion(device);
 
+
+        // Obtener información del dispositivo -------------------
+        const info = {
+          name: device.name,
+          id: device.id,
+          uuids: device.uuids,
+          version: device.bluetoothVersion,
+        //   batteryLevel: device.battery ? await device.battery.getLevel() : 'N/A',
+          rssi: device.rssi ? device.rssi : 'N/A',
+          manufacturer: device.manufacturerName ? device.manufacturerName : 'Desconocido'
+          // Agrega más información del dispositivo según sea necesario
+        };
+
+        // Guardar la información del dispositivo en los datos del componente
+        this.infoDispositivo = info;
+
       })
       .catch(error => {
         console.error('Error al conectar con dispositivo Bluetooth:', error);
@@ -189,8 +217,7 @@ methods: {
     }
   },
   mounted(){
-    // this.conectarBluetooth();
-    // window.print();
+    this.print();
   }
 }
 </script>
