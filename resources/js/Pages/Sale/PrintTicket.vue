@@ -1,4 +1,6 @@
 <template>
+<Head :title="sale.data.folio" />
+
     <div class="w-full lg:w-[220px] mx-auto text-sm">
         <p class="h-2 border-dashed border-b border-gray-900"></p>
         <p class="h-2 border-dashed border-b border-gray-900"></p>
@@ -72,6 +74,7 @@
 </template>
 
 <script>
+import { Head } from '@inertiajs/vue3';
 export default {
 data() {
     return {
@@ -79,7 +82,7 @@ data() {
     }
 },
 components:{
-
+Head
 },
 props:{
 sale: Object
