@@ -57,7 +57,7 @@ methods:{
                 this.histories.splice(indexToDelete, 1);
 
                 ElNotification({
-                title: 'Success',
+                title: 'Correcto',
                 message: 'Se ha eliminado el registro',
                 type: 'success',
                 position: 'bottom-right',

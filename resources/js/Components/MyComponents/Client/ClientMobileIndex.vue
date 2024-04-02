@@ -144,7 +144,7 @@ export default {
                     this.clients.splice(indexToDelete, 1);
 
                     this.$notify({
-                        title: 'Success',
+                        title: 'Correcto',
                         message: 'Se ha eliminado el cliente',
                         type: 'success',
                     });

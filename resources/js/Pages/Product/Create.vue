@@ -16,13 +16,13 @@
                         <button
                             @click="showCategoryFormModal = true" type="button"
                             class="rounded-full border border-primary size-4 flex items-center justify-center">
-                            <i class="fa-solid fa-plus text-primary text-[9px] pb-[1px] pr-[1px]"></i>
+                            <i class="fa-solid fa-plus text-primary text-[9px]"></i>
                         </button>
                     </div>
                     <el-select class="w-1/2" v-model="form.category_id" clearable
                         placeholder="Seleccione" no-data-text="No hay opciones registradas"
                         no-match-text="No se encontraron coincidencias">
-                        <el-option v-for="category in categories" :key="category" :label="category.name" :value="category.id" />
+                        <el-option v-for="category in localCategories" :key="category" :label="category.name" :value="category.id" />
                     </el-select>
                     <InputError :message="form.errors.category_id" />
                 </div>
@@ -62,7 +62,7 @@
                 
                 <div class="mt-3">
                     <InputLabel value="Cantidad mínima" class="ml-3 mb-1 text-sm" />
-                    <el-input v-model="form.min_stock" placeholder="Catidad mínima permitida en stock"
+                    <el-input v-model="form.min_stock" placeholder="Cantidad mínima permitida en stock"
                       :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                       :parser="(value) => value.replace(/\D/g, '')" />
                     <InputError :message="form.errors.min_stock" />
@@ -70,15 +70,13 @@
 
                 <div class="mt-3">
                     <InputLabel value="Cantidad máxima" class="ml-3 mb-1 text-sm" />
-                    <el-input v-model="form.max_stock" placeholder="Catidad máxima permitida en stock"
+                    <el-input v-model="form.max_stock" placeholder="Cantidad máxima permitida en stock"
                       :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                       :parser="(value) => value.replace(/\D/g, '')" />
                     <InputError :message="form.errors.max_stock" />
                 </div>
 
-                <h2 class="font-bold col-span-full text-sm my-5">Cantidades de stock permitidas</h2>
-
-                <div>
+                <div class="mt-3">
                     <InputLabel value="Agregar imagen" class="ml-3 mb-1" />
                     <InputFilePreview @imagen="saveImage" @cleared="form.imageCover = null" />
                 </div>
@@ -157,6 +155,7 @@ data() {
     return {
        form,
        categoryForm,
+       localCategories: this.categories,
        showCategoryFormModal: false,
     };
 },
@@ -186,17 +185,24 @@ methods:{
         },
       });
     },
-    storeCategory() {
-        this.categoryForm.post(route('categories.store'), {
-            onSuccess: () => {
+    async storeCategory() {
+        try {
+            const response = await axios.post(route('categories.store'), {
+                name: this.categoryForm.name
+            });
+            if (response.status === 200) {
                 this.$notify({
                     title: "Éxito",
                     message: "Se ha creado una nueva categoría",
                     type: "success",
                 });
+                this.form.category_id = response.data.item.id;
+                this.localCategories.push(response.data.item)
                 this.showCategoryFormModal = false;
-            },
-        });
+            }
+        } catch (error) {
+            console.log(error)
+        }
     },
     saveImage(image) {
         this.form.imageCover = image;

@@ -116,7 +116,7 @@ data() {
                 const response = await axios.delete(route('sales.destroy', saleId));
                 if (response.status == 200) {
                     this.$notify({
-                        title: 'Success',
+                        title: 'Correcto',
                         message: 'Se ha eliminado la venta',
                         type: 'success',
                     });

@@ -15,9 +15,9 @@
                 @click="$inertia.get(route('clients.show', client.id))">
                 <div class="md:block w-[10%] md:w-[10%] text-center rounded-l-full">{{ client.id }}</div>
                 <div class="w-[18%] md:w-[13%]">{{ client.name }}</div>
-                <div class="w-[20%] md:w-[30%]">{{ client.address }}</div>
+                <div class="w-[20%] md:w-[30%]">{{ client.address ?? '-' }}</div>
                 <div class="w-[10%]">{{ client.phone }}</div>
-                <div class="w-[10%]">{{ client.rfc }}</div>
+                <div class="w-[10%]">{{ client.rfc ?? '-' }}</div>
                 <!-- <div class="w-[10%]">{{ 'client.saldo' }}</div> -->
                 <div class="rounded-r-full w-[17%] text-center">
                     <i @click.stop="$inertia.get(route('clients.edit', client.id))"
@@ -57,7 +57,7 @@ export default {
                     this.clients.splice(indexToDelete, 1);
 
                     this.$notify({
-                        title: 'Success',
+                        title: 'Correcto',
                         message: 'Se ha eliminado el cliente',
                         type: 'success',
                     });

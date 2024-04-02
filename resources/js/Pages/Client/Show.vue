@@ -35,13 +35,13 @@
 
             <el-tabs v-model="activeTab">
                 <el-tab-pane label="Todas las ventas" name="1">
-                    <SaleMobileDetail v-for="item in client.sales" :key="item.id" :saleId="item.id"
+                    <SaleMobileDetail v-for="item in reversedSales" :key="item.id" :saleId="item.id"
                         class="md:hidden mb-2" />
                     <SaleDesktopDetail :salesId="client.sales.map(item => item.id)" class="hidden md:block mb-2" />
                 </el-tab-pane>
                 <el-tab-pane label="Ventas sin liquidar" name="2">
                     <SaleMobileDetail
-                        v-for="item in client.sales.filter(sale => sale.has_credit && sale.paid_at === null)"
+                        v-for="item in reversedPendentSales"
                         :key="item.id" :saleId="item.id" class="md:hidden mb-2" />
                     <SaleDesktopDetail
                         :salesId="client.sales.filter(sale => sale.has_credit && sale.paid_at === null).map(item => item.id)"
@@ -80,8 +80,13 @@ export default {
         client: Object,
         clients: Array,
     },
-    methods: {
-
+    computed: {
+        reversedSales() {
+            return this.client.sales.reverse();
+        },
+        reversedPendentSales() {
+            return this.client.sales.filter(sale => sale.has_credit && sale.paid_at === null).reverse();
+        }
     }
 }
 </script>
