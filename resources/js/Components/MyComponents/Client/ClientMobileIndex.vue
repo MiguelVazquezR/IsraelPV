@@ -1,4 +1,4 @@
-?? '-'<template>
+<template>
     <div>
         <div class="border border-grayD9 rounded-[20px] py-2 px-4 min-h-32 text-xs mb-2">
             <Loading v-if="loading" class="pt-4" />
