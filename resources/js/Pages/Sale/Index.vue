@@ -5,6 +5,7 @@
             <div class="flex justify-between items-center mx-3">
                 <h1 class="font-bold text-lg">Ventas registradas</h1>
                 <div class="relative">
+                    <!-- filtro -->
                     <button @click.stop="showFilter = !showFilter"
                         class="border border-[#D9D9D9] rounded-full py-1 px-4 flex items-center">
                         <!-- <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
@@ -27,7 +28,7 @@
                         <p class="text-sm ml-2">Filtrar</p>
                     </button>
                     <div v-if="showFilter"
-                        class="absolute top-9 right-0 lg:-left-64 border border[#D9D9D9] rounded-md p-4 bg-white shadow-lg z-10">
+                        class="absolute top-9 right-0 lg:-left-64 border border[#D9D9D9] rounded-md p-4 bg-white shadow-lg z-10 w-80">
                         <div>
                             <InputLabel value="Rango de fechas" class="ml-3 mb-1" />
                             <el-date-picker v-model="searchDate" type="daterange" range-separator="A"

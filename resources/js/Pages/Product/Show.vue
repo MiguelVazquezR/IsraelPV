@@ -27,7 +27,7 @@
                 </div>
             </div>
             <div class="mt-3">
-                <Back :route="'products.index'" />
+                <Back />
             </div>
 
             <!-- Info de producto -->
