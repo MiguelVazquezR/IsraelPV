@@ -2,7 +2,7 @@
     <AppLayout title="Clientes">
         <div class="px-2 lg:px-10 py-7">
             <h1 class="font-bold text-lg">Clientes</h1>
-            <div class="lg:w-1/4 relative">
+            <div class="lg:w-1/4 relative mt-2">
                 <input v-model="searchQuery" @keydown.enter="searchClients" class="input w-full pl-9"
                     placeholder="Buscar cliente" type="text">
                 <i class="fa-solid fa-magnifying-glass text-xs text-gray99 absolute top-[10px] left-4"></i>
@@ -10,7 +10,6 @@
             <!-- header botones -->
             <div class="flex justify-end items-center">
                 <div class="my-2 lg:my-0 flex items-center space-x-1">
-                    <!-- <ThirthButton @click="openEntryModal" class="!rounded-full">Registrar abono</ThirthButton> -->
                     <PrimaryButton @click="$inertia.get(route('clients.create'))" class="!rounded-full">Nuevo cliente
                     </PrimaryButton>
                 </div>
@@ -22,7 +21,6 @@
                 </p>
                 <ClientTable :clients="localClients" class="hidden md:block" />
                 <ClientMobileIndex v-for="item in localClients" :key="item.id" :clientId="item.id" class="md:hidden" />
-                <el-empty v-if="!localClients.length" description="No hay clientes registrados" />
                 <p v-if="localClients.length" class="text-gray66 text-[11px]">{{ localClients.length }} de {{
                     total_clients }} elementos
                 </p>

@@ -16,13 +16,13 @@
 
             <!-- Información de la venta -->
             <div class="mt-7 lg:mx-16">
-                <p class="font-bold">Folio: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.folio }}</span></p>
-                <p class="font-bold">Fecha de venta: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.created_at }}</span></p>
-                <p class="font-bold">Cliente: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.client?.name ?? '-' }}</span></p>
-                <p class="font-bold">Modo de pago: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.has_credit ? 'A crédito' : 'Al contado'}}</span></p>
-                <p class="font-bold">Total de venta: <span class="!font-thin ml-2 text-gray-600">${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p>
-                <p v-if="sale.data.has_credit" class="font-bold">Abonos: <span class="!font-thin ml-2 text-gray-600">${{ totalPaymentAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p>
-                <p v-if="sale.data.has_credit" class="font-bold">Crédito vence el: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.limit_date ?? '-' }}</span></p>
+                <p class="font-bold px-2">Folio: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.folio }}</span></p>
+                <p class="font-bold px-2">Fecha de venta: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.created_at }}</span></p>
+                <p class="font-bold px-2">Cliente: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.client?.name ?? '-' }}</span></p>
+                <p class="font-bold px-2">Modo de pago: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.has_credit ? 'A crédito' : 'Al contado'}}</span></p>
+                <p class="font-bold px-2">Total de venta: <span class="!font-thin ml-2 text-gray-600">${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p>
+                <p v-if="sale.data.has_credit" class="font-bold px-2">Abonos: <span class="!font-thin ml-2 text-gray-600">${{ totalPaymentAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p>
+                <p v-if="sale.data.has_credit" class="font-bold px-2">Crédito vence el: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.limit_date ?? '-' }}</span></p>
                 <p v-if="sale.data.has_credit" class="font-bold bg-yellow-200 px-2 py-1 rounded-md inline-block">Saldo restante: <span class="!font-thin ml-2 text-gray-600">${{ (sale.data.total - totalPaymentAmount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p>
             </div>
 

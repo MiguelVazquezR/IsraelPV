@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full mx-auto text-[11px] md:text-sm overflow-auto">
+    <div v-if="clients.length" class="w-full mx-auto text-[11px] md:text-sm overflow-auto">
         <div class="text-center flex items-center space-x-4 mb-2">
             <div class="font-bold w-[10%]">ID</div>
             <div class="font-bold pb-3 px-2 text-left w-[18%] md:w-[13%]">Nombre</div>
@@ -33,6 +33,7 @@
             </div>
         </div>
     </div>
+    <el-empty v-else description="No hay clientes registrados" />
 </template>
 
 <script>

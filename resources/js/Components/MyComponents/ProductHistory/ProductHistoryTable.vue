@@ -10,8 +10,7 @@
             <div class="w-[17%]"></div>
         </div>
         <div>
-            <div v-for="history in histories" :key="history.id" class="*:p-3 h-12 cursor-pointer flex items-center space-x-4 border rounded-full mb-2 hover:border-primarylight" 
-            @click="$inertia.get(route('product-histories.show', history.id))">
+            <div v-for="history in histories" :key="history.id" class="*:p-3 h-12 flex items-center space-x-4 border rounded-full mb-2 hover:border-primarylight">
                 <div class="w-[15%] text-center rounded-l-full">{{ history.folio }}</div>
                 <div class="w-[18%] md:w-[13%] text-primary"><span @click.stop="$inertia.get(route('products.show', history.product.id))" class="hover:underline">{{ history.product?.name }}</span></div>
                 <div class="w-[30%] lg:w-[20%]">{{ history.created_at }}</div>

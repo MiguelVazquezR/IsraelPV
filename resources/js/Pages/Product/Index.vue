@@ -71,7 +71,7 @@
                     </div>
 
                     <!-- informacion del producto escaneado -->
-                    <div v-if="productEntryFound?.length > 0" class="mt-5 grid grid-cols-3">
+                    <div v-if="productEntryFound?.length > 0" class="mt-5 md:grid grid-cols-3">
                         <figure class="w-32 ml-16">
                             <img class="w-32 object-contain" :src="productEntryFound[0]?.imageCover[0]?.original_url">
                         </figure>
