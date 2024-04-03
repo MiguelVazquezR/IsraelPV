@@ -90,7 +90,8 @@
               </div>
               <div class="flex justify-between items-center">
                 <p class="text-gray99">Cantidad</p>
-                <el-input-number v-model="quantity" :min="0" :max="productFoundSelected.current_stock" :precision="2" />
+                <!-- <el-input-number v-model="quantity" :min="0" :max="productFoundSelected.current_stock" :precision="2" /> con validacion de inventario disponible-->
+                <el-input-number v-model="quantity" :min="0" :precision="2" />
               </div>
               <div class="text-center mt-7">
                 <PrimaryButton @click="addSaleProduct(this.productFoundSelected); productFoundSelected = null"
@@ -108,7 +109,7 @@
               <div class="flex items-center justify-between text-lg mx-5">
                 <p class="font-bold">Total</p>
                 <p class="text-gray-99">$ <strong class="ml-3">{{
-              calculateTotal().toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,
+                calculateTotal().toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,
                 ",") }}</strong></p>
               </div>
               <!-- botones -->
@@ -228,8 +229,11 @@
             <InputError :message="form.errors.rfc" />
           </div>
           <div class="mt-3">
-            <InputLabel value="Teléfono*" class="ml-3 mb-1" />
-            <el-input v-model="form.phone" placeholder="Ingresa el número de teléfono" :maxlength="100" clearable />
+            <InputLabel class="mb-1 ml-2" value="Teléfono *" />
+            <el-input v-model="form.phone"
+            :formatter="(value) => `${value}`.replace(/(\d{2})(\d{4})(\d{4})/, '$1 $2 $3')"
+            :parser="(value) => value.replace(/\D/g, '')" maxlength="10" clearable
+            placeholder="Escribe el número de teléfono" />
             <InputError :message="form.errors.phone" />
           </div>
           <div class="mt-3">
@@ -368,7 +372,6 @@ export default {
           this.storeProcessing = false;
           this.clearTab();
           window.open(route('sales.print-ticket', response.data.item.id), '_blank');
-          // this.$inertia.get(route('sales.print-ticket', response.data.item.id));
         }
       } catch (error) {
         console.log(error);

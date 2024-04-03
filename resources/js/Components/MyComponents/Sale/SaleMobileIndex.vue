@@ -72,6 +72,10 @@
                         <span>Estatus:</span>
                         <span class="font-bold" :class="sale.status?.color">{{ sale.status?.label }}</span>
                     </p>
+                    <p v-if="sale.has_credit">
+                        <span>Saldo:</span>
+                        <span class="font-bold">${{ pendentAmount }}</span>
+                    </p>
                 </main>
                 </Link>
             </div>
@@ -135,8 +139,13 @@ data() {
         print(sale) {
             window.open(route('sales.print-ticket', sale.id), '_blank');
         // this.$inertia.get(route('sales.print-ticket', sale.id));
-    }
+        },
     },
+     computed: {
+        pendentAmount() {
+            return this.sale.total - this.sale.payments.reduce((total, payment) => total + payment.amount, 0);
+        }
+    },    
     async mounted() {
         await this.fetchSale();
     }

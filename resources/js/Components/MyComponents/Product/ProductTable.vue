@@ -19,7 +19,7 @@
                 <div class="w-[30%]">{{ product.name }}</div>
                 <div class="w-[20%]">${{ product.public_price }}</div>
                 <div :class="product.current_stock <= product.min_stock ? 'text-[#F80505]' : ''" class="w-[20%] flex items-center space-x-2">
-                    <span>{{ product.current_stock }}</span>
+                    <span>{{ product.current_stock ?? '-' }}</span>
                     <p v-if="product.current_stock <= product.min_stock" class="flex items-center space-x-1 text-[10px] mt-px">
                         <i class="fa-solid fa-arrow-down"></i>
                         <span>Bajo stock</span>
