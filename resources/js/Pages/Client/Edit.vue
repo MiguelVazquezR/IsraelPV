@@ -16,8 +16,11 @@
                     <InputError :message="form.errors.rfc" />
                 </div>
                 <div class="mt-3">
-                    <InputLabel value="Teléfono" class="ml-3 mb-1" />
-                    <el-input v-model="form.phone" placeholder="Ingresa el número de teléfono" :maxlength="100" clearable />
+                    <InputLabel class="mb-1 ml-2" value="Teléfono *" />
+                    <el-input v-model="form.phone"
+                    :formatter="(value) => `${value}`.replace(/(\d{2})(\d{4})(\d{4})/, '$1 $2 $3')"
+                    :parser="(value) => value.replace(/\D/g, '')" maxlength="10" clearable
+                    placeholder="Escribe el número de teléfono" />
                     <InputError :message="form.errors.phone" />
                 </div>
                 <div class="mt-3">
