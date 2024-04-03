@@ -124,7 +124,7 @@ class SaleController extends Controller
 
     public function getByIdCopy(Sale $sale)
     {
-        $sale = SaleResource::make(Sale::latest()->with('client:id,name', 'products:id,name,cost')->find($sale->id));
+        $sale = SaleResource::make(Sale::latest()->with('client:id,name', 'products:id,name,cost', 'payments' )->find($sale->id));
 
         return response()->json(compact('sale'));
     }

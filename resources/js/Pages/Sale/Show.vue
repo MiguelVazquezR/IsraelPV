@@ -6,6 +6,11 @@
                 <div class="flex items-center space-x-2">
                     <ThirthButton @click="paymentModal = true" v-if="sale.data.has_credit && (sale.data.total - totalPaymentAmount) > 0" class="!rounded-full">Registrar abono</ThirthButton>
                     <p v-else class="text-lg font-bold text-green-500">Pagado</p>
+                     <el-popconfirm confirm-button-text="Si" cancel-button-text="No" icon-color="#C30303" title="¿Continuar?" @confirm="print(sale.data)">
+                        <template #reference>
+                            <i @click.stop class="fa-solid fa-print text-primary cursor-pointer bg-grayED rounded-full p-[6px]"></i>
+                        </template>
+                    </el-popconfirm>
                      <el-popconfirm confirm-button-text="Si" cancel-button-text="No" icon-color="#C30303" title="¿Continuar?" @confirm="deleteItem(sale.data.id)">
                         <template #reference>
                             <i @click.stop class="fa-regular fa-trash-can text-primary cursor-pointer bg-gray-200 rounded-full p-2"></i>
@@ -187,7 +192,7 @@ methods:{
             },
       })
     },
-async deleteItem(saleId) {
+    async deleteItem(saleId) {
         try {
             const response = await axios.delete(route('sales.destroy', saleId));
             if (response.status == 200) {
@@ -210,6 +215,10 @@ async deleteItem(saleId) {
                 position: 'bottom-right',
             });
         }
+    },
+    print(sale) {
+        window.open(route('sales.print-ticket', sale.id), '_blank');
+        // this.$inertia.get(route('sales.print-ticket', sale.id));
     }
 },
 computed: {

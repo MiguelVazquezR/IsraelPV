@@ -49,7 +49,7 @@ class ProductController extends Controller
             $product->addMediaFromRequest('imageCover')->toMediaCollection('imageCover');
         }
 
-        return to_route('products.show', $product->id);
+        return to_route('products.index');
     }
 
 

@@ -47,7 +47,8 @@
           </template>
         </div>
         <div class="w-[20%]">
-          <el-input-number v-model="sale.quantity" :min="0" :max="sale.product.current_stock" :precision="2" />
+          <!-- <el-input-number v-model="sale.quantity" :min="0" :max="sale.product.current_stock" :precision="2" /> -->
+          <el-input-number v-model="sale.quantity" :min="0" :precision="2" />
         </div>
         <div class="text-[#5FCB1F] font-bold w-[15%] text-base">
           ${{ (sale.product.public_price * sale.quantity).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}
@@ -64,8 +65,9 @@
       </div>
     </div>
   </div>
-  <!-- vista movil -->
-  <div class="overflow-y-auto h-[300px] md:hidden text-[11px]">
+
+  <!-- vista movil ----------->
+  <div class="overflow-y-auto h-[230px] md:hidden text-[11px]">
     <div v-for="(sale, index) in saleProducts" :key="index"
       class="mb-2 grid grid-cols-3 gap-2 border rounded-md items-center relative">
       <figure>
@@ -104,10 +106,9 @@
             </div>
           </template>
         </div>
-        <el-input-number v-model="sale.quantity" :min="0" :max="sale.product.current_stock" :precision="2"
-          size="small" />
-        <div class="text-[#5FCB1F] font-bold text-sm">${{ (sale.product.public_price *
-    sale.quantity).toLocaleString('en-US',
+        <!-- <el-input-number v-model="sale.quantity" :min="0" :max="sale.product.current_stock" :precision="2" size="small" /> con validacion de cantidad de stock disponible --> 
+        <el-input-number v-model="sale.quantity" :min="0" :precision="2" size="small" />
+        <div class="text-[#5FCB1F] font-bold text-sm">${{ (sale.product.public_price * sale.quantity).toLocaleString('en-US',
       {
         minimumFractionDigits: 2
       }) }}</div>
@@ -124,9 +125,7 @@
       </div>
     </div>
   </div>
-  <p class="text-center text-gray-500 text-sm mt-14" v-if="saleProducts?.length == 0">Ingresa un producto para comenzar
-    a
-    generar la venta</p>
+  <p class="text-center text-gray-500 text-sm mt-14" v-if="saleProducts?.length == 0">Ingresa un producto para comenzara generar la venta</p>
 </template>
 
 <script>
