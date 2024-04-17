@@ -52,6 +52,7 @@
 
         <!-- seccion de desgloce de montos -->
         <section class="lg:w-[30%]">
+        {{editableTabs}}
           <!-- buscador de productos -->
           <div class="relative">
             <input v-model="searchQuery" @focus="searchFocus = true" @blur="handleBlur" @input="searchProducts"
@@ -459,7 +460,7 @@ export default {
       this.editableTabs[this.editableTabsValue - 1].deposit = null;
       this.editableTabs[this.editableTabsValue - 1].deposit_notes = null;
       this.editableTabs[this.editableTabsValue - 1].cash = false;
-      this.editableTabs[this.editableTabsValue - 1].credit = false;
+      this.editableTabs[this.editableTabsValue - 1].has_credit = false;
       this.editableTabs[this.editableTabsValue - 1].moneyReceived = null;
       this.editableTabs[this.editableTabsValue - 1].limit_date = null;
       // this.scanInputFocus();

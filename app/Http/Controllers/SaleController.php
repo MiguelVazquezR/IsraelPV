@@ -179,7 +179,37 @@ class SaleController extends Controller
     {
         $sale = SaleResource::make(Sale::with(['client', 'products'])->find($sale_id));
 
+        // si la venta tiene cliente asignado
+        if ( $sale->client ) {
+            // Obtener todas las ventas del cliente cuya propiedad has_credit == 1 y paid_at == null
+            // para calcular el saldo antes de esta venta
+            $sales = Sale::where('client_id', $sale->client->id)
+            ->where('has_credit', 1)
+            ->whereNull('paid_at')
+            ->where('id', '!=', $sale_id) // Excluir la venta actual
+            ->where('created_at', '<', $sale->created_at) // Solo ventas anteriores a la fecha de la venta actual
+            ->get();
+            
+            // Inicializar el total adeudado del cliente
+            $initial_saldo = 0;
+
+            // Iterar sobre las ventas encontradas
+            foreach ($sales as $sale_temp) {
+                // Obtener los abonos para esta venta
+                $payment = Payment::where('sale_id', $sale_temp->id)->sum('amount');
+                
+                // Restar la suma de los abonos al total de la venta
+                $initial_saldo += $sale_temp->total - $payment;
+            }
+            
+            //recupera el abono de la nueva venta si es que se hizo
+            $payment = Payment::where('sale_id', $sale_id)->get(['id', 'amount', 'notes'])->first();
+        } else {
+            $payment = null;
+            $initial_saldo = null;
+        }
+        
         // return $sale;
-        return inertia('Sale/PrintTicket', compact('sale'));
+        return inertia('Sale/PrintTicket', compact('sale', 'payment', 'initial_saldo'));
     }
 }

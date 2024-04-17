@@ -5,12 +5,13 @@
         <p class="h-2 border-dashed border-b border-gray-900"></p>
         <p class="h-2 border-dashed border-b border-gray-900"></p>
         <p class="text-right mt-2">Folio: {{ sale.data.folio }}</p>
+        <p v-if="sale.data.has_credit" class="text-right mt-2">SISTEMA DE CREDITO</p>
 
         <div class="grid grid-cols-2 mt-3">
             <p>Atiende: {{ $page.props.auth.user.name }}</p>
             <p class="text-right">{{ sale.data.created_at.split(',')[0] }}</p>
 
-            <p>Cliente: {{ sale.data.client?.name }}</p>
+            <p>Cliente: {{ sale.data.client?.name ?? '--' }}</p>
             <p class="text-right">{{ sale.data.created_at.split(',')[1] }}</p>
         </div>
         <p class="h-2 border-dashed border-b border-gray-900"></p>
@@ -34,18 +35,18 @@
         <p class="font-bold text-base my-2">TOTAL ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} </p>
         <p class="h-2 border-dashed border-b border-gray-900"></p>
         <p class="uppercase text-s mt-2">{{ '(' + convertirNumeroALetra(sale.data.total) + ' PESOS)' }}</p>
-        <p class="font-bold text-xs mt-1">TOTAL DE ARTÍCULOS: {{ sale.data.products?.length }}</p>
+        <p class="font-bold text-xs my-1">TOTAL DE ARTÍCULOS: {{ sale.data.products?.length }}</p>
         <p class="font-bold">GRACIAS POR SU COMPRA</p>
 
         <!-- Pagaré en caso de crédito -->
-        <div v-if="sale.data.has_credit" class="mt-1 text-xs">
+        <div class="mt-1 text-xs">
             <p>DEBO Y PAGARÉ INCONDICIONALMENTE A LA ORDEN DE ISAAC DÍAZ EN ESTA CIUDAD O EN LA QUE SE ME REQUIERA EL DÍA</p>
             <p>DE____________DEL 20_______LA CANTIDAD</p>
             <p>DE $__________________MXN.</p>
         </div>
 
         <!-- texto y firma -->
-        <footer v-if="sale.data.has_credit" class="mt-2 text-xs">
+        <footer class="mt-2 text-xs">
             <p>
                 VALOR DE LAS MERCANCÍAS RECIBIDAS A MI ENTERA SATISFACCIÓNESTE PAGARÉ ES MERCANTÍL Y ESTÁ REGIDO POR LA LEY
                 GENERAL DE TÍTULOS Y OPERACIONES DE CRÉDITO EN SU ARTÍCULO 173 PARTE FINAL Y ARTÍCULOS CORRELATIVOS POR NO SER
@@ -53,6 +54,17 @@
             </p>
             <div class="border-b border-black w-[170px] mx-auto mt-8"></div>
             <p class="text-center">FIRMA</p>
+
+
+            <div class="text-base font-bold" v-if="sale.data.has_credit && sale.data.client">
+            <p class="h-2 border-dashed border-b border-gray-900 my-3"></p>
+
+            <p>Saldo inicial: ${{ initial_saldo?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
+            <p>Venta: ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
+            <p>Abono: ${{ payment?.amount?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") ?? '00.00' }}</p>
+            <p v-if="payment">Nuevo saldo: ${{ (initial_saldo + sale.data.total - payment?.amount)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
+            <p v-else>Nuevo saldo: ${{ (initial_saldo + sale.data.total)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
+            </div>
         </footer>
     </div>
 
@@ -78,14 +90,16 @@ import { Head } from '@inertiajs/vue3';
 export default {
 data() {
     return {
-      infoDispositivo: 'nullo'
+      infoDispositivo: 'nullo',
     }
 },
 components:{
 Head
 },
 props:{
-sale: Object
+sale: Object,
+payment: Object,
+initial_saldo: Number
 },
 methods: {
     convertirNumeroALetra(numero) {
@@ -162,62 +176,62 @@ methods: {
 
       return centenasEnLetra;
     },
-    conectarBluetooth() {
-      // Solicitar al usuario que seleccione la impresora vía Bluetooth
-      navigator.bluetooth.requestDevice({
-        acceptAllDevices: true, // Aceptar cualquier dispositivo Bluetooth
-        // optionalServices: ['printer_service_uuid'] // UUID del servicio de la impresora
-      })
-      .then(device => {
-        console.log('Dispositivo Bluetooth conectado:', device);
-        // Llamar a la función para enviar datos de impresión después de que se haya emparejado el dispositivo
-        this.enviarDatosImpresion(device);
+    // conectarBluetooth() {
+    //   // Solicitar al usuario que seleccione la impresora vía Bluetooth
+    //   navigator.bluetooth.requestDevice({
+    //     acceptAllDevices: true, // Aceptar cualquier dispositivo Bluetooth
+    //     // optionalServices: ['printer_service_uuid'] // UUID del servicio de la impresora
+    //   })
+    //   .then(device => {
+    //     console.log('Dispositivo Bluetooth conectado:', device);
+    //     // Llamar a la función para enviar datos de impresión después de que se haya emparejado el dispositivo
+    //     this.enviarDatosImpresion(device);
 
 
-        // Obtener información del dispositivo -------------------
-        const info = {
-          name: device.name,
-          id: device.id,
-          uuids: device.uuids,
-          version: device.bluetoothVersion,
-        //   batteryLevel: device.battery ? await device.battery.getLevel() : 'N/A',
-          rssi: device.rssi ? device.rssi : 'N/A',
-          manufacturer: device.manufacturerName ? device.manufacturerName : 'Desconocido'
-          // Agrega más información del dispositivo según sea necesario
-        };
+    //     // Obtener información del dispositivo -------------------
+    //     const info = {
+    //       name: device.name,
+    //       id: device.id,
+    //       uuids: device.uuids,
+    //       version: device.bluetoothVersion,
+    //     //   batteryLevel: device.battery ? await device.battery.getLevel() : 'N/A',
+    //       rssi: device.rssi ? device.rssi : 'N/A',
+    //       manufacturer: device.manufacturerName ? device.manufacturerName : 'Desconocido'
+    //       // Agrega más información del dispositivo según sea necesario
+    //     };
 
-        // Guardar la información del dispositivo en los datos del componente
-        this.infoDispositivo = info;
+    //     // Guardar la información del dispositivo en los datos del componente
+    //     this.infoDispositivo = info;
 
-      })
-      .catch(error => {
-        console.error('Error al conectar con dispositivo Bluetooth:', error);
-      });
-    },
-     async enviarDatosImpresion(device) {
-    try {
-      // Obtener el servicio de impresión
-      const service = await device.gatt.connect().then(server => server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb'));
+    //   })
+    //   .catch(error => {
+    //     console.error('Error al conectar con dispositivo Bluetooth:', error);
+    //   });
+    // },
+    //  async enviarDatosImpresion(device) {
+    //   try {
+    //     // Obtener el servicio de impresión
+    //     const service = await device.gatt.connect().then(server => server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb'));
 
-      // Obtener el carácterística de escritura
-      const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+    //     // Obtener el carácterística de escritura
+    //     const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
 
-      // Aquí puedes enviar los datos de impresión a través de la característica de escritura
-      // Por ejemplo, puedes enviar una cadena de texto a imprimir
-      const data = 'Este es un ejemplo de texto a imprimir';
-      await characteristic.writeValue(new TextEncoder().encode(data));
+    //     // Aquí puedes enviar los datos de impresión a través de la característica de escritura
+    //     // Por ejemplo, puedes enviar una cadena de texto a imprimir
+    //     const data = 'Este es un ejemplo de texto a imprimir';
+    //     await characteristic.writeValue(new TextEncoder().encode(data));
 
-      console.log('Datos de impresión enviados correctamente');
-    } catch (error) {
-      console.error('Error al enviar datos de impresión:', error);
-    }
-  },
+    //     console.log('Datos de impresión enviados correctamente');
+    //   } catch (error) {
+    //     console.error('Error al enviar datos de impresión:', error);
+    //   }
+    // },
     print() {
         window.print()
     }
   },
   mounted(){
-    this.print();
+    // this.print();
   }
 }
 </script>
