@@ -11,7 +11,7 @@
                 <Link v-if="small" class="mt-4" :href="route('sales.index')">
                 <ApplicationMark />
                 </Link>
-                <Link class="w-28" v-else :href="route('sales.index')">
+                <Link class="w-[94px]" v-else :href="route('sales.index')">
                 <AuthenticationCardLogo />
                 </Link>
             </div>
@@ -46,7 +46,7 @@
                         <!-- Sin submenues -->
                         <button v-else-if="menu.show" @click="goToRoute(menu.route)" :active="menu.active"
                             :title="menu.label"
-                            class="w-full text-start pl-4 pr-3 mt-2 border-l-4 flex items-center justify-between text-xs rounded-r-[10px] py-1 transition ease-linear duration-150"
+                            class="w-full text-start pl-4 pr-3 py-2 mt-2 border-l-4 flex items-center justify-between text-xs rounded-r-[10px] transition ease-linear duration-150"
                             :class="menu.active ? 'bg-gray-300 text-primary border-primary font-bold' : 'hover:text-primary border-transparent hover:bg-gray-300 text-gray-600'">
                             <p class="w-full truncate"><span class="mr-2" v-html="menu.icon"></span> {{
                                 menu.label }}</p>

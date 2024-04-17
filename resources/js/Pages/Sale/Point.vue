@@ -52,7 +52,6 @@
 
         <!-- seccion de desgloce de montos -->
         <section class="lg:w-[30%]">
-        {{editableTabs}}
           <!-- buscador de productos -->
           <div class="relative">
             <input v-model="searchQuery" @focus="searchFocus = true" @blur="handleBlur" @input="searchProducts"
