@@ -231,7 +231,7 @@ methods: {
     }
   },
   mounted(){
-    // this.print();
+    this.print();
   }
 }
 </script>
