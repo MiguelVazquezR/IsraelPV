@@ -117,4 +117,16 @@ class ClientController extends Controller
 
         return response()->json(['items' => $clients]);
     }
+
+
+    public function getItemsByPage($currentPage)
+    {
+        $offset = $currentPage * 20;
+        $clients = ClientResource::collection(Client::latest()
+            ->skip($offset)
+            ->take(20)
+            ->get());
+
+        return response()->json(['items' => $clients]);
+    }
 }
