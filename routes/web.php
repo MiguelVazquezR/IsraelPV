@@ -117,3 +117,20 @@ Route::get('/storage-link', function () {
     Artisan::call('storage:link');
     return 'linked!.';
 });
+
+// borrar caché
+Route::get('/clear-cache', function () {
+    // Limpiar la caché de la aplicación
+    Artisan::call('cache:clear');
+
+    // Limpiar la caché de configuración
+    Artisan::call('config:clear');
+
+    // Limpiar la caché de rutas
+    Artisan::call('route:clear');
+
+    // Limpiar la caché de vistas
+    Artisan::call('view:clear');
+
+    return "Caché limpiada correctamente.";
+});
