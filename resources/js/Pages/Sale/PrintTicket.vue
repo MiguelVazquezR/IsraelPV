@@ -1,99 +1,125 @@
 <template>
 <Head :title="sale.data.folio" />
 
-    <div class="w-full lg:w-[220px] mx-auto text-sm">
-        <p class="h-2 border-dashed border-b border-gray-900"></p>
-        <p class="h-2 border-dashed border-b border-gray-900"></p>
+    <div id="text-to-print" class="w-full lg:w-[220px] mx-auto text-sm">
+        <!-- <p class="h-2 border-dashed border-b border-gray-900"></p>
+        <p class="h-2 border-dashed border-b border-gray-900"></p> -->
+        <span>----------------------------------------------------------------</span>
         <p class="text-right mt-2">Folio: {{ sale.data.folio }}</p>
         <p v-if="sale.data.has_credit" class="text-right mt-2">SISTEMA DE CREDITO</p>
 
-        <div class="grid grid-cols-2 mt-3">
-            <p>Atiende: {{ $page.props.auth.user.name }}</p>
-            <p class="text-right">{{ sale.data.created_at.split(',')[0] }}</p>
+        <div class="mt-3 text-xs">
+            <p class="flex justify-between">
+              <span>Atiende: {{ $page.props.auth.user.name }}</span>
+              <span>{{ sale.data.created_at }}</span>
+            </p>
 
-            <p>Cliente: {{ sale.data.client?.name ?? '--' }}</p>
-            <p class="text-right">{{ sale.data.created_at.split(',')[1] }}</p>
+            <p class="flex justify-between">
+              <span>Cliente: {{ sale.data.client?.name ?? '--' }}</span>
+            </p>
         </div>
-        <p class="h-2 border-dashed border-b border-gray-900"></p>
+        <span>--------------------------------</span>
+        <!-- <p class="h-2 border-dashed border-b border-gray-900"></p> -->
 
+        <div class="flex flex-col">
+          <span v-for="product in sale.data.products" :key="product">
+            {{ product.pivot?.quantity + '. ' }} {{ product.name + ' ' }}
+            ${{ product.pivot.price?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' = ' }}
+            ${{ (product.pivot?.quantity * product.pivot.price)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
+          </span>
+        </div>
         <!-- tabla de productos -->
-        <table class="mt-2 w-full text-xs">
+        <!-- <table class="mt-2 w-full text-[10px]">
             <tr class="text-left">
-                <th>Cantidad</th>
-                <th class="px-[2px]">Descripción</th>
-                <th class="px-[2px]">Precio</th>
-                <th class="px-[2px]">Importe</th>
+                <th>Cant.</th>
+                <th>Descrip.</th>
+                <th>Precio</th>
+                <th>Importe</th>
             </tr>
             <tr v-for="product in sale.data.products" :key="product">
                 <td>{{ product.pivot?.quantity }}</td>
                 <td class="uppercase px-[2px]">{{ product.name }}</td>
-                <td class="px-[2px]">${{ product.public_price?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</td>
-                <td class="px-[2px]">{{ (product.pivot?.quantity * product.public_price)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</td>
+                <td>${{ product.public_price?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</td>
+                <td>{{ (product.pivot?.quantity * product.public_price)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</td>
             </tr>
-        </table>
+        </table> -->
 
         <p class="font-bold text-base my-2">TOTAL ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} </p>
-        <p class="h-2 border-dashed border-b border-gray-900"></p>
+        <span>--------------------------------</span>
+        <!-- <p class="h-2 border-dashed border-b border-gray-900"></p> -->
         <p class="uppercase text-s mt-2">{{ '(' + convertirNumeroALetra(sale.data.total) + ' PESOS)' }}</p>
-        <p class="font-bold text-xs my-1">TOTAL DE ARTÍCULOS: {{ sale.data.products?.length }}</p>
+        <p class="font-bold text-xs my-1">TOTAL DE ARTICULOS: {{ sale.data.products?.length }}</p>
         <p class="font-bold">GRACIAS POR SU COMPRA</p>
 
         <!-- Pagaré en caso de crédito -->
-        <div class="mt-1 text-xs">
-            <p>DEBO Y PAGARÉ INCONDICIONALMENTE A LA ORDEN DE ISAAC DÍAZ EN ESTA CIUDAD O EN LA QUE SE ME REQUIERA EL DÍA</p>
+        <div class="mt-1 text-[10px]">
+            <p>DEBO Y PAGARE INCONDICIONALMENTE A LA ORDEN DE ISAAC DIAZ EN ESTA CIUDAD O EN LA QUE SE ME REQUIERA EL DIA</p>
             <p>DE____________DEL 20_______LA CANTIDAD</p>
             <p>DE $__________________MXN.</p>
         </div>
 
         <!-- texto y firma -->
-        <footer class="mt-2 text-xs">
+        <footer class="mt-2 text-[10px]">
             <p>
-                VALOR DE LAS MERCANCÍAS RECIBIDAS A MI ENTERA SATISFACCIÓNESTE PAGARÉ ES MERCANTÍL Y ESTÁ REGIDO POR LA LEY
-                GENERAL DE TÍTULOS Y OPERACIONES DE CRÉDITO EN SU ARTÍCULO 173 PARTE FINAL Y ARTÍCULOS CORRELATIVOS POR NO SER
-                PAGARÉ DOMICILIARIO.
+                VALOR DE LAS MERCANCIAS RECIBIDAS A MI ENTERA SATISFACCION ESTE PAGARE ES MERCANTIL Y ESTA REGIDO POR LA LEY
+                GENERAL DE TITULOS Y OPERACIONES DE CREDITO EN SU ARTÍCULO 173 PARTE FINAL Y ARTICULOS CORRELATIVOS POR NO SER
+                PAGARE DOMICILIARIO.
             </p>
-            <div class="border-b border-black w-[170px] mx-auto mt-8"></div>
-            <p class="text-center">FIRMA</p>
+            <!-- <div class="border-b border-black w-[170px] mx-auto mt-8"></div> -->
+            <p class="text-center mt-5">______________________________</p>
+            <p class="text-center">---- FIRMA DEL CLIENTE ----</p>
 
 
-            <div class="text-base font-bold" v-if="sale.data.has_credit && sale.data.client">
-            <p class="h-2 border-dashed border-b border-gray-900 my-3"></p>
+            <div class="text-sm font-bold flex flex-col" v-if="sale.data.has_credit && sale.data.client">
+              <p class="text-center">--------------------------------</p>
+              <!-- <p class="h-2 border-dashed border-b border-gray-900 my-3"></p> -->
 
-            <p>Saldo inicial: ${{ initial_saldo?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
-            <p>Venta: ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
-            <p>Abono: ${{ payment?.amount?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") ?? '00.00' }}</p>
-            <p v-if="payment">Nuevo saldo: ${{ (initial_saldo + sale.data.total - payment?.amount)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
-            <p v-else>Nuevo saldo: ${{ (initial_saldo + sale.data.total)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
+            <span>Saldo inicial: ${{ initial_saldo?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+            <span>Venta: ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+            <span>Abono: ${{ payment?.amount?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") ?? '00.00' }}</span>
+            <span v-if="payment">Nuevo saldo: ${{ (initial_saldo + sale.data.total - payment?.amount)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+            <span v-else>Nuevo saldo: ${{ (initial_saldo + sale.data.total)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
             </div>
         </footer>
     </div>
 
-    <!-- <button @click="conectarBluetooth" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
-        Conectar a la impresora vía Bluetooth
-    </button>
-    <button @click="print" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4">
-        Imprimir
-    </button>
+    <!-- Botones de conexión e impresión -->
+    <section class="text-center lg:space-x-2 mt-7 mx-10">
+      <ThirthButton v-if="!printing" @click="conectarBluetooth" class="!py-1 !border-blue-600 !text-blue-600 mr-2 mb-2">
+        <i class="fa-brands fa-bluetooth text-lg mr-2"></i>
+        Conectar impresora
+      </ThirthButton>
 
-    <div>
-      <p>Nombre del dispositivo: {{ infoDispositivo.name }}</p>
-      <p>ID del dispositivo: {{ infoDispositivo.id }}</p>
-      <p>UUIDs del dispositivo: {{ infoDispositivo?.uuids?.join(', ') }}</p>
-      <p>Versión de Bluetooth: {{ infoDispositivo.version }}</p>
-      <p>RSSI (Received Signal Strength Indicator): {{ infoDispositivo.rssi }}</p>
-      <p>Fabricante: {{ infoDispositivo.manufacturer }}</p>
-    </div> -->
+      <!-- imprimir desde dispositivo movil -->
+      <PrimaryButton v-if="device && !printing" class="mb-2 mr-2" @click="enviarDatosImpresion(device)">
+        <i class="fa-solid fa-print"></i>
+        Imprimir ticket
+      </PrimaryButton>
+
+      <!-- imprimir desde pc de escritorio o dispositivo con windows -->
+      <PrimaryButton v-if="!printing" @click="print">
+        <i class="fa-solid fa-display"></i>
+        Imprimir Pantalla 
+      </PrimaryButton>
+    </section>
+
 </template>
 
 <script>
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import ThirthButton from '@/Components/MyComponents/ThirthButton.vue';
 import { Head } from '@inertiajs/vue3';
 export default {
 data() {
     return {
-      infoDispositivo: 'nullo',
+      device: null, //Dispositivo de impresora guardada al hacer vínculo
+      printing: false, //bandera que oculta o muestra botones para que no salgan en impresión
+      text: null, //guarda el texto a pimprimir. (ticket)
     }
 },
 components:{
+PrimaryButton,
+ThirthButton,
 Head
 },
 props:{
@@ -176,62 +202,69 @@ methods: {
 
       return centenasEnLetra;
     },
-    // conectarBluetooth() {
-    //   // Solicitar al usuario que seleccione la impresora vía Bluetooth
-    //   navigator.bluetooth.requestDevice({
-    //     acceptAllDevices: true, // Aceptar cualquier dispositivo Bluetooth
-    //     // optionalServices: ['printer_service_uuid'] // UUID del servicio de la impresora
-    //   })
-    //   .then(device => {
-    //     console.log('Dispositivo Bluetooth conectado:', device);
-    //     // Llamar a la función para enviar datos de impresión después de que se haya emparejado el dispositivo
-    //     this.enviarDatosImpresion(device);
+    conectarBluetooth() {
+      // Solicitar al usuario que seleccione la impresora vía Bluetooth
+      navigator.bluetooth.requestDevice({
+        acceptAllDevices: true, // Aceptar cualquier dispositivo Bluetooth
+        optionalServices: ['49535343-fe7d-4ae5-8fa9-9fafd205e455'] // UUID del servicio de la impresora
+      })
+      .then(device => {
+        console.log('Dispositivo Bluetooth conectado:', device);
+        this.device = device;
 
+      })
+      .catch(error => {
+        console.error('Error al conectar con dispositivo Bluetooth:', error);
+      });
+    },
+    async enviarDatosImpresion(device) {
+      try {
+        // Obtener el servicio de impresión
+        const service = await device.gatt.connect().then(server => server.getPrimaryService('49535343-fe7d-4ae5-8fa9-9fafd205e455'));
 
-    //     // Obtener información del dispositivo -------------------
-    //     const info = {
-    //       name: device.name,
-    //       id: device.id,
-    //       uuids: device.uuids,
-    //       version: device.bluetoothVersion,
-    //     //   batteryLevel: device.battery ? await device.battery.getLevel() : 'N/A',
-    //       rssi: device.rssi ? device.rssi : 'N/A',
-    //       manufacturer: device.manufacturerName ? device.manufacturerName : 'Desconocido'
-    //       // Agrega más información del dispositivo según sea necesario
-    //     };
+        // Obtener el carácterística de escritura
+        const characteristic = await service.getCharacteristic('49535343-8841-43f4-a8d4-ecbe34729bb3');
 
-    //     // Guardar la información del dispositivo en los datos del componente
-    //     this.infoDispositivo = info;
+        // // Aquí puedes enviar los datos de impresión a través de la característica de escritura
+        // // Por ejemplo, puedes enviar una cadena de texto a imprimir
 
-    //   })
-    //   .catch(error => {
-    //     console.error('Error al conectar con dispositivo Bluetooth:', error);
-    //   });
-    // },
-    //  async enviarDatosImpresion(device) {
-    //   try {
-    //     // Obtener el servicio de impresión
-    //     const service = await device.gatt.connect().then(server => server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb'));
+        // Dividir el texto en fragmentos
+        const fragmentSize = 20; // Ajusta este tamaño según sea necesario
+        const fragments = this.chunkText(this.text, fragmentSize);
 
-    //     // Obtener el carácterística de escritura
-    //     const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+        // Enviar cada fragmento por separado
+        for (const fragment of fragments) {
+          await characteristic.writeValue(new TextEncoder().encode(fragment));
+        }
 
-    //     // Aquí puedes enviar los datos de impresión a través de la característica de escritura
-    //     // Por ejemplo, puedes enviar una cadena de texto a imprimir
-    //     const data = 'Este es un ejemplo de texto a imprimir';
-    //     await characteristic.writeValue(new TextEncoder().encode(data));
-
-    //     console.log('Datos de impresión enviados correctamente');
-    //   } catch (error) {
-    //     console.error('Error al enviar datos de impresión:', error);
-    //   }
-    // },
+        console.log('Datos de impresión enviados correctamente');
+      } catch (error) {
+        console.error('Error al enviar datos de impresión:', error);
+      }
+    },
+    chunkText(text, size) {
+      const chunks = [];
+      for (let i = 0; i < text.length; i += size) {
+        chunks.push(text.slice(i, i + size));
+      }
+      return chunks;
+    },
     print() {
-        window.print()
+      this.printing = true;
+      setTimeout(() => {
+        window.print();
+      }, 300);
+    },
+    handleAfterPrint() {
+      this.printing = false;
     }
   },
-  mounted(){
-    this.print();
+  mounted() {
+    window.addEventListener('afterprint', this.handleAfterPrint);
+    this.text = document.getElementById('text-to-print').innerText;
+  },
+  beforeDestroy() {
+    window.removeEventListener('afterprint', this.handleAfterPrint);
   }
 }
 </script>
