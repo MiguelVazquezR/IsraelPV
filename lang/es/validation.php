@@ -172,5 +172,6 @@ return [
         'code' => 'código de producto',
         'quantity' => 'cantidad',
         'category_id' => 'categoría',
+        'total' => 'monto de deuda',
     ],
 ];

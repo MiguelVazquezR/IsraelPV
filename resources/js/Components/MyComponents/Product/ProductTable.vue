@@ -6,7 +6,7 @@
             <div class="font-bold pb-3 w-[30%]">Nombre</div>
             <div class="font-bold pb-3 w-[20%]">Precio</div>
             <div class="font-bold pb-3 w-[20%]">Existencias</div>
-            <div class="hidden md:block font-bold pb-3 w-[15%]">Existencias mínimas</div>
+            <div class="hidden md:block font-bold pb-3 w-[15%]">Categoría</div>
             <div class="w-[10%] md:w-[15%]"></div>
         </div>
         <div>
@@ -25,7 +25,7 @@
                         <span>Bajo stock</span>
                     </p>
                 </div>
-                <div class="hidden md:block w-[15%]">{{ product.min_stock }}</div>
+                <div class="hidden md:block w-[15%]">{{ product.category?.name }}</div>
                 <div class="rounded-r-full w-[10%] md:w-[15%] text-right">
                     <i @click.stop="$inertia.get(route('products.edit', product.id))" class="fa-solid fa-pencil text-primary cursor-pointer hover:bg-gray-200 rounded-full mr-1 p-2"></i>
                     <el-popconfirm confirm-button-text="Si" cancel-button-text="No" icon-color="#C30303" title="¿Continuar?" @confirm="deleteItem(product.id)">
