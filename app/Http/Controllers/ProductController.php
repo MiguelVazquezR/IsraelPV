@@ -14,7 +14,7 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = ProductResource::collection(Product::get()->take(20));
+        $products = ProductResource::collection(Product::with('category')->latest()->get()->take(20));
         $total_products = Product::all()->count();
 
         return inertia('Product/Index', compact('products', 'total_products'));
@@ -132,7 +132,16 @@ class ProductController extends Controller
         $query = $request->input('query');
 
         // Realiza la búsqueda en la base de datos
-        $products = ProductResource::collection(Product::with('category')->where('name', 'like', "%$query%")->orWhere('id', $query)->get()->take(20));
+        $products = ProductResource::collection(
+            Product::with('category')
+                ->where('name', 'like', "%$query%")
+                ->orWhere('id', $query)
+                ->orWhereHas('category', function($queryBuilder) use ($query) {
+                    $queryBuilder->where('name', 'like', "%$query%");
+                })
+                ->take(20)
+                ->get()
+        );
 
         return response()->json(['items' => $products]);
     }
@@ -176,7 +185,8 @@ class ProductController extends Controller
     public function getItemsByPage($currentPage)
     {
         $offset = $currentPage * 20;
-        $products = ProductResource::collection(Product::latest()
+        $products = ProductResource::collection(Product::with('category')
+            ->latest()
             ->skip($offset)
             ->take(20)
             ->get());

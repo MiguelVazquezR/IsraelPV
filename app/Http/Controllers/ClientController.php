@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ClientResource;
 use App\Models\Client;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Models\Sale;
 use Illuminate\Http\Request;
 
@@ -42,11 +43,19 @@ class ClientController extends Controller
 
 
     public function show(Client $client)
-    {
-        $client = $client->load(['sales']);
+    {   
+        // recupera las ultimas 30 ventas del cliente
+        $client = $client->load(['sales' => function($query) {
+            $query->orderBy('created_at', 'desc')->limit(30);
+        }]);
         $clients = Client::all(['id', 'name']);
+        $pendent_sales = Sale::with('payments:id,amount,sale_id')
+            ->where('client_id', $client->id)
+            ->whereNull('paid_at')
+            ->get(['id', 'total', 'client_id', 'paid_at']);
 
-        return inertia('Client/Show', compact('client', 'clients'));
+        // return $pendent_sales;
+        return inertia('Client/Show', compact('client', 'clients', 'pendent_sales'));
     }
 
 
@@ -128,5 +137,28 @@ class ClientController extends Controller
             ->get());
 
         return response()->json(['items' => $clients]);
+    }
+
+    public function storeDebt(Request $request)
+    {
+        $request->validate([
+            'total' => 'required|numeric|min:0|max:999999'
+        ]);
+        
+        // Registra la venta
+        $sale = Sale::create([
+            'has_credit' => $request->has_credit,
+            'total' => $request->total,
+            'client_id' => $request->client_id,
+        ]);
+
+        // Agrega adeudo a la venta
+        $product = Product::where('name', 'Adeudo anterior')->first();
+            
+        // Asociar producto a la venta con sus atributos adicionales
+        $sale->products()->attach($product->id, [
+            'quantity' => 1,
+            'price' => $request->total
+        ]);
     }
 }

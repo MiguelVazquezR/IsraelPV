@@ -89,6 +89,7 @@ Route::get('clients-get-pendent-amount/{client}', [ClientController::class, 'get
 Route::get('clients-get-by-id/{client}', [ClientController::class, 'getById'])->middleware('auth')->name('clients.get-by-id');
 Route::get('clients-get-by-page/{currentPage}', [ClientController::class, 'getItemsByPage'])->name('clients.get-by-page')->middleware('auth');
 Route::get('clients-search', [ClientController::class, 'search'])->name('clients.search')->middleware('auth');
+Route::post('clients-store-debt', [ClientController::class, 'storeDebt'])->name('clients.store-debt')->middleware('auth');
 
 
 //categories routes-------------------------------------------------------------------------------------
