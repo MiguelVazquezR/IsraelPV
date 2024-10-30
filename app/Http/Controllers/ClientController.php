@@ -45,8 +45,13 @@ class ClientController extends Controller
     {
         $client = $client->load(['sales']);
         $clients = Client::all(['id', 'name']);
+        $pendent_sales = Sale::with('payments:id,amount,sale_id')
+            ->where('client_id', $client->id)
+            ->whereNull('paid_at')
+            ->get(['id', 'total', 'client_id', 'paid_at']);
 
-        return inertia('Client/Show', compact('client', 'clients'));
+        // return $pendent_sales;
+        return inertia('Client/Show', compact('client', 'clients', 'pendent_sales'));
     }
 
 

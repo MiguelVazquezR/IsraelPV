@@ -2,32 +2,30 @@
 <Head :title="sale.data.folio" />
 
     <div id="text-to-print" class="w-full lg:w-[220px] mx-auto text-sm">
-        <!-- <p class="h-2 border-dashed border-b border-gray-900"></p>
-        <p class="h-2 border-dashed border-b border-gray-900"></p> -->
-        <span>----------------------------------------------------------------</span>
+        <span>--------------------------------</span>
         <p class="text-right mt-2">Folio: {{ sale.data.folio }}</p>
-        <p v-if="sale.data.has_credit" class="text-right mt-2">SISTEMA DE CREDITO</p>
+        <small v-if="sale.data.has_credit" class="text-right mt-2">SISTEMA DE CREDITO</small>
 
-        <div class="mt-3 text-xs">
-            <p class="flex justify-between">
+        <div class="mt-1 text-xs">
+            <small class="flex justify-between">
               <span>Atiende: {{ $page.props.auth.user.name }}</span>
               <span>{{ sale.data.created_at }}</span>
-            </p>
+            </small>
 
-            <p class="flex justify-between">
+            <small class="flex justify-between">
               <span>Cliente: {{ sale.data.client?.name ?? '--' }}</span>
-            </p>
+            </small>
         </div>
         <span>--------------------------------</span>
-        <!-- <p class="h-2 border-dashed border-b border-gray-900"></p> -->
 
-        <div class="flex flex-col">
-          <span v-for="product in sale.data.products" :key="product">
-            {{ product.pivot?.quantity + '. ' }} {{ product.name + ' ' }}
+        <!-- <div class="flex flex-col"> -->
+          <p class="text-xs" v-for="product in sale.data.products" :key="product">
+            {{ product.pivot?.quantity + '  ' }} <span class="ml-[5px]"> {{ product.name + ' ' }}</span>
             ${{ product.pivot.price?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' = ' }}
             ${{ (product.pivot?.quantity * product.pivot.price)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
-          </span>
-        </div>
+          </p>
+        <!-- </div> -->
+
         <!-- tabla de productos -->
         <!-- <table class="mt-2 w-full text-[10px]">
             <tr class="text-left">
@@ -44,41 +42,42 @@
             </tr>
         </table> -->
 
-        <p class="font-bold text-base my-2">TOTAL ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} </p>
+        <p class="font-bold text-base mt-1">TOTAL ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} </p>
         <span>--------------------------------</span>
-        <!-- <p class="h-2 border-dashed border-b border-gray-900"></p> -->
-        <p class="uppercase text-s mt-2">{{ '(' + convertirNumeroALetra(sale.data.total) + ' PESOS)' }}</p>
+        <p class="uppercase text-s mt-2">{{ '(' + numberToWords(sale.data.total) + ' )' }}</p>
         <p class="font-bold text-xs my-1">TOTAL DE ARTICULOS: {{ sale.data.products?.length }}</p>
-        <p class="font-bold">GRACIAS POR SU COMPRA</p>
 
         <!-- Pagaré en caso de crédito -->
         <div class="mt-1 text-[10px]">
-            <p>DEBO Y PAGARE INCONDICIONALMENTE A LA ORDEN DE ISAAC DIAZ EN ESTA CIUDAD O EN LA QUE SE ME REQUIERA EL DIA</p>
-            <p>DE____________DEL 20_______LA CANTIDAD</p>
-            <p>DE $__________________MXN.</p>
+            <small>DEBO Y PAGARE INCONDICIONALMENTE A LA ORDEN DE ISAAC DIAZ EN ESTA CIUDAD O EN LA QUE SE ME REQUIERA EL DIA
+              DE____________DEL 20____LA CANTIDAD DE $_____________MXN.
+            </small>
         </div>
 
         <!-- texto y firma -->
         <footer class="mt-2 text-[10px]">
-            <p>
+            <small>
                 VALOR DE LAS MERCANCIAS RECIBIDAS A MI ENTERA SATISFACCION ESTE PAGARE ES MERCANTIL Y ESTA REGIDO POR LA LEY
-                GENERAL DE TITULOS Y OPERACIONES DE CREDITO EN SU ARTÍCULO 173 PARTE FINAL Y ARTICULOS CORRELATIVOS POR NO SER
+                GENERAL DE TITULOS Y OPERACIONES DE CREDITO EN SU ARTICULO 173 PARTE FINAL Y ARTICULOS CORRELATIVOS POR NO SER
                 PAGARE DOMICILIARIO.
-            </p>
-            <!-- <div class="border-b border-black w-[170px] mx-auto mt-8"></div> -->
-            <p class="text-center mt-5">______________________________</p>
-            <p class="text-center">---- FIRMA DEL CLIENTE ----</p>
+            </small>
 
+            <div class="text-center">
+              <p class="text-center mt-5">________________________________</p>
+              <small class="text-center">----- FIRMA DEL CLIENTE -----</small>
+            </div>
+
+            <p class="font-bold text-center">GRACIAS POR SU COMPRA</p>
+            <span class="text-center">--------------------------------</span>
 
             <div class="text-sm font-bold flex flex-col" v-if="sale.data.has_credit && sale.data.client">
+              <span class="text-center">--------------------------------</span>
+              <span>Saldo inicial: ${{ initial_saldo?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+              <span>Venta: ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+              <span>Abono: ${{ payment?.amount?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") ?? '00.00' }}</span>
+              <span v-if="payment">Nuevo saldo: ${{ (initial_saldo + sale.data.total - payment?.amount)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+              <span v-else>Nuevo saldo: ${{ (initial_saldo + sale.data.total)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
               <p class="text-center">--------------------------------</p>
-              <!-- <p class="h-2 border-dashed border-b border-gray-900 my-3"></p> -->
-
-            <span>Saldo inicial: ${{ initial_saldo?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
-            <span>Venta: ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
-            <span>Abono: ${{ payment?.amount?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") ?? '00.00' }}</span>
-            <span v-if="payment">Nuevo saldo: ${{ (initial_saldo + sale.data.total - payment?.amount)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
-            <span v-else>Nuevo saldo: ${{ (initial_saldo + sale.data.total)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
             </div>
         </footer>
     </div>
@@ -128,79 +127,74 @@ payment: Object,
 initial_saldo: Number
 },
 methods: {
-    convertirNumeroALetra(numero) {
-      const unidades = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
-      const decenas = ['', 'diez', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
-      const especiales = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve'];
+    numberToWords(amount) {
+      const unidades = [
+          '', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'
+      ];
+      const decenas = [
+          '', 'diez', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'
+      ];
+      const centenas = [
+          '', 'cien', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'
+      ];
 
-      let letra = '';
+      function convertGroup(n) {
+          if (n === '100') return 'cien';
+          let output = '';
+          if (n[0] !== '0') output += centenas[parseInt(n[0])] + ' ';
+          
+          const tens = parseInt(n[1]);
+          const units = parseInt(n[2]);
 
-      if (numero === 0) {
-        return 'cero';
+          if (tens === 1 && units === 0) { // Para casos como "10", "20" sin unidades
+              output += decenas[tens];
+          } else if (tens > 0) {
+              output += decenas[tens];
+              if (units > 0) output += ' y ' + unidades[units];
+          } else {
+              output += unidades[units];
+          }
+
+          return output.trim();
       }
 
-      if (numero >= 100000) {
-        letra += unidades[Math.floor(numero / 100000)] + ' mil ';
-        numero %= 100000;
+      function numberToSpanish(n) {
+          const number = parseFloat(n).toFixed(2).split('.');
+          const integerPart = number[0];
+          const decimalPart = number[1];
+
+          let output = '';
+          if (integerPart === '0') {
+              output = 'cero';
+          } else {
+              const groups = [
+                  '', 'mil', 'millón', 'mil millones', 'billón', 'mil billones'
+              ];
+              const groupCount = Math.ceil(integerPart.length / 3);
+
+              for (let i = 0; i < groupCount; i++) {
+                  const start = integerPart.length - (i + 1) * 3;
+                  const end = integerPart.length - i * 3;
+                  const group = integerPart.substring(start < 0 ? 0 : start, end);
+                  let groupInWords = convertGroup(group.padStart(3, '0'));
+
+                  if (groupInWords === 'uno mil') {
+                      groupInWords = 'mil'; // Ajuste para evitar "uno mil"
+                  }
+
+                  if (groupInWords !== '') output = groupInWords + ' ' + groups[i] + ' ' + output;
+              }
+          }
+
+          output = output.trim();
+          return output.charAt(0).toUpperCase() + output.slice(1);
       }
 
-      if (numero >= 1000) {
-        letra += this.convertirMiles(numero);
-      } else {
-        letra += this.convertirCentenas(numero);
-      }
+      const [integerPart, decimalPart] = parseFloat(amount).toFixed(2).split('.');
+      const integerPartInWords = numberToSpanish(integerPart);
+      const centavos = `${decimalPart}/100`;
 
-      return letra.trim();
-    },
-    convertirMiles(numero) {
-      const unidades = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
-      const decenas = ['', 'diez', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
-
-      let miles = Math.floor(numero / 1000);
-      let centenas = numero % 1000;
-      let milesEnLetra = '';
-
-      if (miles >= 100) {
-        milesEnLetra += unidades[Math.floor(miles / 100)] + 'cientos ';
-        miles %= 100;
-      }
-
-      milesEnLetra += this.convertirCentenas(miles);
-
-      if (centenas > 0) {
-        milesEnLetra += ' mil ' + this.convertirCentenas(centenas);
-      }
-
-      return milesEnLetra;
-    },
-    convertirCentenas(numero) {
-      const unidades = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
-      const decenas = ['', 'diez', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
-      const especiales = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve'];
-
-      let centenasEnLetra = '';
-
-      if (numero >= 100) {
-        centenasEnLetra += unidades[Math.floor(numero / 100)] + 'cientos ';
-        numero %= 100;
-      }
-
-      if (numero >= 20) {
-        centenasEnLetra += decenas[Math.floor(numero / 10)] + ' ';
-        numero %= 10;
-        if (numero !== 0) {
-          centenasEnLetra += 'y ';
-        }
-      } else if (numero >= 10) {
-        centenasEnLetra += especiales[numero - 10];
-        return centenasEnLetra;
-      }
-
-      if (numero > 0) {
-        centenasEnLetra += unidades[numero];
-      }
-
-      return centenasEnLetra;
+      return `${integerPartInWords} pesos ${centavos} M.N.`;
     },
     conectarBluetooth() {
       // Solicitar al usuario que seleccione la impresora vía Bluetooth
@@ -212,6 +206,8 @@ methods: {
         console.log('Dispositivo Bluetooth conectado:', device);
         this.device = device;
 
+        // Guardar el dispositivo en localStorage
+        localStorage.setItem('bluetoothDeviceId', device);
       })
       .catch(error => {
         console.error('Error al conectar con dispositivo Bluetooth:', error);
@@ -225,16 +221,27 @@ methods: {
         // Obtener el carácterística de escritura
         const characteristic = await service.getCharacteristic('49535343-8841-43f4-a8d4-ecbe34729bb3');
 
-        // // Aquí puedes enviar los datos de impresión a través de la característica de escritura
-        // // Por ejemplo, puedes enviar una cadena de texto a imprimir
+        // Comando ESC/POS para fuente pequeña-media (valores: ESC ! n, donde n = 10 para reducir fuente)
+        const smallFontCommand = new Uint8Array([0x1B, 0x21, 0x10]);
+
+        // Reducir el espacio entre líneas (ESC 3 n, donde n define el espacio en puntos)
+        const lineSpacingCommand = new Uint8Array([0x1B, 0x33, 20]); // Ajusta 20 según necesites
+
+        // Restablecer fuente normal
+        const resetFontCommand = new Uint8Array([0x1B, 0x21, 0x00]);
+
+        // Enviar comandos de fuente y espaciado
+        // await characteristic.writeValue(mediumFontCommand);
+        // await characteristic.writeValue(lineSpacingCommand);
 
         // Dividir el texto en fragmentos
         const fragmentSize = 20; // Ajusta este tamaño según sea necesario
         const fragments = this.chunkText(this.text, fragmentSize);
 
-        // Enviar cada fragmento por separado
+        // Enviar cada fragmento por separado con retraso para que imprima todo
         for (const fragment of fragments) {
           await characteristic.writeValue(new TextEncoder().encode(fragment));
+          await new Promise(resolve => setTimeout(resolve, 100)); // Agrega un retraso de 100 ms
         }
 
         console.log('Datos de impresión enviados correctamente');
@@ -262,6 +269,12 @@ methods: {
   mounted() {
     window.addEventListener('afterprint', this.handleAfterPrint);
     this.text = document.getElementById('text-to-print').innerText;
+
+    // Al cargar la página, intenta recuperar el dispositivo Bluetooth guardado
+    const savedBluetoothDevice = localStorage.getItem('semillasBluetoothDeviceId');
+    if (savedBluetoothDevice) {
+      this.device = savedBluetoothDevice;
+    }
   },
   beforeDestroy() {
     window.removeEventListener('afterprint', this.handleAfterPrint);
