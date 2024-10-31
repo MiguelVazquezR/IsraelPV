@@ -397,7 +397,7 @@ export default {
       // Introducir un retraso para dar tiempo al evento click de ejecutarse antes del blur
       setTimeout(() => {
         this.searchFocus = false;
-      }, 80);
+      }, 120);
     },
     async getProductByCode() {
       this.scanning = true;
