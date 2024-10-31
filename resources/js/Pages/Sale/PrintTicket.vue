@@ -48,14 +48,14 @@
         <p class="font-bold text-xs my-1">TOTAL DE ARTICULOS: {{ sale.data.products?.length }}</p>
 
         <!-- Pagaré en caso de crédito -->
-        <div class="mt-1 text-[10px]">
+        <div v-if="sale.data.has_credit && sale.data.paid_at" class="mt-1 text-[10px]">
             <small>DEBO Y PAGARE INCONDICIONALMENTE A LA ORDEN DE ISAAC DIAZ EN ESTA CIUDAD O EN LA QUE SE ME REQUIERA EL DIA
               DE____________DEL 20____LA CANTIDAD DE $_____________MXN.
             </small>
         </div>
 
         <!-- texto y firma -->
-        <footer class="mt-2 text-[10px]">
+        <footer v-if="sale.data.has_credit" class="mt-2 text-[10px]">
             <small>
                 VALOR DE LAS MERCANCIAS RECIBIDAS A MI ENTERA SATISFACCION ESTE PAGARE ES MERCANTIL Y ESTA REGIDO POR LA LEY
                 GENERAL DE TITULOS Y OPERACIONES DE CREDITO EN SU ARTICULO 173 PARTE FINAL Y ARTICULOS CORRELATIVOS POR NO SER
@@ -79,6 +79,16 @@
               <span v-else>Nuevo saldo: ${{ (initial_saldo + sale.data.total)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
               <p class="text-center">--------------------------------</p>
             </div>
+        </footer>
+
+        <footer v-else>
+          <div class="text-center">
+              <p class="text-center mt-5">________________________________</p>
+              <small class="text-center">----- FIRMA DEL CLIENTE -----</small>
+            </div>
+
+            <p class="font-bold text-center">GRACIAS POR SU COMPRA</p>
+            <span class="text-center">--------------------------------</span>
         </footer>
     </div>
 
