@@ -14,7 +14,7 @@ class ClientController extends Controller
 
     public function index()
     {
-        $clients = ClientResource::collection(Client::latest()->get()->take(20));
+        $clients = ClientResource::collection(Client::get()->take(20));
         $total_clients = Client::all()->count();
 
         return inertia('Client/Index', compact('clients', 'total_clients'));
@@ -46,16 +46,12 @@ class ClientController extends Controller
     {   
         // recupera las ultimas 30 ventas del cliente
         $client = $client->load(['sales' => function($query) {
-            $query->orderBy('created_at', 'desc')->limit(30);
+            $query->orderBy('created_at', 'desc')->limit(10);
         }]);
         $clients = Client::all(['id', 'name']);
-        $pendent_sales = Sale::with('payments:id,amount,sale_id')
-            ->where('client_id', $client->id)
-            ->whereNull('paid_at')
-            ->get(['id', 'total', 'client_id', 'paid_at']);
 
-        // return $pendent_sales;
-        return inertia('Client/Show', compact('client', 'clients', 'pendent_sales'));
+        // return $client;
+        return inertia('Client/Show', compact('client', 'clients'));
     }
 
 
@@ -122,7 +118,7 @@ class ClientController extends Controller
         $clients = ClientResource::collection(Client::where('name', 'like', "%$query%")
             ->orWhere('phone', 'like', "%$query%")
             ->get()
-            ->take(20));
+            ->take(5));
 
         return response()->json(['items' => $clients]);
     }
@@ -131,8 +127,7 @@ class ClientController extends Controller
     public function getItemsByPage($currentPage)
     {
         $offset = $currentPage * 20;
-        $clients = ClientResource::collection(Client::latest()
-            ->skip($offset)
+        $clients = ClientResource::collection(Client::skip($offset)
             ->take(20)
             ->get());
 
@@ -144,21 +139,36 @@ class ClientController extends Controller
         $request->validate([
             'total' => 'required|numeric|min:0|max:999999'
         ]);
+
+        $client = Client::find($request->client_id)->first();
+        $updated_debt = $client->debt + $request->total;
+        $client->update(['debt' => $updated_debt]);
         
-        // Registra la venta
-        $sale = Sale::create([
-            'has_credit' => $request->has_credit,
-            'total' => $request->total,
-            'client_id' => $request->client_id,
+        // // Registra la venta
+        // $sale = Sale::create([
+        //     'has_credit' => $request->has_credit,
+        //     'total' => $request->total,
+        //     'client_id' => $request->client_id,
+        // ]);
+
+        // // Agrega adeudo a la venta
+        // $product = Product::where('name', 'Adeudo anterior')->first();
+            
+        // // Asociar producto a la venta con sus atributos adicionales
+        // $sale->products()->attach($product->id, [
+        //     'quantity' => 1,
+        //     'price' => $request->total
+        // ]);
+    }
+
+    public function storePayment(Request $request)
+    {
+        $request->validate([
+            'amount' => 'required|numeric|min:1|max:999999',
         ]);
 
-        // Agrega adeudo a la venta
-        $product = Product::where('name', 'Adeudo anterior')->first();
-            
-        // Asociar producto a la venta con sus atributos adicionales
-        $sale->products()->attach($product->id, [
-            'quantity' => 1,
-            'price' => $request->total
-        ]);
+        $client = Client::find($request->client_id);
+        $updated_debt = $client->debt - $request->amount;
+        $client->update(['debt' => $updated_debt]);
     }
 }

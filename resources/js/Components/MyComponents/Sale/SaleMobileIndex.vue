@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="border border-grayD9 rounded-[20px] py-2 px-4 min-h-32 text-xs mb-2">
+        <div class="border border-grayD9 rounded-[20px] py-2 px-4 min-h-24 text-xs mb-2">
             <Loading v-if="loading" class="pt-4" />
             <div v-else>
                 <header class="flex items-center justify-between">
@@ -13,11 +13,11 @@
                                     d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
                             </svg>
                         </button> -->
-                        <el-popconfirm confirm-button-text="Si" cancel-button-text="No" icon-color="#C30303" title="¿Continuar?" @confirm="print(sale)">
+                        <!-- <el-popconfirm confirm-button-text="Si" cancel-button-text="No" icon-color="#C30303" title="¿Continuar?" @confirm="print(sale)">
                             <template #reference>
                                 <i @click.stop class="fa-solid fa-print text-primary cursor-pointer bg-grayED rounded-full p-[6px]"></i>
                             </template>
-                        </el-popconfirm>
+                        </el-popconfirm> -->
                         <el-popconfirm confirm-button-text="Si" cancel-button-text="No" icon-color="#D37E2D"
                             title="¿Continuar?" @confirm="deleteItem(sale.id)">
                             <template #reference>
@@ -51,13 +51,13 @@
                         <span>Fecha de venta:</span>
                         <span class="font-bold">{{ sale.created_at }}</span>
                     </p>
-                    <p>
+                    <!-- <p>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
                         </svg>
                         <span>Modo de pago:</span>
                         <span class="font-bold">{{ sale.has_credit ? 'A crédito' : 'Al contado' }}</span>
-                    </p>
+                    </p> -->
                     <p>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -65,7 +65,7 @@
                         <span>Total</span>
                         <span class="font-bold">${{ sale.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
                     </p>
-                    <p>
+                    <!-- <p>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5m.75-9 3-3 2.148 2.148A12.061 12.061 0 0 1 16.5 7.605" />
                         </svg>
@@ -75,7 +75,7 @@
                     <p v-if="sale.has_credit">
                         <span>Saldo:</span>
                         <span class="font-bold">${{ pendentAmount }}</span>
-                    </p>
+                    </p> -->
                 </main>
                 </Link>
             </div>

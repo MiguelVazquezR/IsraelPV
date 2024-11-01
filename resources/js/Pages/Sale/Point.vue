@@ -128,7 +128,7 @@
                   <!-- <PrimaryButton @click="cashPayment()"
                     :disabled="editableTabs[this.editableTabsValue - 1]?.saleProducts?.length == 0"
                     class="!px-9 !bg-[#5FCB1F] disabled:!bg-[#999999]">Al contado</PrimaryButton> -->
-                  <PrimaryButton @click="paymentModal = true"
+                  <PrimaryButton @click="handleStorePayment()"
                     :disabled="editableTabs[this.editableTabsValue - 1]?.saleProducts?.length > 0
                     || clientSelected?.debt == 0
                     || !clientSelected"
@@ -282,36 +282,27 @@
           <form class="mt-5 mb-2 md:grid grid-cols-2 gap-3" @submit.prevent="storePayment">
             <h2 class="font-bold col-span-full">Registrar abono a {{ clientSelected?.name }}</h2>
             
-            <div>
-                <el-select v-model="form.client_id" clearable filterable disabled
-                    placeholder="Seleccione" no-data-text="No hay opciones registradas"
-                    no-match-text="No se encontraron coincidencias">
-                    <el-option v-for="client in clients" :key="client" :label="client.name" :value="client.id" />
-                </el-select>
-            </div>
-
-            <div class="flex space-x-3 items-center mt-2 md:-mt-4">
+            <div class="flex space-x-3 items-center col-span-full mt-2 mx-auto">
                 <div>
                     <p class="text-gray-500 border-b border-primary pb-1 mb-1">Saldo pendiente</p>
-                    <p>${{ totalDebt?.replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
+                    <p>${{ clientSelected?.debt?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
                 </div>
                 <i class="fa-solid fa-arrow-right-long text-primary px-3"></i>
                 <div>
                     <p class="text-gray-500 border-b border-green-500 pb-1 mb-1">Saldo restante</p>
-                    <p v-if="(totalDebt - localPaymentAmount) >= 0"> ${{ (totalDebt - localPaymentAmount)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
+                    <p v-if="(clientSelected?.debt - paymentForm.amount) >= 0"> ${{ (clientSelected?.debt - paymentForm.amount)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
                     <p class="text-xs text-red-600" v-else>Cantidad mayor al saldo</p>
                 </div>
             </div>
 
-            <div class="mt-2">
+            <!-- <div class="mt-2">
                 <InputLabel value="Fecha de abono*" class="ml-3 mb-1" />
-                <!-- <el-date-picker v-model="form.date" type="date" placeholder="Seleccione" class="!w-full" /> -->
-                <input class="input !rounded-md !h-8" type="date" v-model="form.date" placeholder="Seleccione">
-            </div>
+                <input class="input !rounded-md !h-8" type="date" v-model="paymentForm.date" placeholder="Seleccione">
+            </div> -->
 
             <div class="mt-2">
                 <InputLabel value="Monto abonado*" class="ml-3 mb-1 text-sm" />
-                <el-input v-model="localPaymentAmount" placeholder="ingresa el monto"
+                <el-input v-model="paymentForm.amount" placeholder="ingresa el monto"
                     :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                     :parser="(value) => value.replace(/\$\s?|(,*)/g, '')">
                     <template #prefix>
@@ -320,15 +311,15 @@
                 </el-input>
             </div>
 
-            <div class="col-span-full mt-2">
+            <!-- <div class="col-span-full mt-2">
                 <InputLabel value="Notas (opcional)" class="text-sm ml-2" />
-                <el-input v-model="form.notes" :autosize="{ minRows: 3, maxRows: 5 }" type="textarea"
+                <el-input v-model="paymentForm.notes" :autosize="{ minRows: 3, maxRows: 5 }" type="textarea"
                     placeholder="Escribe tus notas" :maxlength="200" show-word-limit clearable />
-            </div>
+            </div> -->
 
-            <div class="flex justify-end space-x-3 pt-2 pb-1 py-2 col-span-full">
-                <CancelButton @click="paymentModal = false; form.reset();">Cancelar</CancelButton>
-                <PrimaryButton :disabled="(totalDebt - localPaymentAmount) < 0 || !localPaymentAmount || !form.date">Abonar</PrimaryButton>
+            <div class="flex justify-end space-x-3 pt-2 pb-1 py-2 mt-3 col-span-full">
+                <CancelButton @click="paymentModal = false; paymentForm.reset();">Cancelar</CancelButton>
+                <PrimaryButton :disabled="(clientSelected?.debt - paymentForm.amount) < 0 || !paymentForm.amount">Abonar</PrimaryButton>
             </div>
           </form>
         </div>
@@ -360,8 +351,16 @@ export default {
       address: null,
     });
 
+    const paymentForm = useForm({
+      client_id: null,
+      amount: null,
+      // notes: null,
+      // date: null,
+    });
+
     return {
       form,
+      paymentForm,
       showConfirmModal: false, //confirmar crear venta sin cliente seleccionado
       showClientFormModal: false, //modal para agregar un cliente
       paymentModal: false, //modal para agregar un abono
@@ -428,6 +427,26 @@ export default {
       } else {
         this.store();
       }
+    },
+    handleStorePayment() {
+      this.paymentForm.client_id = this.editableTabs[this.editableTabsValue - 1].client_id;
+      this.paymentModal = true;
+    },
+    storePayment() {
+      this.paymentForm.post(route('clients.store-payment') , {
+          onSuccess: () => {
+              this.$notify({
+                  title: "Correcto",
+                  message: "Se ha registrado el abono",
+                  type: "success",
+              });
+              this.paymentModal = false;
+              this.clientSelected.debt -= (this.paymentForm.amount);
+              const payment = encodeURIComponent(JSON.stringify({ payment: this.paymentForm.amount }));
+              window.open(`${route('sales.print-payment-ticket', this.paymentForm.client_id)}?payment=${payment}`);
+              this.paymentForm.reset();
+          }
+      });
     },
     async store() {
       try {

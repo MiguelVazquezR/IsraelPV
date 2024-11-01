@@ -61,6 +61,7 @@ Route::get('sales-get-by-page/{currentPage}', [SaleController::class, 'getItemsB
 Route::get('sales-get-by-id/{sale}', [SaleController::class, 'getById'])->middleware('auth')->name('sales.get-by-id');
 Route::get('sales-get-by-id-copy/{sale}', [SaleController::class, 'getByIdCopy'])->middleware('auth')->name('sales.get-by-id-copy'); //es lo mismo que la de arriba pero con resource
 Route::get('sales-print-ticket/{sale_id}', [SaleController::class, 'printTicket'])->middleware('auth')->name('sales.print-ticket');
+Route::get('sales-print-payment-ticket/{client_id}', [SaleController::class, 'printPaymentTicket'])->middleware('auth')->name('sales.print-payment-ticket');
 
 
 //products routes-------------------------------------------------------------------------------------
@@ -91,6 +92,7 @@ Route::get('clients-get-by-id/{client}', [ClientController::class, 'getById'])->
 Route::get('clients-get-by-page/{currentPage}', [ClientController::class, 'getItemsByPage'])->name('clients.get-by-page')->middleware('auth');
 Route::get('clients-search', [ClientController::class, 'search'])->name('clients.search')->middleware('auth');
 Route::post('clients-store-debt', [ClientController::class, 'storeDebt'])->name('clients.store-debt')->middleware('auth');
+Route::post('clients-store-payment', [ClientController::class, 'storePayment'])->name('clients.store-payment')->middleware('auth');
 
 
 //categories routes-------------------------------------------------------------------------------------

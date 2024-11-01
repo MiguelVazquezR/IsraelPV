@@ -238,4 +238,19 @@ class SaleController extends Controller
         // return $sale;
         return inertia('Sale/PrintTicket', compact('sale', 'payment', 'initial_saldo'));
     }
+
+    public function printPaymentTicket(Request $request, $client_id)
+    {     
+        $client = Client::find($client_id)->first();
+        
+        // return $client;
+
+        // Obtén el parámetro 'payment' y decodifícalo
+        $paymentData = $request->query('payment');
+        $payment = $paymentData ? json_decode($paymentData, true)['payment'] : null;
+        $initial_saldo = $client->debt + $payment;
+        
+        // return $sale;
+        return inertia('Sale/PrintPaymentTicket', compact('payment', 'initial_saldo', 'client'));
+    }
 }
