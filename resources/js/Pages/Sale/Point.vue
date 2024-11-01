@@ -22,7 +22,7 @@
                       <i class="fa-solid fa-info text-primary text-[7px]"></i>
                     </div>
                   </el-tooltip>
-                  <el-select v-model="editableTabs[this.editableTabsValue - 1].client_id" clearable filterable
+                  <el-select @change="getClientInfo()" v-model="editableTabs[this.editableTabsValue - 1].client_id" clearable filterable
                     placeholder="Seleccione" no-data-text="No hay opciones registradas"
                     no-match-text="No se encontraron coincidencias">
                     <el-option v-for="client in clients" :key="client" :label="client.name" :value="client.id" />
@@ -106,11 +106,17 @@
           <div class="border border-grayD9 rounded-lg p-4 mt-5 text-xs lg:text-base">
             <div
               v-if="!editableTabs[this.editableTabsValue - 1]?.cash && !editableTabs[this.editableTabsValue - 1]?.credit">
+              <div v-if="editableTabs[this.editableTabsValue - 1].client_id" class="flex items-center justify-between text-lg mx-5">
+                <p class="font-bold">Saldo pendiente</p>
+                <p class="text-gray-99">$ <strong class="ml-3">{{(clientSelected?.debt || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,",") }}</strong></p>
+              </div>
+              <div class="flex items-center justify-between text-lg mx-5">
+                <p class="font-bold">Compra</p>
+                <p class="text-gray-99">$ <strong class="ml-3">{{calculateTotal().toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,",") }}</strong></p>
+              </div>
               <div class="flex items-center justify-between text-lg mx-5">
                 <p class="font-bold">Total</p>
-                <p class="text-gray-99">$ <strong class="ml-3">{{
-                calculateTotal().toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,
-                ",") }}</strong></p>
+                <p class="text-gray-99">$ <strong class="ml-3">{{((clientSelected?.debt || 0) + calculateTotal()).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,",") }}</strong></p>
               </div>
               <!-- botones -->
               <div class="text-center mt-7">
@@ -118,10 +124,15 @@
                 <div class="flex items-center justify-end space-x-4">
                   <PrimaryButton @click="creditPayment()"
                     :disabled="editableTabs[this.editableTabsValue - 1]?.saleProducts?.length == 0"
-                    class="!px-9 !bg-[#baf09b] disabled:!bg-[#999999] !text-black">A crédito</PrimaryButton>
-                  <PrimaryButton @click="cashPayment()"
+                    class="!px-9 !bg-[#baf09b] disabled:!bg-[#999999] !text-black">Cobrar</PrimaryButton>
+                  <!-- <PrimaryButton @click="cashPayment()"
                     :disabled="editableTabs[this.editableTabsValue - 1]?.saleProducts?.length == 0"
-                    class="!px-9 !bg-[#5FCB1F] disabled:!bg-[#999999]">Al contado</PrimaryButton>
+                    class="!px-9 !bg-[#5FCB1F] disabled:!bg-[#999999]">Al contado</PrimaryButton> -->
+                  <PrimaryButton @click="paymentModal = true"
+                    :disabled="editableTabs[this.editableTabsValue - 1]?.saleProducts?.length > 0
+                    || clientSelected?.debt == 0
+                    || !clientSelected"
+                    class="!px-9 !bg-[#5FCB1F] disabled:!bg-[#999999]">Registrar abono</PrimaryButton>
                 </div>
               </div>
             </div>
@@ -133,7 +144,7 @@
                   <i class="fa-solid fa-angle-left text-xs px-2 cursor-pointer"></i>
                 </button>
                 <p class="text-gray-99 text-sm">Total $ <strong>{{
-              calculateTotal().toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</strong>
+                  ((clientSelected?.debt || 0) + calculateTotal()).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</strong>
                 </p>
               </div>
               <div class="flex items-center justify-between mx-5 space-x-10">
@@ -167,7 +178,7 @@
                 <i @click="editableTabs[this.editableTabsValue - 1].credit = false; editableTabs[this.editableTabsValue - 1].deposit = null; editableTabs[this.editableTabsValue - 1].deposit_notes = null"
                   class="fa-solid fa-angle-left text-xs p-2 cursor-pointer"></i>
                 <p class="text-gray-99">$ <strong class="ml-3">{{
-              calculateTotal().toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,
+                  ((clientSelected?.debt || 0) + calculateTotal()).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,
                 ",") }}</strong></p>
               </div>
               <h3 class="text-lg font-bold">Registrar abono de la venta</h3>
@@ -183,18 +194,18 @@
                 </div>
                 <div class="w-1/3">
                   <InputLabel value="Saldo restante" class="text-sm !text-gray-400" />
-                  <p v-if="(calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit) > 0">${{
-              (calculateTotal() -
-                editableTabs[this.editableTabsValue - 1].deposit)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-            }}</p>
-                  <p class="text-red-600 text-xs" v-else>La cantidad abonada debe de ser menor al monto total</p>
+                  <p v-if="(((clientSelected?.debt || 0) + calculateTotal()) - editableTabs[this.editableTabsValue - 1].deposit) >= 0">${{
+                (((clientSelected?.debt || 0) + calculateTotal()) -
+                  editableTabs[this.editableTabsValue - 1].deposit)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }}</p>
+                  <p class="text-red-600 text-xs" v-else>La cantidad abonada debe de ser menor o igual al monto total</p>
                 </div>
               </div>
-              <div class="w-2/3 pr-5">
+              <!-- <div class="w-2/3 pr-5">
                 <InputLabel value="Fecha de vencimiento" class="text-sm !text-gray-400 ml-2" />
                 <el-date-picker v-model="editableTabs[this.editableTabsValue - 1].limit_date" class="!w-full"
                   type="date" placeholder="Seleccione" :disabled-date="disabledDate" />
-              </div>
+              </div> -->
               <div class="mt-3">
                 <InputLabel value="Notas (opcional)" class="text-sm ml-2 !text-gray-400" />
                 <el-input v-model="editableTabs[this.editableTabsValue - 1].deposit_notes"
@@ -204,7 +215,7 @@
               <div class="flex items-center justify-end space-x-3 mt-4">
                 <!-- <ThirthButton @click="editableTabs[this.editableTabsValue - 1].has_credit = true; checkClientExist()">No abonar</ThirthButton> -->
                 <PrimaryButton @click="editableTabs[this.editableTabsValue - 1].has_credit = true; checkClientExist()"
-                  :disabled="(calculateTotal() - editableTabs[this.editableTabsValue - 1].deposit) < 0">Finalizar venta
+                  :disabled="(((clientSelected?.debt || 0) + calculateTotal()) - editableTabs[this.editableTabsValue - 1].deposit) < 0">Finalizar venta
                 </PrimaryButton>
               </div>
             </div>
@@ -253,14 +264,76 @@
 
     <ConfirmationModal :show="showConfirmModal" @close="showConfirmModal = false">
       <template #title> No seleccionaste un cliente </template>
-      <template #content> No has seleccionado cliente en la venta. ¿Deseas continuar? </template>
+      <template #content> Por favor selecciona un cliente para finalizar la venta. </template>
       <template #footer>
         <div>
-          <CancelButton @click="showConfirmModal = false" class="mr-2">Cancelar</CancelButton>
-          <PrimaryButton @click="showConfirmModal = false; store()">Continuar</PrimaryButton>
+          <CancelButton @click="showConfirmModal = false" class="mr-2">Entendido</CancelButton>
+          <!-- <PrimaryButton @click="showConfirmModal = false; store()">Continuar</PrimaryButton> -->
         </div>
       </template>
     </ConfirmationModal>
+
+    <!-- -------------- Payment Modal starts----------------------- -->
+      <Modal :show="paymentModal" @close="paymentModal = false">
+        <div class="p-4 relative">
+          <i @click="paymentModal = false"
+            class="fa-solid fa-xmark cursor-pointer w-5 h-5 rounded-full border border-black flex items-center justify-center absolute right-3"></i>
+
+          <form class="mt-5 mb-2 md:grid grid-cols-2 gap-3" @submit.prevent="storePayment">
+            <h2 class="font-bold col-span-full">Registrar abono a {{ clientSelected?.name }}</h2>
+            
+            <div>
+                <el-select v-model="form.client_id" clearable filterable disabled
+                    placeholder="Seleccione" no-data-text="No hay opciones registradas"
+                    no-match-text="No se encontraron coincidencias">
+                    <el-option v-for="client in clients" :key="client" :label="client.name" :value="client.id" />
+                </el-select>
+            </div>
+
+            <div class="flex space-x-3 items-center mt-2 md:-mt-4">
+                <div>
+                    <p class="text-gray-500 border-b border-primary pb-1 mb-1">Saldo pendiente</p>
+                    <p>${{ totalDebt?.replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
+                </div>
+                <i class="fa-solid fa-arrow-right-long text-primary px-3"></i>
+                <div>
+                    <p class="text-gray-500 border-b border-green-500 pb-1 mb-1">Saldo restante</p>
+                    <p v-if="(totalDebt - localPaymentAmount) >= 0"> ${{ (totalDebt - localPaymentAmount)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
+                    <p class="text-xs text-red-600" v-else>Cantidad mayor al saldo</p>
+                </div>
+            </div>
+
+            <div class="mt-2">
+                <InputLabel value="Fecha de abono*" class="ml-3 mb-1" />
+                <!-- <el-date-picker v-model="form.date" type="date" placeholder="Seleccione" class="!w-full" /> -->
+                <input class="input !rounded-md !h-8" type="date" v-model="form.date" placeholder="Seleccione">
+            </div>
+
+            <div class="mt-2">
+                <InputLabel value="Monto abonado*" class="ml-3 mb-1 text-sm" />
+                <el-input v-model="localPaymentAmount" placeholder="ingresa el monto"
+                    :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')">
+                    <template #prefix>
+                        <i class="fa-solid fa-dollar-sign"></i>
+                    </template>
+                </el-input>
+            </div>
+
+            <div class="col-span-full mt-2">
+                <InputLabel value="Notas (opcional)" class="text-sm ml-2" />
+                <el-input v-model="form.notes" :autosize="{ minRows: 3, maxRows: 5 }" type="textarea"
+                    placeholder="Escribe tus notas" :maxlength="200" show-word-limit clearable />
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-2 pb-1 py-2 col-span-full">
+                <CancelButton @click="paymentModal = false; form.reset();">Cancelar</CancelButton>
+                <PrimaryButton :disabled="(totalDebt - localPaymentAmount) < 0 || !localPaymentAmount || !form.date">Abonar</PrimaryButton>
+            </div>
+          </form>
+        </div>
+      </Modal>
+      <!-- --------------------------- Payment Modal ends ------------------------------------ -->
   </AppLayout>
 </template>
 
@@ -272,6 +345,7 @@ import CancelButton from "@/Components/MyComponents/CancelButton.vue";
 import SaleTable from '@/Components/MyComponents/Sale/SaleTable.vue';
 import InputLabel from "@/Components/InputLabel.vue";
 import DialogModal from "@/Components/DialogModal.vue";
+import Modal from "@/Components/Modal.vue";
 import InputError from "@/Components/InputError.vue";
 import ConfirmationModal from "@/Components/ConfirmationModal.vue";
 import axios from 'axios';
@@ -290,6 +364,7 @@ export default {
       form,
       showConfirmModal: false, //confirmar crear venta sin cliente seleccionado
       showClientFormModal: false, //modal para agregar un cliente
+      paymentModal: false, //modal para agregar un abono
       storeProcessing: false, //cargando store de venta
       scanning: false, //cargando la busqueda de productos por escaner
       loading: false, //cargando la busqueda de productos
@@ -302,6 +377,7 @@ export default {
       quantity: 1, //cantidad para agregar del producto escaneado o buscado
       tabIndex: 1, //index del tab - componente de tabs
       editableTabsValue: "1", //tab seleccionado - componente de tabs
+      clientSelected: null, //cliente seleccionado (tiene la info)
       editableTabs: [ //Informacion del tab - componente de tabs
         {
           title: "Carrito de compras",
@@ -335,13 +411,17 @@ export default {
     DialogModal,
     InputError,
     InputLabel,
-    SaleTable
+    SaleTable,
+    Modal
   },
   props: {
     products: Array,
     clients: Array,
   },
   methods: {
+    getClientInfo() {
+      this.clientSelected = this.clients.find(client => client.id == this.editableTabs[this.editableTabsValue - 1].client_id);
+    },
     checkClientExist() {
       if (this.editableTabs[this.editableTabsValue - 1]?.client_id == null) {
         this.showConfirmModal = true;
@@ -364,14 +444,17 @@ export default {
           }
         });
         if (response.status === 200) {
-          // this.$notify({
-          //   title: "Correcto",
-          //   text: "Se ha registrado la venta con éxito!",
-          //   type: "success",
-          // });
           this.storeProcessing = false;
+          //actualiza la deuda del cliente dinamicamente sumando la venta y restando el abono
+          this.clients.find(client => client.id == this.clientSelected.id).debt += (this.calculateTotal() - this.editableTabs[this.editableTabsValue - 1]?.deposit);
+          this.clientSelected = null;
+          this.editableTabs[this.editableTabsValue - 1].credit = false;
+          
+          // //manda el abono por url
+          const payment = encodeURIComponent(JSON.stringify({ payment: this.editableTabs[this.editableTabsValue - 1]?.deposit }));
+          window.open(`${route('sales.print-ticket', response.data.item.id)}?payment=${payment}`);
+
           this.clearTab();
-          window.open(route('sales.print-ticket', response.data.item.id), '_blank');
         }
       } catch (error) {
         console.log(error);

@@ -256,7 +256,7 @@ export default {
 
                     this.localPaymentAmount -= saleBalance;
                     if (this.localPaymentAmount == 0) {
-                        location.reload();
+                        // location.reload();
                     }
                 } else {
                     // Si el abono es menor que el saldo, aplicar solo la cantidad restante
@@ -287,6 +287,7 @@ export default {
                     location.reload();
                 }
             });
+            this.debtForm.reset();
         }
     }
 }

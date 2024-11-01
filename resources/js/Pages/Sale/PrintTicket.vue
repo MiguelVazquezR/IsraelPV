@@ -19,6 +19,14 @@
         <span>--------------------------------</span>
 
         <!-- <div class="flex flex-col"> -->
+        <span>--------------------------------</span>
+        <span>
+          <small>Cant. </small>
+          <small>Descrip. </small>
+          <small>Precio </small>
+          <small>Importe </small>
+        </span>
+        <span>--------------------------------</span>
           <p class="text-xs" v-for="product in sale.data.products" :key="product">
             {{ product.pivot?.quantity + '  ' }} <span class="ml-[5px]"> {{ product.name + ' ' }}</span>
             ${{ product.pivot.price?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' = ' }}
@@ -48,14 +56,14 @@
         <p class="font-bold text-xs my-1">TOTAL DE ARTICULOS: {{ sale.data.products?.length }}</p>
 
         <!-- Pagaré en caso de crédito -->
-        <div v-if="sale.data.has_credit && sale.data.paid_at" class="mt-1 text-[10px]">
+        <div v-if="(initial_saldo + sale.data.total - payment) > 0" class="mt-1 text-[10px]">
             <small>DEBO Y PAGARE INCONDICIONALMENTE A LA ORDEN DE ISAAC DIAZ EN ESTA CIUDAD O EN LA QUE SE ME REQUIERA EL DIA
               DE____________DEL 20____LA CANTIDAD DE $_____________MXN.
             </small>
         </div>
 
         <!-- texto y firma -->
-        <footer v-if="sale.data.has_credit" class="mt-2 text-[10px]">
+        <footer v-if="(initial_saldo + sale.data.total - payment) > 0" class="mt-2 text-[10px]">
             <small>
                 VALOR DE LAS MERCANCIAS RECIBIDAS A MI ENTERA SATISFACCION ESTE PAGARE ES MERCANTIL Y ESTA REGIDO POR LA LEY
                 GENERAL DE TITULOS Y OPERACIONES DE CREDITO EN SU ARTICULO 173 PARTE FINAL Y ARTICULOS CORRELATIVOS POR NO SER
@@ -74,8 +82,8 @@
               <span class="text-center">--------------------------------</span>
               <span>Saldo inicial: ${{ initial_saldo?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
               <span>Venta: ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
-              <span>Abono: ${{ payment?.amount?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") ?? '00.00' }}</span>
-              <span v-if="payment">Nuevo saldo: ${{ (initial_saldo + sale.data.total - payment?.amount)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+              <span>Abono: ${{ payment?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") ?? '00.00' }}</span>
+              <span v-if="payment">Nuevo saldo: ${{ (initial_saldo + sale.data.total - payment)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
               <span v-else>Nuevo saldo: ${{ (initial_saldo + sale.data.total)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
               <p class="text-center">--------------------------------</p>
             </div>
@@ -133,7 +141,7 @@ Head
 },
 props:{
 sale: Object,
-payment: Object,
+payment: Number,
 initial_saldo: Number
 },
 methods: {
@@ -216,8 +224,8 @@ methods: {
         console.log('Dispositivo Bluetooth conectado:', device);
         this.device = device;
 
-        // Guardar el dispositivo en localStorage
-        localStorage.setItem('bluetoothDeviceId', device);
+        // Guardar el ID del dispositivo en localStorage
+        localStorage.setItem('bluetoothDeviceId', device.id);
       })
       .catch(error => {
         console.error('Error al conectar con dispositivo Bluetooth:', error);
@@ -281,9 +289,19 @@ methods: {
     this.text = document.getElementById('text-to-print').innerText;
 
     // Al cargar la página, intenta recuperar el dispositivo Bluetooth guardado
-    const savedBluetoothDevice = localStorage.getItem('semillasBluetoothDeviceId');
-    if (savedBluetoothDevice) {
-      this.device = savedBluetoothDevice;
+    const savedDeviceId = localStorage.getItem('bluetoothDeviceId');
+    if (savedDeviceId) {
+      navigator.bluetooth.getDevices().then(devices => {
+        const device = devices.find(d => d.id === savedDeviceId);
+        if (device) {
+          this.device = device;
+          console.log('Dispositivo Bluetooth recuperado y conectado:', device);
+        } else {
+          console.log('No se encontró el dispositivo guardado.');
+        }
+      }).catch(error => {
+        console.error('Error al recuperar dispositivo Bluetooth:', error);
+      });
     }
   },
   beforeDestroy() {

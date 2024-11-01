@@ -17,9 +17,9 @@ class SaleController extends Controller
     public function pointIndex()
     {
         $products = Product::all(['id', 'name', 'code']);
-        $clients = Client::all(['id', 'name']);
+        $clients = Client::all(['id', 'name', 'debt']);
 
-        // return $products;
+        // return $clients;
         return inertia('Sale/Point', compact('products', 'clients'));
     }
 
@@ -41,7 +41,7 @@ class SaleController extends Controller
 
 
     public function store(Request $request)
-    {
+    {   
         // Registra la venta
         $sale = Sale::create([
             'has_credit' => $request->data['has_credit'],
@@ -75,15 +75,28 @@ class SaleController extends Controller
                 auth()->user()->notify(new BasicNotification($title, $description, $url));
             }
         }
+        
+        //recupera al cliente para actualizar su deuda
+        $client = Client::find($request->data['client_id']);
+
+        //suba el total de la compra a la deuda anterior
+        $updated_debt = $client->debt + $request->data['total'];
 
         // si la variable del abono no es null se crea un registro de abono
+        //se cambio a actualizar la deuda total del cliente restando el abono al total de la columna debt de la tabla clients
         if ($request->data['deposit'] !== null) {
-            Payment::create([
-                'amount' => $request->data['deposit'],
-                'notes' => $request->data['deposit_notes'],
-                'sale_id' => $sale->id,
-            ]);
 
+            //suba el total de la compra a la deuda anterior y resta el abono
+            $remain_debt = $updated_debt - floatval($request->data['deposit']); 
+            $client->update(['debt' =>  $remain_debt]);
+
+            // Payment::create([
+            //     'amount' => $request->data['deposit'],
+            //     'notes' => $request->data['deposit_notes'],
+            //     'sale_id' => $sale->id,
+            // ]);
+        } else {
+            $client->update(['debt' =>  $updated_debt]);
         }
         return response()->json(['item' => $sale]);
     }
@@ -175,35 +188,48 @@ class SaleController extends Controller
     }
 
     
-    public function printTicket($sale_id)
+    public function printTicket(Request $request, $sale_id)
     {
         $sale = SaleResource::make(Sale::with(['client', 'products'])->find($sale_id));
 
         // si la venta tiene cliente asignado
         if ( $sale->client ) {
-            // Obtener todas las ventas del cliente cuya propiedad has_credit == 1 y paid_at == null
-            // para calcular el saldo antes de esta venta
-            $sales = Sale::where('client_id', $sale->client->id)
-            ->where('has_credit', 1)
-            ->whereNull('paid_at')
-            ->where('id', '!=', $sale_id) // Excluir la venta actual
-            ->where('created_at', '<', $sale->created_at) // Solo ventas anteriores a la fecha de la venta actual
-            ->get();
+            // // Obtener todas las ventas del cliente cuya propiedad has_credit == 1 y paid_at == null
+            // // para calcular el saldo antes de esta venta
+            // $sales = Sale::where('client_id', $sale->client->id)
+            // ->where('has_credit', 1)
+            // ->whereNull('paid_at')
+            // ->where('id', '!=', $sale_id) // Excluir la venta actual
+            // ->where('created_at', '<', $sale->created_at) // Solo ventas anteriores a la fecha de la venta actual
+            // ->get();
             
-            // Inicializar el total adeudado del cliente
-            $initial_saldo = 0;
-
-            // Iterar sobre las ventas encontradas
-            foreach ($sales as $sale_temp) {
-                // Obtener los abonos para esta venta
-                $payment = Payment::where('sale_id', $sale_temp->id)->sum('amount');
+            // // Inicializar el total adeudado del cliente
+            // $initial_saldo = 0;
+            
+            // // Iterar sobre las ventas encontradas
+            // foreach ($sales as $sale_temp) {
+                //     // Obtener los abonos para esta venta
+                //     $payment = Payment::where('sale_id', $sale_temp->id)->sum('amount');
                 
-                // Restar la suma de los abonos al total de la venta
-                $initial_saldo += $sale_temp->total - $payment;
-            }
+            //     // Restar la suma de los abonos al total de la venta
+            //     $initial_saldo += $sale_temp->total - $payment;
+            // }
             
-            //recupera el abono de la nueva venta si es que se hizo
-            $payment = Payment::where('sale_id', $sale_id)->get(['id', 'amount', 'notes'])->first();
+            // //recupera el abono de la nueva venta si es que se hizo
+            // $payment = Payment::where('sale_id', $sale_id)->get(['id', 'amount', 'notes'])->first();
+            
+            //recupero al cliente que hizo la compra para tomar su deuda y abono
+            $client = Client::find($sale->client)->first();
+            
+            // return $client;
+            // Obtén el parámetro 'payment' y decodifícalo
+            $paymentData = $request->query('payment');
+            $payment = $paymentData ? json_decode($paymentData, true)['payment'] : null;
+            if ( $payment ) {
+                $initial_saldo = $client->debt - $sale->total + $payment;
+            } else {
+                $initial_saldo = $client->debt;
+            }
         } else {
             $payment = null;
             $initial_saldo = null;

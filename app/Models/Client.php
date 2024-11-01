@@ -15,6 +15,7 @@ class Client extends Model
         'rfc',
         'phone',
         'address',
+        'debt',
     ];
 
     //relationships

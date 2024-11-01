@@ -9,7 +9,7 @@
             <div class="flex items-center space-x-1">
                 <p>Creado el: <span class="text-black">{{ format(sale.created_at, true) }}</span></p>
                 <i v-if="sale.has_credit" class="fa-solid fa-minus"></i>
-                <p v-if="sale.has_credit">Crédito vence el: <span class="text-black">{{ format(sale.limit_date) }}</span></p>
+                <p v-if="sale.has_credit">Crédito vence el: <span class="text-black">{{ format(sale.limit_date) ?? '-' }}</span></p>
             </div>
             <p>Total: <span class="text-black">${{ getTotal.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span></p>
             <div v-if="sale.has_credit">
@@ -65,6 +65,7 @@ export default {
     },
     methods: {
         format(date, dateTime = false) {
+            if (!date) return;
             if (dateTime) {
                 return format(new Date(date), 'd MMM yyyy, hh:mm a', { locale: es });
             } else {
