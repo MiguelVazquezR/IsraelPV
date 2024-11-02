@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GlobalPaymentController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductHistoryController;
@@ -103,6 +104,12 @@ Route::resource('categories', CategoryController::class)->middleware('auth');
 //payments routes-------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------
 Route::resource('payments', PaymentController::class)->middleware('auth');
+
+
+//global payments routes-------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------
+Route::resource('global-payments', GlobalPaymentController::class)->middleware('auth');
+Route::get('global-payments-search', [GlobalPaymentController::class, 'searchPayments'])->name('global-payments.search')->middleware('auth');
 
 
 //settings routes-------------------------------------------------------------------------------------

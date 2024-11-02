@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ClientResource;
 use App\Models\Client;
+use App\Models\GlobalPayment;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Sale;
@@ -168,7 +169,17 @@ class ClientController extends Controller
         ]);
 
         $client = Client::find($request->client_id);
+
+        GlobalPayment::create([
+            'initial_amount' => $client->debt,
+            'amount' => $request->amount,
+            'date' => $request->date,
+            'notes' => $request->notes,
+            'client_id' => $request->client_id,
+        ]);
+
         $updated_debt = $client->debt - $request->amount;
         $client->update(['debt' => $updated_debt]);
+
     }
 }

@@ -23,4 +23,9 @@ class Client extends Model
     {
         return $this->hasMany(Sale::class);
     }
+
+    public function globalPayments() :HasMany
+    {
+        return $this->hasMany(GlobalPayment::class);
+    }
 }

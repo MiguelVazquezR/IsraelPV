@@ -295,10 +295,10 @@
                 </div>
             </div>
 
-            <!-- <div class="mt-2">
+            <div class="mt-2">
                 <InputLabel value="Fecha de abono*" class="ml-3 mb-1" />
                 <input class="input !rounded-md !h-8" type="date" v-model="paymentForm.date" placeholder="Seleccione">
-            </div> -->
+            </div>
 
             <div class="mt-2">
                 <InputLabel value="Monto abonado*" class="ml-3 mb-1 text-sm" />
@@ -311,11 +311,11 @@
                 </el-input>
             </div>
 
-            <!-- <div class="col-span-full mt-2">
+            <div class="col-span-full mt-2">
                 <InputLabel value="Notas (opcional)" class="text-sm ml-2" />
                 <el-input v-model="paymentForm.notes" :autosize="{ minRows: 3, maxRows: 5 }" type="textarea"
                     placeholder="Escribe tus notas" :maxlength="200" show-word-limit clearable />
-            </div> -->
+            </div>
 
             <div class="flex justify-end space-x-3 pt-2 pb-1 py-2 mt-3 col-span-full">
                 <CancelButton @click="paymentModal = false; paymentForm.reset();">Cancelar</CancelButton>
@@ -354,8 +354,8 @@ export default {
     const paymentForm = useForm({
       client_id: null,
       amount: null,
-      // notes: null,
-      // date: null,
+      notes: null,
+      date: null,
     });
 
     return {

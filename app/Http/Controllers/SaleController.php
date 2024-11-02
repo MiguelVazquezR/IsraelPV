@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\SaleResource;
 use App\Models\Client;
+use App\Models\GlobalPayment;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Sale;
@@ -89,6 +90,14 @@ class SaleController extends Controller
             //suba el total de la compra a la deuda anterior y resta el abono
             $remain_debt = $updated_debt - floatval($request->data['deposit']); 
             $client->update(['debt' =>  $remain_debt]);
+
+            GlobalPayment::create([
+                'initial_amount' => $updated_debt,
+                'amount' => floatval($request->data['deposit']),
+                'date' => now(),
+                'notes' => $request->data['deposit_notes'],
+                'client_id' => $client->id,
+            ]);
 
             // Payment::create([
             //     'amount' => $request->data['deposit'],
