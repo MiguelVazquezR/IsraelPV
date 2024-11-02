@@ -32,23 +32,6 @@
             ${{ product.pivot.price?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' = ' }}
             ${{ (product.pivot?.quantity * product.pivot.price)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
           </p>
-        <!-- </div> -->
-
-        <!-- tabla de productos -->
-        <!-- <table class="mt-2 w-full text-[10px]">
-            <tr class="text-left">
-                <th>Cant.</th>
-                <th>Descrip.</th>
-                <th>Precio</th>
-                <th>Importe</th>
-            </tr>
-            <tr v-for="product in sale.data.products" :key="product">
-                <td>{{ product.pivot?.quantity }}</td>
-                <td class="uppercase px-[2px]">{{ product.name }}</td>
-                <td>${{ product.public_price?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</td>
-                <td>{{ (product.pivot?.quantity * product.public_price)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</td>
-            </tr>
-        </table> -->
 
         <p class="font-bold text-base mt-1">TOTAL ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} </p>
         <span>--------------------------------</span>
@@ -56,19 +39,19 @@
         <p class="font-bold text-xs my-1">TOTAL DE ARTICULOS: {{ sale.data.products?.length }}</p>
 
         <!-- Pagaré en caso de crédito -->
-        <div v-if="(initial_saldo + sale.data.total - payment) > 0" class="mt-1 text-[10px]">
+        <div v-if="(initial_saldo + sale.data.total - payment) > 0 && printDebt" class="mt-1 text-[10px]">
             <small>DEBO Y PAGARE INCONDICIONALMENTE A LA ORDEN DE ISAAC DIAZ EN ESTA CIUDAD O EN LA QUE SE ME REQUIERA EL DIA
               DE____________DEL 20____LA CANTIDAD DE $_____________MXN.
             </small>
         </div>
 
-        <!-- texto y firma -->
-        <footer v-if="(initial_saldo + sale.data.total - payment) > 0" class="mt-2 text-[10px]">
-            <small>
+        <!-- pagaré cuando el saldo es mayor a 0 -->
+        <footer v-if="(initial_saldo + sale.data.total - payment) > 0 && printDebt" class="mt-2 text-[10px]">
+            <!-- <small>
                 VALOR DE LAS MERCANCIAS RECIBIDAS A MI ENTERA SATISFACCION ESTE PAGARE ES MERCANTIL Y ESTA REGIDO POR LA LEY
                 GENERAL DE TITULOS Y OPERACIONES DE CREDITO EN SU ARTICULO 173 PARTE FINAL Y ARTICULOS CORRELATIVOS POR NO SER
                 PAGARE DOMICILIARIO.
-            </small>
+            </small> -->
 
             <div class="text-center">
               <p class="text-center mt-5">________________________________</p>
@@ -89,7 +72,8 @@
             </div>
         </footer>
 
-        <footer v-else>
+        <!-- footer sin pagaré, cuando el saldo nuevo es 0 -->
+        <footer v-else-if="printDebt">
           <div class="text-sm font-bold flex flex-col">
             <span class="text-center">--------------------------------</span>
             <span>Saldo inicial: ${{ initial_saldo?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
@@ -99,6 +83,17 @@
             <span v-else>Nuevo saldo: ${{ (initial_saldo + sale.data.total)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
             <p class="text-center">--------------------------------</p>
           </div>
+          <div class="text-center">
+              <p class="text-center mt-5">________________________________</p>
+              <small class="text-center">----- FIRMA DEL CLIENTE -----</small>
+            </div>
+
+            <p class="font-bold text-center">GRACIAS POR SU COMPRA</p>
+            <span class="text-center">--------------------------------</span>
+        </footer>
+
+        <!-- footer para imprimir desde registro de ventas sin saldos ni pagaré -->
+        <footer v-else>
           <div class="text-center">
               <p class="text-center mt-5">________________________________</p>
               <small class="text-center">----- FIRMA DEL CLIENTE -----</small>
@@ -151,7 +146,11 @@ Head
 props:{
 sale: Object,
 payment: Number,
-initial_saldo: Number
+initial_saldo: Number,
+printDebt: {
+  type: Boolean,
+  default: false
+}
 },
 methods: {
     numberToWords(amount) {

@@ -472,7 +472,7 @@ export default {
           
           // //manda el abono por url
           const payment = encodeURIComponent(JSON.stringify({ payment: this.editableTabs[this.editableTabsValue - 1]?.deposit }));
-          window.open(`${route('sales.print-ticket', response.data.item.id)}?payment=${payment}`);
+          window.open(`${route('sales.print-ticket', response.data.item.id)}?payment=${payment}&printDebt=true`);
 
           this.clearTab();
         }

@@ -202,7 +202,7 @@ class SaleController extends Controller
         $sale = SaleResource::make(Sale::with(['client', 'products'])->find($sale_id));
 
         // si la venta tiene cliente asignado
-        if ( $sale->client ) {
+        // if ( $sale->client ) {
             // // Obtener todas las ventas del cliente cuya propiedad has_credit == 1 y paid_at == null
             // // para calcular el saldo antes de esta venta
             // $sales = Sale::where('client_id', $sale->client->id)
@@ -233,18 +233,25 @@ class SaleController extends Controller
             // Obtén el parámetro 'payment' y decodifícalo
             $paymentData = $request->query('payment');
             $payment = $paymentData ? json_decode($paymentData, true)['payment'] : null;
+            
+            if ( $request->query('printDebt') ) {
+                $printDebt = $request->query('printDebt');
+            } else {
+                $printDebt = false;
+            }
+
             if ( $payment ) {
                 $initial_saldo = $client->debt - $sale->total + $payment;
             } else {
                 $initial_saldo = $client->debt - $sale->total;
             }
-        } else {
-            $payment = null;
-            $initial_saldo = null;
-        }
+        // } else {
+        //     $payment = null;
+        //     $initial_saldo = null;
+        // }
         
         // return $sale;
-        return inertia('Sale/PrintTicket', compact('sale', 'payment', 'initial_saldo'));
+        return inertia('Sale/PrintTicket', compact('sale', 'payment', 'initial_saldo', 'printDebt'));
     }
 
     public function printPaymentTicket(Request $request, $client_id)
