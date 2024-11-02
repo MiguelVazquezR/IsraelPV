@@ -130,41 +130,41 @@ Route::get('/storage-link', function () {
 });
 
 // borrar caché
-// Route::get('/clear-cache', function () {
-//     // Limpiar la caché de la aplicación
-//     Artisan::call('cache:clear');
+Route::get('/clear-cache', function () {
+    // Limpiar la caché de la aplicación
+    Artisan::call('cache:clear');
 
-//     // Limpiar la caché de configuración
-//     Artisan::call('config:clear');
+    // Limpiar la caché de configuración
+    Artisan::call('config:clear');
 
-//     // Limpiar la caché de rutas
-//     Artisan::call('route:clear');
+    // Limpiar la caché de rutas
+    Artisan::call('route:clear');
 
-//     // Limpiar la caché de vistas
-//     Artisan::call('view:clear');
+    // Limpiar la caché de vistas
+    Artisan::call('view:clear');
 
-//     return "Caché limpiada correctamente.";
-// });
-
-Route::get('calculate-total-client-debt', function () {
-    $clients = Client::with([
-        'sales' => function ($query) {
-            $query->select('id', 'client_id', 'has_credit', 'total')->where('has_credit', true);
-        },
-        'sales.payments:id,amount,sale_id'])
-        ->get(['id', 'name', 'debt']);
-
-        $clientsWithDebt = $clients->map(function ($client) {
-            $totalDebt = $client->sales->sum(function ($sale) {
-                // Suma los montos de los pagos realizados para esta venta
-                $paidAmount = $sale->payments->sum('amount');
-                // Calcula el saldo pendiente para esta venta
-                return max($sale->total - $paidAmount, 0); // Evita saldos negativos
-            });
-
-            // Actualiza el atributo `debt` en la base de datos
-            $client->update(['debt' => $totalDebt]);
-    
-        });
-    return "Deuda de clientes actualizada correctamente.";
+    return "Caché limpiada correctamente.";
 });
+
+// Route::get('calculate-total-client-debt', function () {
+//     $clients = Client::with([
+//         'sales' => function ($query) {
+//             $query->select('id', 'client_id', 'has_credit', 'total')->where('has_credit', true);
+//         },
+//         'sales.payments:id,amount,sale_id'])
+//         ->get(['id', 'name', 'debt']);
+
+//         $clientsWithDebt = $clients->map(function ($client) {
+//             $totalDebt = $client->sales->sum(function ($sale) {
+//                 // Suma los montos de los pagos realizados para esta venta
+//                 $paidAmount = $sale->payments->sum('amount');
+//                 // Calcula el saldo pendiente para esta venta
+//                 return max($sale->total - $paidAmount, 0); // Evita saldos negativos
+//             });
+
+//             // Actualiza el atributo `debt` en la base de datos
+//             $client->update(['debt' => $totalDebt]);
+    
+//         });
+//     return "Deuda de clientes actualizada correctamente.";
+// });

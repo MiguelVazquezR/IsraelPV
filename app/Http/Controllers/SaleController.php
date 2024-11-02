@@ -228,16 +228,15 @@ class SaleController extends Controller
             // $payment = Payment::where('sale_id', $sale_id)->get(['id', 'amount', 'notes'])->first();
             
             //recupero al cliente que hizo la compra para tomar su deuda y abono
-            $client = Client::find($sale->client)->first();
+            $client = Client::find($sale->client_id);
             
-            // return $client;
             // Obtén el parámetro 'payment' y decodifícalo
             $paymentData = $request->query('payment');
             $payment = $paymentData ? json_decode($paymentData, true)['payment'] : null;
             if ( $payment ) {
                 $initial_saldo = $client->debt - $sale->total + $payment;
             } else {
-                $initial_saldo = $client->debt;
+                $initial_saldo = $client->debt - $sale->total;
             }
         } else {
             $payment = null;
@@ -250,10 +249,8 @@ class SaleController extends Controller
 
     public function printPaymentTicket(Request $request, $client_id)
     {     
-        $client = Client::find($client_id)->first();
+        $client = Client::where('id', $client_id)->first();
         
-        // return $client;
-
         // Obtén el parámetro 'payment' y decodifícalo
         $paymentData = $request->query('payment');
         $payment = $paymentData ? json_decode($paymentData, true)['payment'] : null;

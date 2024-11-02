@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="border border-grayD9 rounded-[20px] py-2 px-4 min-h-32 text-xs mb-2">
+        <div class="border border-grayD9 rounded-[20px] py-2 px-4 min-h-28 text-xs mb-2">
             <Loading v-if="loading" class="pt-4" />
             <div v-else>
                 <header class="flex items-center justify-between">
@@ -73,11 +73,11 @@
                         <span class="text-gray37">{{ client.rfc ?? '-' }}</span>
                     </p>
                 </main>
-                <footer class="mt-2 mx-5">
+                <!-- <footer class="mt-2 mx-5">
                     <p class="text-gray99">
                         Saldo pendiente: ${{ pendentAmount.toLocaleString('en-US', { minimumFractionDigits: 2 }) }}
                     </p>
-                </footer>
+                </footer> -->
                 </Link>
             </div>
         </div>

@@ -429,8 +429,9 @@ export default {
       }
     },
     handleStorePayment() {
-      this.paymentForm.client_id = this.editableTabs[this.editableTabsValue - 1].client_id;
+      this.paymentForm.client_id = this.clientSelected.id;
       this.paymentModal = true;
+      console.log(this.paymentForm);
     },
     storePayment() {
       this.paymentForm.post(route('clients.store-payment') , {

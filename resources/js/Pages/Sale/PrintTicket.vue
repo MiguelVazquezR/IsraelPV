@@ -78,7 +78,7 @@
             <p class="font-bold text-center">GRACIAS POR SU COMPRA</p>
             <span class="text-center">--------------------------------</span>
 
-            <div class="text-sm font-bold flex flex-col" v-if="sale.data.has_credit && sale.data.client">
+            <div class="text-sm font-bold flex flex-col">
               <span class="text-center">--------------------------------</span>
               <span>Saldo inicial: ${{ initial_saldo?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
               <span>Venta: ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
@@ -90,6 +90,15 @@
         </footer>
 
         <footer v-else>
+          <div class="text-sm font-bold flex flex-col">
+            <span class="text-center">--------------------------------</span>
+            <span>Saldo inicial: ${{ initial_saldo?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+            <span>Venta: ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+            <span>Abono: ${{ payment?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") ?? '00.00' }}</span>
+            <span v-if="payment">Nuevo saldo: ${{ (initial_saldo + sale.data.total - payment)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+            <span v-else>Nuevo saldo: ${{ (initial_saldo + sale.data.total)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+            <p class="text-center">--------------------------------</p>
+          </div>
           <div class="text-center">
               <p class="text-center mt-5">________________________________</p>
               <small class="text-center">----- FIRMA DEL CLIENTE -----</small>

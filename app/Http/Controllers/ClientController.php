@@ -47,7 +47,7 @@ class ClientController extends Controller
     {   
         // recupera las ultimas 30 ventas del cliente
         $client = $client->load(['sales' => function($query) {
-            $query->orderBy('created_at', 'desc')->limit(10);
+            $query->limit(10);
         }]);
         $clients = Client::all(['id', 'name']);
 
@@ -141,7 +141,7 @@ class ClientController extends Controller
             'total' => 'required|numeric|min:0|max:999999'
         ]);
 
-        $client = Client::find($request->client_id)->first();
+        $client = Client::where('id', $request->client_id)->first();
         $updated_debt = $client->debt + $request->total;
         $client->update(['debt' => $updated_debt]);
         
