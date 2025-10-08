@@ -11,7 +11,7 @@ class GlobalPaymentController extends Controller
 {
     public function index()
     {
-        $global_payments = GlobalPayment::with('client:id,name')->get()->take(10);
+        $global_payments = GlobalPayment::with('client:id,name')->latest()->get()->take(20);
         $clients = Client::all(['id', 'name']);
         $total_global_payments = GlobalPayment::all()->count();
 
@@ -46,6 +46,17 @@ class GlobalPaymentController extends Controller
     public function destroy(GlobalPayment $global_payament)
     {
         $global_payament->delete();
+    }
+
+    public function getItemsByPage($currentPage)
+    {
+        $offset = $currentPage * 20;
+        $sales = GlobalPayment::with('client:id,name')->latest()
+            ->skip($offset)
+            ->take(20)
+            ->get();
+
+        return response()->json(['items' => $sales]);
     }
 
     public function searchPayments(Request $request)

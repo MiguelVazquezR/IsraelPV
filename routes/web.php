@@ -110,6 +110,7 @@ Route::resource('payments', PaymentController::class)->middleware('auth');
 //------------------------------------------------------------------------------------------------------
 Route::resource('global-payments', GlobalPaymentController::class)->middleware('auth');
 Route::get('global-payments-search', [GlobalPaymentController::class, 'searchPayments'])->name('global-payments.search')->middleware('auth');
+Route::get('global-payments-get-by-page/{currentPage}', [GlobalPaymentController::class, 'getItemsByPage'])->name('global-payments.get-by-page')->middleware('auth');
 
 
 //settings routes-------------------------------------------------------------------------------------

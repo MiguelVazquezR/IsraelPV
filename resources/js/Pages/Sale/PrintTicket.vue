@@ -39,11 +39,11 @@
         <p class="font-bold text-xs my-1">TOTAL DE ARTICULOS: {{ sale.data.products?.length }}</p>
 
         <!-- Pagaré en caso de crédito -->
-        <div v-if="(initial_saldo + sale.data.total - payment) > 0 && printDebt" class="mt-1 text-[10px]">
+        <!-- <div v-if="(initial_saldo + sale.data.total - payment) > 0 && printDebt" class="mt-1 text-[10px]">
             <small>DEBO Y PAGARE INCONDICIONALMENTE A LA ORDEN DE ISAAC DIAZ EN ESTA CIUDAD O EN LA QUE SE ME REQUIERA EL DIA
               DE____________DEL 20____LA CANTIDAD DE $_____________MXN.
             </small>
-        </div>
+        </div> -->
 
         <!-- pagaré cuando el saldo es mayor a 0 -->
         <footer v-if="(initial_saldo + sale.data.total - payment) > 0 && printDebt" class="mt-2 text-[10px]">

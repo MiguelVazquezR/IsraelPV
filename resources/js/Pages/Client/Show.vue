@@ -108,7 +108,7 @@
 
             <div class="flex justify-end space-x-3 pt-2 pb-1 py-2 col-span-full">
                 <CancelButton @click="paymentModal = false; paymentForm.reset();">Cancelar</CancelButton>
-                <PrimaryButton :disabled="(client.debt - paymentForm.amount) < 0 || !paymentForm.amount">Abonar</PrimaryButton>
+                <PrimaryButton :disabled="(client.debt - paymentForm.amount) < 0 || !paymentForm.amount || paymentForm.processing">Abonar</PrimaryButton>
             </div>
           </form>
         </div>
