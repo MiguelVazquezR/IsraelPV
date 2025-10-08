@@ -135,6 +135,15 @@ export default {
                     dropdown: false,
                     show: true
                 },
+                {
+                    label: 'Abonos',
+                    icon: '<i class="fa-solid fa-dollar text-lg"></i>',
+                    route: route('global-payments.index'),
+                    active: route().current('global-payments.*'),
+                    options: [],
+                    dropdown: false,
+                    show: true
+                },
                 // {
                 //     label: 'Configuraciones',
                 //     icon: '<i class="fa-solid fa-gears text-lg"></i>',

@@ -15,11 +15,17 @@ class Client extends Model
         'rfc',
         'phone',
         'address',
+        'debt',
     ];
 
     //relationships
     public function sales() :HasMany
     {
         return $this->hasMany(Sale::class);
+    }
+
+    public function globalPayments() :HasMany
+    {
+        return $this->hasMany(GlobalPayment::class);
     }
 }

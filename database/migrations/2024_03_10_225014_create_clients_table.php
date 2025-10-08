@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('rfc')->nullable();
             $table->string('phone');
             $table->string('address')->nullable();
+            $table->float('debt')->unsigned()->nullable();
             $table->timestamps();
         });
     }

@@ -19,28 +19,19 @@
         <span>--------------------------------</span>
 
         <!-- <div class="flex flex-col"> -->
+        <span>--------------------------------</span>
+        <span>
+          <small>Cant. </small>
+          <small>Descrip. </small>
+          <small>Precio </small>
+          <small>Importe </small>
+        </span>
+        <span>--------------------------------</span>
           <p class="text-xs" v-for="product in sale.data.products" :key="product">
             {{ product.pivot?.quantity + '  ' }} <span class="ml-[5px]"> {{ product.name + ' ' }}</span>
             ${{ product.pivot.price?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' = ' }}
             ${{ (product.pivot?.quantity * product.pivot.price)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}
           </p>
-        <!-- </div> -->
-
-        <!-- tabla de productos -->
-        <!-- <table class="mt-2 w-full text-[10px]">
-            <tr class="text-left">
-                <th>Cant.</th>
-                <th>Descrip.</th>
-                <th>Precio</th>
-                <th>Importe</th>
-            </tr>
-            <tr v-for="product in sale.data.products" :key="product">
-                <td>{{ product.pivot?.quantity }}</td>
-                <td class="uppercase px-[2px]">{{ product.name }}</td>
-                <td>${{ product.public_price?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</td>
-                <td>{{ (product.pivot?.quantity * product.public_price)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</td>
-            </tr>
-        </table> -->
 
         <p class="font-bold text-base mt-1">TOTAL ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }} </p>
         <span>--------------------------------</span>
@@ -48,19 +39,19 @@
         <p class="font-bold text-xs my-1">TOTAL DE ARTICULOS: {{ sale.data.products?.length }}</p>
 
         <!-- Pagaré en caso de crédito -->
-        <div v-if="sale.data.has_credit && sale.data.paid_at" class="mt-1 text-[10px]">
+        <!-- <div v-if="(initial_saldo + sale.data.total - payment) > 0 && printDebt" class="mt-1 text-[10px]">
             <small>DEBO Y PAGARE INCONDICIONALMENTE A LA ORDEN DE ISAAC DIAZ EN ESTA CIUDAD O EN LA QUE SE ME REQUIERA EL DIA
               DE____________DEL 20____LA CANTIDAD DE $_____________MXN.
             </small>
-        </div>
+        </div> -->
 
-        <!-- texto y firma -->
-        <footer v-if="sale.data.has_credit" class="mt-2 text-[10px]">
-            <small>
+        <!-- pagaré cuando el saldo es mayor a 0 -->
+        <footer v-if="(initial_saldo + sale.data.total - payment) > 0 && printDebt" class="mt-2 text-[10px]">
+            <!-- <small>
                 VALOR DE LAS MERCANCIAS RECIBIDAS A MI ENTERA SATISFACCION ESTE PAGARE ES MERCANTIL Y ESTA REGIDO POR LA LEY
                 GENERAL DE TITULOS Y OPERACIONES DE CREDITO EN SU ARTICULO 173 PARTE FINAL Y ARTICULOS CORRELATIVOS POR NO SER
                 PAGARE DOMICILIARIO.
-            </small>
+            </small> -->
 
             <div class="text-center">
               <p class="text-center mt-5">________________________________</p>
@@ -70,17 +61,38 @@
             <p class="font-bold text-center">GRACIAS POR SU COMPRA</p>
             <span class="text-center">--------------------------------</span>
 
-            <div class="text-sm font-bold flex flex-col" v-if="sale.data.has_credit && sale.data.client">
+            <div class="text-sm font-bold flex flex-col">
               <span class="text-center">--------------------------------</span>
               <span>Saldo inicial: ${{ initial_saldo?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
               <span>Venta: ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
-              <span>Abono: ${{ payment?.amount?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") ?? '00.00' }}</span>
-              <span v-if="payment">Nuevo saldo: ${{ (initial_saldo + sale.data.total - payment?.amount)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+              <span>Abono: ${{ payment?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") ?? '00.00' }}</span>
+              <span v-if="payment">Nuevo saldo: ${{ (initial_saldo + sale.data.total - payment)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
               <span v-else>Nuevo saldo: ${{ (initial_saldo + sale.data.total)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
               <p class="text-center">--------------------------------</p>
             </div>
         </footer>
 
+        <!-- footer sin pagaré, cuando el saldo nuevo es 0 -->
+        <footer v-else-if="printDebt">
+          <div class="text-sm font-bold flex flex-col">
+            <span class="text-center">--------------------------------</span>
+            <span>Saldo inicial: ${{ initial_saldo?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+            <span>Venta: ${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+            <span>Abono: ${{ payment?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") ?? '00.00' }}</span>
+            <span v-if="payment">Nuevo saldo: ${{ (initial_saldo + sale.data.total - payment)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+            <span v-else>Nuevo saldo: ${{ (initial_saldo + sale.data.total)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+            <p class="text-center">--------------------------------</p>
+          </div>
+          <div class="text-center">
+              <p class="text-center mt-5">________________________________</p>
+              <small class="text-center">----- FIRMA DEL CLIENTE -----</small>
+            </div>
+
+            <p class="font-bold text-center">GRACIAS POR SU COMPRA</p>
+            <span class="text-center">--------------------------------</span>
+        </footer>
+
+        <!-- footer para imprimir desde registro de ventas sin saldos ni pagaré -->
         <footer v-else>
           <div class="text-center">
               <p class="text-center mt-5">________________________________</p>
@@ -133,8 +145,12 @@ Head
 },
 props:{
 sale: Object,
-payment: Object,
-initial_saldo: Number
+payment: Number,
+initial_saldo: Number,
+printDebt: {
+  type: Boolean,
+  default: false
+}
 },
 methods: {
     numberToWords(amount) {
@@ -216,8 +232,8 @@ methods: {
         console.log('Dispositivo Bluetooth conectado:', device);
         this.device = device;
 
-        // Guardar el dispositivo en localStorage
-        localStorage.setItem('bluetoothDeviceId', device);
+        // Guardar el ID del dispositivo en localStorage
+        localStorage.setItem('bluetoothDeviceId', device.id);
       })
       .catch(error => {
         console.error('Error al conectar con dispositivo Bluetooth:', error);
@@ -281,9 +297,19 @@ methods: {
     this.text = document.getElementById('text-to-print').innerText;
 
     // Al cargar la página, intenta recuperar el dispositivo Bluetooth guardado
-    const savedBluetoothDevice = localStorage.getItem('semillasBluetoothDeviceId');
-    if (savedBluetoothDevice) {
-      this.device = savedBluetoothDevice;
+    const savedDeviceId = localStorage.getItem('bluetoothDeviceId');
+    if (savedDeviceId) {
+      navigator.bluetooth.getDevices().then(devices => {
+        const device = devices.find(d => d.id === savedDeviceId);
+        if (device) {
+          this.device = device;
+          console.log('Dispositivo Bluetooth recuperado y conectado:', device);
+        } else {
+          console.log('No se encontró el dispositivo guardado.');
+        }
+      }).catch(error => {
+        console.error('Error al recuperar dispositivo Bluetooth:', error);
+      });
     }
   },
   beforeDestroy() {

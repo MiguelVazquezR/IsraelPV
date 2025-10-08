@@ -159,6 +159,9 @@ const logout = () => {
                             <ResponsiveNavLink :href="route('clients.index')" :active="route().current('clients.*')">
                                 Clientes
                             </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('global-payments.index')" :active="route().current('global-payments.*')">
+                                Abonos
+                            </ResponsiveNavLink>
                         </div>
 
                         <!-- Responsive Settings Options -->

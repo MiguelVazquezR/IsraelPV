@@ -33,11 +33,16 @@
                 <p class="font-bold">Dirección</p>
                 <p class="col-span-2 lg:col-span-11">{{ client.address ?? '-' }}</p>
                 <p class="font-bold">Deuda total</p>
-                <p class="col-span-2 lg:col-span-11 bg-yellow-200 w-28">${{ totalDebt?.replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
+                <p class="col-span-2 lg:col-span-11 bg-yellow-200 w-28">${{ client.debt?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
             </div>
 
             <el-tabs v-model="activeTab">
-                <el-tab-pane label="Ventas sin liquidar" name="1">
+                <el-tab-pane label="Últimas 10 ventas" name="1">
+                    <SaleMobileDetail v-for="item in reversedSales" :key="item.id" :saleId="item.id" class="md:hidden mb-2" />
+                    <SaleDesktopDetail :salesId="client.sales.map(item => item.id)" class="hidden md:block mb-2" />
+                    <!-- <el-empty v-else description="No hay ventas de este cliente" /> -->
+                </el-tab-pane>
+                <!-- <el-tab-pane label="Ventas sin liquidar" name="2">
                     <SaleMobileDetail
                         v-for="item in reversedPendentSales"
                         :key="item.id" :saleId="item.id" class="md:hidden mb-2" />
@@ -45,12 +50,7 @@
                         :salesId="client.sales.filter(sale => sale.has_credit && sale.paid_at === null).map(item => item.id)"
                         class="hidden md:block mb-2" />
                     <el-empty v-else description="No hay ventas con adeudos" />
-                </el-tab-pane>
-                <el-tab-pane label="Todas las ventas" name="2">
-                    <SaleMobileDetail v-for="item in reversedSales" :key="item.id" :saleId="item.id" class="md:hidden mb-2" />
-                    <SaleDesktopDetail :salesId="client.sales.map(item => item.id)" class="hidden md:block mb-2" />
-                    <!-- <el-empty v-else description="No hay ventas de este cliente" /> -->
-                </el-tab-pane>
+                </el-tab-pane> -->
             </el-tabs>
         </div>
 
@@ -64,7 +64,7 @@
             <h2 class="font-bold col-span-full">Registrar abono</h2>
             
             <div>
-                <el-select v-model="form.client_id" clearable filterable disabled
+                <el-select v-model="paymentForm.client_id" clearable filterable disabled
                     placeholder="Seleccione" no-data-text="No hay opciones registradas"
                     no-match-text="No se encontraron coincidencias">
                     <el-option v-for="client in clients" :key="client" :label="client.name" :value="client.id" />
@@ -74,25 +74,24 @@
             <div class="flex space-x-3 items-center mt-2 md:-mt-4">
                 <div>
                     <p class="text-gray-500 border-b border-primary pb-1 mb-1">Saldo pendiente</p>
-                    <p>${{ totalDebt?.replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
+                    <p>${{ client.debt?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
                 </div>
                 <i class="fa-solid fa-arrow-right-long text-primary px-3"></i>
                 <div>
                     <p class="text-gray-500 border-b border-green-500 pb-1 mb-1">Saldo restante</p>
-                    <p v-if="(totalDebt - localPaymentAmount) >= 0"> ${{ (totalDebt - localPaymentAmount)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
+                    <p v-if="(client.debt - paymentForm.amount) >= 0"> ${{ (client.debt - paymentForm.amount)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
                     <p class="text-xs text-red-600" v-else>Cantidad mayor al saldo</p>
                 </div>
             </div>
 
             <div class="mt-2">
                 <InputLabel value="Fecha de abono*" class="ml-3 mb-1" />
-                <!-- <el-date-picker v-model="form.date" type="date" placeholder="Seleccione" class="!w-full" /> -->
-                <input class="input !rounded-md !h-8" type="date" v-model="form.date" placeholder="Seleccione">
+                <input class="input !rounded-md !h-8" type="date" v-model="paymentForm.date" placeholder="Seleccione">
             </div>
 
             <div class="mt-2">
                 <InputLabel value="Monto abonado*" class="ml-3 mb-1 text-sm" />
-                <el-input v-model="localPaymentAmount" placeholder="ingresa el monto"
+                <el-input v-model="paymentForm.amount" placeholder="ingresa el monto"
                     :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
                     :parser="(value) => value.replace(/\$\s?|(,*)/g, '')">
                     <template #prefix>
@@ -103,13 +102,13 @@
 
             <div class="col-span-full mt-2">
                 <InputLabel value="Notas (opcional)" class="text-sm ml-2" />
-                <el-input v-model="form.notes" :autosize="{ minRows: 3, maxRows: 5 }" type="textarea"
+                <el-input v-model="paymentForm.notes" :autosize="{ minRows: 3, maxRows: 5 }" type="textarea"
                     placeholder="Escribe tus notas" :maxlength="200" show-word-limit clearable />
             </div>
 
             <div class="flex justify-end space-x-3 pt-2 pb-1 py-2 col-span-full">
-                <CancelButton @click="paymentModal = false; form.reset();">Cancelar</CancelButton>
-                <PrimaryButton :disabled="(totalDebt - localPaymentAmount) < 0 || !localPaymentAmount || !form.date">Abonar</PrimaryButton>
+                <CancelButton @click="paymentModal = false; paymentForm.reset();">Cancelar</CancelButton>
+                <PrimaryButton :disabled="(client.debt - paymentForm.amount) < 0 || !paymentForm.amount || paymentForm.processing">Abonar</PrimaryButton>
             </div>
           </form>
         </div>
@@ -127,7 +126,7 @@
             <h2 class="font-bold col-span-full">Registrar deuda</h2>
             
             <div>
-                <el-select v-model="form.client_id" clearable filterable disabled
+                <el-select v-model="debtForm.client_id" clearable filterable disabled
                     placeholder="Seleccione" no-data-text="No hay opciones registradas"
                     no-match-text="No se encontraron coincidencias">
                     <el-option v-for="client in clients" :key="client" :label="client.name" :value="client.id" />
@@ -137,12 +136,12 @@
             <div class="flex space-x-3 items-center mt-2 md:-mt-4">
                 <div>
                     <p class="text-gray-500 border-b border-primary pb-1 mb-1">Saldo actual</p>
-                    <p>${{ totalDebt?.replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
+                    <p>${{ client.debt?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
                 </div>
                 <i class="fa-solid fa-arrow-right-long text-primary px-3"></i>
                 <div>
                     <p class="text-gray-500 border-b border-green-500 pb-1 mb-1">Saldo resultante</p>
-                    <p v-if="debtForm.total"> ${{ (parseFloat(totalDebt) + parseFloat(debtForm.total)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }}</p>
+                    <p v-if="debtForm.total"> ${{ (client.debt + parseFloat(debtForm.total)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') }}</p>
                 </div>
             </div>
 
@@ -184,22 +183,22 @@ import { useForm } from "@inertiajs/vue3";
 
 export default {
     data() {
-        const form = useForm({
-            client_id: this.client?.id,
-            sale_id: null,
+        const paymentForm = useForm({
+            client_id: this.client.id,
             amount: null,
             notes: null,
             date: null,
+            // sale_id: null,
         });
 
         const debtForm = useForm({
-            client_id: this.client?.id,
+            client_id: this.client.id,
             has_credit: true,
             total: null,
         });
 
         return {
-            form,
+            paymentForm,
             debtForm,
             currentClient: this.client.id,
             paymentModal: false,
@@ -223,7 +222,7 @@ export default {
     props: {
         client: Object,
         clients: Array,
-        pendent_sales: Array,
+        // pendent_sales: Array,
     },
     computed: {
         reversedSales() {
@@ -232,48 +231,22 @@ export default {
         reversedPendentSales() {
             return this.client.sales.filter(sale => sale.has_credit && sale.paid_at === null).reverse();
         },
-        totalDebt() {
-            return this.pendent_sales.reduce((acc, sale) => {
-                const paymentsTotal = sale.payments?.reduce((sum, payment) => sum + payment.amount, 0) || 0;
-                return acc + (sale.total - paymentsTotal);
-            }, 0).toFixed(2);
-        }
     },
     methods:{
         storePayment() {
-            this.pendent_sales.forEach(sale => {
-
-                const totalPayments = sale.payments?.reduce((sum, payment) => sum + payment.amount, 0) || 0;
-                const saleBalance = sale.total - totalPayments; // Saldo de la venta actual
-
-
-                if (this.localPaymentAmount >= saleBalance) {
-
-                    // Si el abono cubre el saldo, marca la venta como pagada
-                    this.form.sale_id = sale.id;
-                    this.form.amount = saleBalance;
-                    this.form.post(route('payments.store'));
-
-                    this.localPaymentAmount -= saleBalance;
-                    if (this.localPaymentAmount == 0) {
-                        location.reload();
-                    }
-                } else {
-                    // Si el abono es menor que el saldo, aplicar solo la cantidad restante
-                    this.form.sale_id = sale.id;
-                    this.form.amount = this.localPaymentAmount;
-                    this.form.post(route('payments.store') , {
-                        onSuccess: () => {
-                            this.$notify({
-                                title: "Correcto",
-                                message: "Se ha registrado el abono",
-                                type: "success",
-                            });
-                            location.reload();
-                        }
+            this.paymentForm.post(route('clients.store-payment') , {
+                onSuccess: () => {
+                    this.$notify({
+                        title: "Correcto",
+                        message: "Se ha registrado el abono",
+                        type: "success",
                     });
-                    this.localPaymentAmount = 0;
-                } 
+                    this.paymentModal = false;
+                    // this.clientSelected.debt -= (this.paymentForm.amount);
+                    const payment = encodeURIComponent(JSON.stringify({ payment: this.paymentForm.amount }));
+                    window.open(`${route('sales.print-payment-ticket', this.paymentForm.client_id)}?payment=${payment}`);
+                    this.paymentForm.reset();
+                }
             });
         },
         storeDebt() {
@@ -284,7 +257,8 @@ export default {
                         message: "Se ha registrado la deuda",
                         type: "success",
                     });
-                    location.reload();
+                    this.debtModal = false;
+                    this.debtForm.reset();
                 }
             });
         }

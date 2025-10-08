@@ -139,7 +139,7 @@ class ProductController extends Controller
                 ->orWhereHas('category', function($queryBuilder) use ($query) {
                     $queryBuilder->where('name', 'like', "%$query%");
                 })
-                ->take(20)
+                ->take(5)
                 ->get()
         );
 

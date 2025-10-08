@@ -4,8 +4,8 @@
             <div class="flex justify-between items-center">
                 <Back />
                 <div class="flex items-center space-x-2">
-                    <ThirthButton @click="paymentModal = true" v-if="sale.data.has_credit && (sale.data.total - totalPaymentAmount) > 0" class="!rounded-full">Registrar abono</ThirthButton>
-                    <p v-else class="text-lg font-bold text-green-500">Pagado</p>
+                    <!-- <ThirthButton @click="paymentModal = true" v-if="sale.data.has_credit && (sale.data.total - totalPaymentAmount) > 0" class="!rounded-full">Registrar abono</ThirthButton>
+                    <p v-else class="text-lg font-bold text-green-500">Pagado</p> -->
                      <el-popconfirm confirm-button-text="Si" cancel-button-text="No" icon-color="#C30303" title="¿Continuar?" @confirm="print(sale.data)">
                         <template #reference>
                             <i @click.stop class="fa-solid fa-print text-primary cursor-pointer bg-grayED rounded-full p-[6px]"></i>
@@ -24,11 +24,11 @@
                 <p class="font-bold px-2">Folio: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.folio }}</span></p>
                 <p class="font-bold px-2">Fecha de venta: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.created_at }}</span></p>
                 <p class="font-bold px-2">Cliente: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.client?.name ?? '-' }}</span></p>
-                <p class="font-bold px-2">Modo de pago: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.has_credit ? 'A crédito' : 'Al contado'}}</span></p>
+                <!-- <p class="font-bold px-2">Modo de pago: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.has_credit ? 'A crédito' : 'Al contado'}}</span></p> -->
                 <p class="font-bold px-2">Total de venta: <span class="!font-thin ml-2 text-gray-600">${{ sale.data.total?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p>
-                <p v-if="sale.data.has_credit" class="font-bold px-2">Abonos: <span class="!font-thin ml-2 text-gray-600">${{ totalPaymentAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p>
-                <p v-if="sale.data.has_credit" class="font-bold px-2">Crédito vence el: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.limit_date ?? '-' }}</span></p>
-                <p v-if="sale.data.has_credit" class="font-bold bg-yellow-200 px-2 py-1 rounded-md inline-block">Saldo restante: <span class="!font-thin ml-2 text-gray-600">${{ (sale.data.total - totalPaymentAmount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p>
+                <!-- <p v-if="sale.data.has_credit" class="font-bold px-2">Abonos: <span class="!font-thin ml-2 text-gray-600">${{ totalPaymentAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p> -->
+                <!-- <p v-if="sale.data.has_credit" class="font-bold px-2">Crédito vence el: <span class="!font-thin ml-2 text-gray-600">{{ sale.data.limit_date ?? '-' }}</span></p> -->
+                <!-- <p v-if="sale.data.has_credit" class="font-bold bg-yellow-200 px-2 py-1 rounded-md inline-block">Saldo restante: <span class="!font-thin ml-2 text-gray-600">${{ (sale.data.total - totalPaymentAmount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p> -->
             </div>
 
             <!-- Productos -->
@@ -53,7 +53,7 @@
                 </div>
 
                 <!-- Abonos -->
-                <div v-if="sale.data.has_credit" class="md:ml-3 lg:ml-8 mt-4 md:mt-0">
+                <!-- <div v-if="sale.data.has_credit" class="md:ml-3 lg:ml-8 mt-4 md:mt-0">
                     <h2 class="font-bold mb-2 border-b md:border-none py-1 md:py-0">Abonos</h2>
                     <div class="grid grid-cols-2">
                         <p class="font-bold">Fecha</p>
@@ -69,7 +69,7 @@
                         <p class="col-start-2 text-sm font-bold">Total: <span class="ml-2">${{ totalPaymentAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span></p>
 
                     </div>
-                </div>
+                </div> -->
 
             </section>
         </div>
