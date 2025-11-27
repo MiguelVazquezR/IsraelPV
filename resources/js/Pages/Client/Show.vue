@@ -1,267 +1,370 @@
-<template>
-    <AppLayout :title="client.name">
-        <div class="px-2 lg:px-10 py-7 text-xs lg:text-sm">
-            <Back />
-
-            <!-- header botones -->
-            <div class="lg:flex justify-between items-center mx-3 mt-4">
-                <h1 class="font-bold text-lg">Detalles del cliente</h1>
-                <div class="my-4 lg:my-0 flex items-center space-x-3">
-                    <ThirthButton @click="debtModal = true" class="!rounded-full">Agregar adeudo</ThirthButton>
-                    <ThirthButton @click="paymentModal = true" class="!rounded-full">Registrar abono</ThirthButton>
-                    <PrimaryButton @click="$inertia.get(route('clients.edit', client.id))" class="!rounded-full">Editar
-                    </PrimaryButton>
-                </div>
-            </div>
-
-            <div class="lg:w-1/4 relative">
-                <el-select v-model="currentClient" clearable filterable placeholder="Seleccione"
-                    no-data-text="No hay opciones registradas" no-match-text="No se encontraron coincidencias">
-                    <el-option @click="$inertia.get(route('clients.show', client.id))" v-for="client in clients"
-                        :key="client" :label="client.name" :value="client.id" />
-                </el-select>
-            </div>
-
-            <!-- informacion del cliente -->
-            <div class="grid grid-cols-3 lg:grid-cols-12 gap-1 my-7 ml-4">
-                <p class="font-bold">Nombre</p>
-                <p class="col-span-2 lg:col-span-11">{{ client.name }}</p>
-                <p class="font-bold">RFC</p>
-                <p class="col-span-2 lg:col-span-11">{{ client.rfc ?? '-' }}</p>
-                <p class="font-bold">Teléfono</p>
-                <p class="col-span-2 lg:col-span-11">{{ client.phone }}</p>
-                <p class="font-bold">Dirección</p>
-                <p class="col-span-2 lg:col-span-11">{{ client.address ?? '-' }}</p>
-                <p class="font-bold">Deuda total</p>
-                <p class="col-span-2 lg:col-span-11 bg-yellow-200 w-28">${{ client.debt?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
-            </div>
-
-            <el-tabs v-model="activeTab">
-                <el-tab-pane label="Últimas 10 ventas" name="1">
-                    <SaleMobileDetail v-for="item in reversedSales" :key="item.id" :saleId="item.id" class="md:hidden mb-2" />
-                    <SaleDesktopDetail :salesId="client.sales.map(item => item.id)" class="hidden md:block mb-2" />
-                    <!-- <el-empty v-else description="No hay ventas de este cliente" /> -->
-                </el-tab-pane>
-                <!-- <el-tab-pane label="Ventas sin liquidar" name="2">
-                    <SaleMobileDetail
-                        v-for="item in reversedPendentSales"
-                        :key="item.id" :saleId="item.id" class="md:hidden mb-2" />
-                    <SaleDesktopDetail v-if="reversedPendentSales?.length"
-                        :salesId="client.sales.filter(sale => sale.has_credit && sale.paid_at === null).map(item => item.id)"
-                        class="hidden md:block mb-2" />
-                    <el-empty v-else description="No hay ventas con adeudos" />
-                </el-tab-pane> -->
-            </el-tabs>
-        </div>
-
-        <!-- -------------- Payment Modal starts----------------------- -->
-        <Modal :show="paymentModal" @close="paymentModal = false">
-        <div class="p-4 relative">
-          <i @click="paymentModal = false"
-            class="fa-solid fa-xmark cursor-pointer w-5 h-5 rounded-full border border-black flex items-center justify-center absolute right-3"></i>
-
-          <form class="mt-5 mb-2 md:grid grid-cols-2 gap-3" @submit.prevent="storePayment">
-            <h2 class="font-bold col-span-full">Registrar abono</h2>
-            
-            <div>
-                <el-select v-model="paymentForm.client_id" clearable filterable disabled
-                    placeholder="Seleccione" no-data-text="No hay opciones registradas"
-                    no-match-text="No se encontraron coincidencias">
-                    <el-option v-for="client in clients" :key="client" :label="client.name" :value="client.id" />
-                </el-select>
-            </div>
-
-            <div class="flex space-x-3 items-center mt-2 md:-mt-4">
-                <div>
-                    <p class="text-gray-500 border-b border-primary pb-1 mb-1">Saldo pendiente</p>
-                    <p>${{ client.debt?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
-                </div>
-                <i class="fa-solid fa-arrow-right-long text-primary px-3"></i>
-                <div>
-                    <p class="text-gray-500 border-b border-green-500 pb-1 mb-1">Saldo restante</p>
-                    <p v-if="(client.debt - paymentForm.amount) >= 0"> ${{ (client.debt - paymentForm.amount)?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
-                    <p class="text-xs text-red-600" v-else>Cantidad mayor al saldo</p>
-                </div>
-            </div>
-
-            <div class="mt-2">
-                <InputLabel value="Fecha de abono*" class="ml-3 mb-1" />
-                <input class="input !rounded-md !h-8" type="date" v-model="paymentForm.date" placeholder="Seleccione">
-            </div>
-
-            <div class="mt-2">
-                <InputLabel value="Monto abonado*" class="ml-3 mb-1 text-sm" />
-                <el-input v-model="paymentForm.amount" placeholder="ingresa el monto"
-                    :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')">
-                    <template #prefix>
-                        <i class="fa-solid fa-dollar-sign"></i>
-                    </template>
-                </el-input>
-            </div>
-
-            <div class="col-span-full mt-2">
-                <InputLabel value="Notas (opcional)" class="text-sm ml-2" />
-                <el-input v-model="paymentForm.notes" :autosize="{ minRows: 3, maxRows: 5 }" type="textarea"
-                    placeholder="Escribe tus notas" :maxlength="200" show-word-limit clearable />
-            </div>
-
-            <div class="flex justify-end space-x-3 pt-2 pb-1 py-2 col-span-full">
-                <CancelButton @click="paymentModal = false; paymentForm.reset();">Cancelar</CancelButton>
-                <PrimaryButton :disabled="(client.debt - paymentForm.amount) < 0 || !paymentForm.amount || paymentForm.processing">Abonar</PrimaryButton>
-            </div>
-          </form>
-        </div>
-      </Modal>
-      <!-- --------------------------- Payment Modal ends ------------------------------------ -->
-
-
-        <!-- -------------- Debt Modal starts----------------------- -->
-        <Modal :show="debtModal" @close="debtModal = false">
-        <div class="p-4 relative">
-          <i @click="debtModal = false"
-            class="fa-solid fa-xmark cursor-pointer w-5 h-5 rounded-full border border-black flex items-center justify-center absolute right-3"></i>
-
-          <form class="mt-5 mb-2 md:grid grid-cols-2 gap-3" @submit.prevent="storeDebt">
-            <h2 class="font-bold col-span-full">Registrar deuda</h2>
-            
-            <div>
-                <el-select v-model="debtForm.client_id" clearable filterable disabled
-                    placeholder="Seleccione" no-data-text="No hay opciones registradas"
-                    no-match-text="No se encontraron coincidencias">
-                    <el-option v-for="client in clients" :key="client" :label="client.name" :value="client.id" />
-                </el-select>
-            </div>
-
-            <div class="flex space-x-3 items-center mt-2 md:-mt-4">
-                <div>
-                    <p class="text-gray-500 border-b border-primary pb-1 mb-1">Saldo actual</p>
-                    <p>${{ client.debt?.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</p>
-                </div>
-                <i class="fa-solid fa-arrow-right-long text-primary px-3"></i>
-                <div>
-                    <p class="text-gray-500 border-b border-green-500 pb-1 mb-1">Saldo resultante</p>
-                    <p v-if="debtForm.total"> ${{ (client.debt + parseFloat(debtForm.total)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') }}</p>
-                </div>
-            </div>
-
-            <div class="mt-2">
-                <InputLabel value="Monto de deuda*" class="ml-3 mb-1 text-sm" />
-                <el-input v-model="debtForm.total" placeholder="ingresa el monto"
-                    :formatter="(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                    :parser="(value) => value.replace(/\$\s?|(,*)/g, '')">
-                    <template #prefix>
-                        <i class="fa-solid fa-dollar-sign"></i>
-                    </template>
-                </el-input>
-                <InputError :message="debtForm.errors.total" />
-            </div>
-
-            <div class="flex justify-end space-x-3 pt-2 pb-1 py-2 col-span-full">
-                <CancelButton @click="debtModal = false; debtForm.reset();">Cancelar</CancelButton>
-                <PrimaryButton :disabled="!debtForm.total">Registrar</PrimaryButton>
-            </div>
-          </form>
-        </div>
-      </Modal>
-      <!-- --------------------------- Debt Modal ends ------------------------------------ -->
-    </AppLayout>
-</template>
-
-<script>
+<script setup>
+import { ref, computed } from 'vue';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import ThirthButton from '@/Components/MyComponents/ThirthButton.vue';
 import CancelButton from "@/Components/MyComponents/CancelButton.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import Modal from "@/Components/Modal.vue";
-import ThirthButton from '@/Components/MyComponents/ThirthButton.vue';
+import Back from "@/Components/MyComponents/Back.vue";
+import SaleDesktopDetail from '@/Components/MyComponents/Client/SaleDesktopDetail.vue';
 import SaleMobileDetail from '@/Components/MyComponents/Client/SaleMobileDetail.vue';
 import InputError from "@/Components/InputError.vue";
-import SaleDesktopDetail from '@/Components/MyComponents/Client/SaleDesktopDetail.vue';
-import Back from "@/Components/MyComponents/Back.vue";
-import { useForm } from "@inertiajs/vue3";
+import { ElNotification } from 'element-plus';
 
-export default {
-    data() {
-        const paymentForm = useForm({
-            client_id: this.client.id,
-            amount: null,
-            notes: null,
-            date: null,
-            // sale_id: null,
-        });
+const props = defineProps({
+    client: Object,
+    clients: Array,
+});
 
-        const debtForm = useForm({
-            client_id: this.client.id,
-            has_credit: true,
-            total: null,
-        });
+const paymentModal = ref(false);
+const debtModal = ref(false);
+const activeTab = ref('1');
+const currentClient = ref(props.client.id);
 
-        return {
-            paymentForm,
-            debtForm,
-            currentClient: this.client.id,
-            paymentModal: false,
-            debtModal: false, //modal para agregar adeudo
-            localPaymentAmount: null, //monto de abono local para calcular y repartir montos a ventas 
-            activeTab: '1',
-        }
-    },
-    components: {
-        SaleDesktopDetail,
-        SaleMobileDetail,
-        PrimaryButton,
-        ThirthButton,
-        CancelButton,
-        InputLabel,
-        InputError,
-        AppLayout,
-        Modal,
-        Back,
-    },
-    props: {
-        client: Object,
-        clients: Array,
-        // pendent_sales: Array,
-    },
-    computed: {
-        reversedSales() {
-            return this.client.sales.reverse();
-        },
-        reversedPendentSales() {
-            return this.client.sales.filter(sale => sale.has_credit && sale.paid_at === null).reverse();
-        },
-    },
-    methods:{
-        storePayment() {
-            this.paymentForm.post(route('clients.store-payment') , {
-                onSuccess: () => {
-                    this.$notify({
-                        title: "Correcto",
-                        message: "Se ha registrado el abono",
-                        type: "success",
-                    });
-                    this.paymentModal = false;
-                    // this.clientSelected.debt -= (this.paymentForm.amount);
-                    const payment = encodeURIComponent(JSON.stringify({ payment: this.paymentForm.amount }));
-                    window.open(`${route('sales.print-payment-ticket', this.paymentForm.client_id)}?payment=${payment}`);
-                    this.paymentForm.reset();
-                }
+// Inicializar fecha al día de hoy en formato YYYY-MM-DD (necesario para input type date)
+const today = new Date().toISOString().split('T')[0];
+
+const paymentForm = useForm({
+    client_id: props.client.id,
+    amount: null,
+    notes: null,
+    date: today, // SE PONE LA FECHA DE HOY POR DEFECTO
+});
+
+const debtForm = useForm({
+    client_id: props.client.id,
+    has_credit: true,
+    total: null,
+});
+
+// Computados
+const reversedSales = computed(() => {
+    return [...props.client.sales].reverse(); // Copia del array para no mutar el prop
+});
+
+// Métodos
+const storePayment = () => {
+    // Doble check de seguridad en front
+    if (paymentForm.processing) return;
+
+    paymentForm.post(route('clients.store-payment'), {
+        onSuccess: () => {
+            ElNotification({
+                title: "Correcto",
+                message: "Se ha registrado el abono",
+                type: "success",
             });
+            paymentModal.value = false;
+            
+            // Imprimir ticket
+            const payment = encodeURIComponent(JSON.stringify({ payment: paymentForm.amount }));
+            window.open(`${route('sales.print-payment-ticket', paymentForm.client_id)}?payment=${payment}`, '_blank');
+            
+            paymentForm.reset();
+            paymentForm.date = today; // Restaurar fecha hoy
         },
-        storeDebt() {
-            this.debtForm.post(route('clients.store-debt') , {
-                onSuccess: () => {
-                    this.$notify({
-                        title: "Correcto",
-                        message: "Se ha registrado la deuda",
-                        type: "success",
-                    });
-                    this.debtModal = false;
-                    this.debtForm.reset();
-                }
+        onError: (err) => {
+            console.log(err);
+            // Si el backend devuelve 429 (bloqueo), Inertia lo maneja, pero podemos notificar
+             ElNotification({
+                title: "Error",
+                message: "Hubo un error al procesar el pago. Verifique no duplicar.",
+                type: "error",
             });
         }
-    }
-}
+    });
+};
+
+const storeDebt = () => {
+    if (debtForm.processing) return;
+
+    debtForm.post(route('clients.store-debt'), {
+        onSuccess: () => {
+             ElNotification({
+                title: "Correcto",
+                message: "Se ha registrado la deuda",
+                type: "success",
+            });
+            debtModal.value = false;
+            debtForm.reset();
+        }
+    });
+};
+
+// Navegación rápida entre clientes
+const handleClientChange = (id) => {
+    if(id) router.visit(route('clients.show', id));
+};
+
 </script>
+
+<template>
+    <AppLayout :title="client.name">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            
+            <!-- Header Navegación -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <Back />
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Detalles del Cliente</h1>
+                        <p class="text-sm text-gray-500">Gestión de cuenta y movimientos</p>
+                    </div>
+                </div>
+
+                <!-- Buscador Rápido de Clientes -->
+                <div class="w-full md:w-64">
+                    <el-select 
+                        v-model="currentClient" 
+                        filterable 
+                        placeholder="Ir a otro cliente"
+                        @change="handleClientChange"
+                        class="w-full"
+                    >
+                        <el-option 
+                            v-for="c in clients" 
+                            :key="c.id" 
+                            :label="c.name" 
+                            :value="c.id" 
+                        />
+                    </el-select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Columna Izquierda: Tarjeta de Info y Saldos -->
+                <div class="space-y-6">
+                    <!-- Tarjeta Principal Info -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 relative overflow-hidden">
+                        <div class="relative z-10">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xl">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-gray-900 leading-tight">{{ client.name }}</h2>
+                                    <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">ID: {{ String(client.id).padStart(3, '0') }}</span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3 text-sm">
+                                <div class="flex items-start gap-3 text-gray-600">
+                                    <i class="fa-solid fa-location-dot mt-1 w-4 text-center text-gray-400"></i>
+                                    <span>{{ client.address ?? 'Sin dirección registrada' }}</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-gray-600">
+                                    <i class="fa-solid fa-phone w-4 text-center text-gray-400"></i>
+                                    <span>{{ client.phone }}</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-gray-600">
+                                    <i class="fa-solid fa-file-invoice w-4 text-center text-gray-400"></i>
+                                    <span>{{ client.rfc ?? 'Sin RFC' }}</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 pt-6 border-t border-gray-100">
+                                <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-1">Deuda Total</p>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-2xl font-bold" :class="client.debt > 0 ? 'text-red-600' : 'text-green-600'">
+                                        ${{ client.debt?.toLocaleString('en-US', {minimumFractionDigits: 2}) }}
+                                    </span>
+                                    <span class="text-xs text-gray-400">MXN</span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3 mt-6">
+                                <button 
+                                    @click="debtModal = true"
+                                    class="flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-red-200 hover:bg-red-50 text-gray-600 hover:text-red-600 transition-all group"
+                                >
+                                    <i class="fa-solid fa-circle-plus text-lg mb-1 group-hover:scale-110 transition-transform"></i>
+                                    <span class="text-xs font-medium">Agregar Deuda</span>
+                                </button>
+                                <button 
+                                    @click="paymentModal = true"
+                                    class="flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-green-200 hover:bg-green-50 text-gray-600 hover:text-green-600 transition-all group"
+                                >
+                                    <i class="fa-solid fa-hand-holding-dollar text-lg mb-1 group-hover:scale-110 transition-transform"></i>
+                                    <span class="text-xs font-medium">Abonar</span>
+                                </button>
+                            </div>
+
+                            <div class="mt-3">
+                                <button 
+                                    @click="$inertia.get(route('clients.edit', client.id))"
+                                    class="w-full py-2 flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-primary transition-colors border border-transparent hover:border-gray-100 rounded-lg"
+                                >
+                                    <i class="fa-solid fa-pencil text-xs"></i> Editar datos
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Historial de Ventas -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 min-h-[500px] flex flex-col">
+                        <!-- Custom Tabs Header -->
+                        <div class="flex border-b border-gray-100">
+                            <button 
+                                class="px-6 py-4 text-sm font-medium border-b-2 transition-colors focus:outline-none"
+                                :class="activeTab === '1' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                                @click="activeTab = '1'"
+                            >
+                                Últimos Movimientos
+                            </button>
+                            <!-- Placeholder para tab futura -->
+                            <!-- <button class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-400 cursor-not-allowed">Historial Completo</button> -->
+                        </div>
+
+                        <div class="p-4 flex-1">
+                            <div v-if="activeTab === '1'">
+                                <div v-if="reversedSales.length > 0" class="space-y-3">
+                                    <!-- Versión Móvil: Pasamos el objeto COMPLETO 'item' -->
+                                    <SaleMobileDetail 
+                                        v-for="item in reversedSales" 
+                                        :key="item.id" 
+                                        :sale="item" 
+                                        class="md:hidden" 
+                                    />
+                                    
+                                    <!-- Versión Desktop: Pasamos el array COMPLETO 'reversedSales' -->
+                                    <div class="hidden md:block overflow-x-auto">
+                                        <SaleDesktopDetail :sales="reversedSales" />
+                                    </div>
+                                </div>
+                                <el-empty v-else description="No hay movimientos registrados recientes" :image-size="100" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL ABONOS -->
+        <Modal :show="paymentModal" @close="paymentModal = false">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-lg font-bold text-gray-900">Registrar Abono</h2>
+                    <button @click="paymentModal = false" class="text-gray-400 hover:text-gray-600 transition">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <form @submit.prevent="storePayment" class="space-y-5">
+                    
+                    <!-- Resumen Visual del Cambio -->
+                    <div class="bg-green-50 rounded-lg p-4 flex items-center justify-between border border-green-100">
+                        <div>
+                            <p class="text-xs uppercase text-green-600 font-bold mb-1">Deuda Actual</p>
+                            <p class="text-lg font-bold text-green-800">${{ client.debt?.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</p>
+                        </div>
+                        <i class="fa-solid fa-arrow-right text-green-300"></i>
+                        <div class="text-right">
+                            <p class="text-xs uppercase text-green-600 font-bold mb-1">Nueva Deuda</p>
+                            <p class="text-lg font-bold text-green-800" :class="{'text-red-500': (client.debt - paymentForm.amount) < 0}">
+                                ${{ (client.debt - (paymentForm.amount || 0)).toLocaleString('en-US', {minimumFractionDigits: 2}) }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <InputLabel value="Fecha *" class="mb-1" />
+                            <input 
+                                type="date" 
+                                v-model="paymentForm.date" 
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-2"
+                            >
+                            <InputError :message="paymentForm.errors.date" />
+                        </div>
+                        <div>
+                            <InputLabel value="Monto *" class="mb-1" />
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                <input 
+                                    v-model="paymentForm.amount" 
+                                    type="number" 
+                                    step="0.01"
+                                    class="w-full pl-7 border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-2" 
+                                    placeholder="0.00"
+                                >
+                            </div>
+                            <InputError :message="paymentForm.errors.amount" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <InputLabel value="Notas" class="mb-1" />
+                        <textarea 
+                            v-model="paymentForm.notes" 
+                            rows="3" 
+                            class="w-full border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm"
+                            placeholder="Referencia o detalles..."
+                        ></textarea>
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                        <CancelButton @click="paymentModal = false">Cancelar</CancelButton>
+                        <PrimaryButton 
+                            :disabled="!paymentForm.amount || paymentForm.amount <= 0 || paymentForm.processing"
+                            :class="{'opacity-50 cursor-not-allowed': paymentForm.processing}"
+                        >
+                            <i v-if="paymentForm.processing" class="fa-solid fa-circle-notch fa-spin mr-2"></i>
+                            {{ paymentForm.processing ? 'Procesando...' : 'Registrar Pago' }}
+                        </PrimaryButton>
+                    </div>
+                </form>
+            </div>
+        </Modal>
+
+        <!-- MODAL DEUDA -->
+        <Modal :show="debtModal" @close="debtModal = false">
+             <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-lg font-bold text-gray-900">Agregar Deuda Anterior</h2>
+                    <button @click="debtModal = false" class="text-gray-400 hover:text-gray-600 transition">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <form @submit.prevent="storeDebt" class="space-y-5">
+                    <div class="bg-red-50 rounded-lg p-4 text-sm text-red-700 border border-red-100">
+                        <i class="fa-solid fa-circle-info mr-2"></i>
+                        Esto incrementará el saldo deudor del cliente sin generar una venta detallada.
+                    </div>
+
+                    <div>
+                         <InputLabel value="Monto a agregar *" class="mb-1" />
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                <input 
+                                    v-model="debtForm.total" 
+                                    type="number" 
+                                    step="0.01"
+                                    class="w-full pl-7 border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-2" 
+                                    placeholder="0.00"
+                                >
+                            </div>
+                         <InputError :message="debtForm.errors.total" />
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                        <CancelButton @click="debtModal = false">Cancelar</CancelButton>
+                        <PrimaryButton :disabled="!debtForm.total || debtForm.processing">
+                             {{ debtForm.processing ? 'Guardando...' : 'Agregar Deuda' }}
+                        </PrimaryButton>
+                    </div>
+                </form>
+             </div>
+        </Modal>
+
+    </AppLayout>
+</template>

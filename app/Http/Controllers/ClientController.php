@@ -9,14 +9,15 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Sale;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache; // Importante para el bloqueo
 
 class ClientController extends Controller
 {
 
     public function index()
     {
-        $clients = ClientResource::collection(Client::get()->take(20));
-        $total_clients = Client::all()->count();
+        $clients = ClientResource::collection(Client::latest()->take(50)->get());
+        $total_clients = Client::count();
 
         return inertia('Client/Index', compact('clients', 'total_clients'));
     }
@@ -38,20 +39,23 @@ class ClientController extends Controller
         ]);
 
         $client = Client::create($request->all());
-
-        // return to_route('clients.show', $client->id);
     }
 
 
     public function show(Client $client)
     {   
-        // recupera las ultimas 30 ventas del cliente
-        $client = $client->load(['sales' => function($query) {
-            $query->limit(10);
-        }]);
+        // OPTIMIZACIÓN: Eager Loading completo. 
+        // Cargamos las ventas Y sus relaciones (productos, pagos) de una vez.
+        // Así el frontend no tiene que hacer NINGUNA petición extra.
+        $client->load([
+            'sales' => function($query) {
+                $query->latest()->limit(10)
+                      ->with(['products', 'payments']); // Carga productos y pagos de cada venta
+            }
+        ]);
+        
         $clients = Client::all(['id', 'name']);
 
-        // return $client;
         return inertia('Client/Show', compact('client', 'clients'));
     }
 
@@ -90,21 +94,15 @@ class ClientController extends Controller
 
     public function getClientPendentAmount(Client $client)
     {
-        // Obtener todas las ventas del cliente cuya propiedad has_credit == 1 y paid_at == null
         $sales = Sale::where('client_id', $client->id)
             ->where('has_credit', 1)
             ->whereNull('paid_at')
             ->get();
 
-        // Inicializar el total adeudado del cliente
         $pendentAmount = 0;
 
-        // Iterar sobre las ventas encontradas
         foreach ($sales as $sale) {
-            // Obtener los abonos para esta venta
             $payment = Payment::where('sale_id', $sale->id)->sum('amount');
-
-            // Restar la suma de los abonos al total de la venta
             $pendentAmount += $sale->total - $payment;
         }
 
@@ -115,11 +113,10 @@ class ClientController extends Controller
     {
         $query = $request->input('query');
 
-        // Realiza la búsqueda en la base de datos
         $clients = ClientResource::collection(Client::where('name', 'like', "%$query%")
             ->orWhere('phone', 'like', "%$query%")
-            ->get()
-            ->take(5));
+            ->take(50)
+            ->get());
 
         return response()->json(['items' => $clients]);
     }
@@ -127,9 +124,10 @@ class ClientController extends Controller
 
     public function getItemsByPage($currentPage)
     {
-        $offset = $currentPage * 20;
-        $clients = ClientResource::collection(Client::skip($offset)
-            ->take(20)
+        $offset = $currentPage * 50;
+        $clients = ClientResource::collection(Client::latest()
+            ->skip($offset)
+            ->take(50)
             ->get());
 
         return response()->json(['items' => $clients]);
@@ -137,49 +135,64 @@ class ClientController extends Controller
 
     public function storeDebt(Request $request)
     {
-        $request->validate([
-            'total' => 'required|numeric|min:0|max:999999'
-        ]);
+        // PROTECCIÓN: Evitar duplicados usando Cache Lock (atomic lock)
+        // Bloquea peticiones con el mismo client_id y monto por 5 segundos
+        $lockKey = 'store_debt_' . $request->client_id . '_' . $request->total;
 
-        $client = Client::where('id', $request->client_id)->first();
-        $updated_debt = $client->debt + $request->total;
-        $client->update(['debt' => $updated_debt]);
+        // Intentar obtener el bloqueo por 5 segundos
+        if (Cache::lock($lockKey, 5)->get()) {
+            try {
+                $request->validate([
+                    'total' => 'required|numeric|min:0|max:999999'
+                ]);
         
-        // // Registra la venta
-        // $sale = Sale::create([
-        //     'has_credit' => $request->has_credit,
-        //     'total' => $request->total,
-        //     'client_id' => $request->client_id,
-        // ]);
-
-        // // Agrega adeudo a la venta
-        // $product = Product::where('name', 'Adeudo anterior')->first();
-            
-        // // Asociar producto a la venta con sus atributos adicionales
-        // $sale->products()->attach($product->id, [
-        //     'quantity' => 1,
-        //     'price' => $request->total
-        // ]);
+                $client = Client::where('id', $request->client_id)->first();
+                $updated_debt = $client->debt + $request->total;
+                $client->update(['debt' => $updated_debt]);
+            } finally {
+                // Liberar bloqueo es opcional si queremos permitir rápido, 
+                // pero mejor dejar que expire para evitar doble click humano
+                // Cache::lock($lockKey)->release(); 
+            }
+        } else {
+            // Si está bloqueado, abortamos silenciosamente o retornamos error
+            return abort(429, 'Demasiadas peticiones. Espere un momento.');
+        }
     }
 
     public function storePayment(Request $request)
     {
-        $request->validate([
-            'amount' => 'required|numeric|min:1|max:999999',
-        ]);
+        // PROTECCIÓN CONTRA DUPLICADOS
+        // Generamos una llave única basada en cliente, monto y fecha (y tal vez user_id si tienes)
+        $lockKey = 'payment_client_' . $request->client_id . '_' . $request->amount . '_' . $request->date;
 
-        $client = Client::find($request->client_id);
+        // El bloqueo dura 5 segundos. Si llega otra petición igual en ese tiempo, falla.
+        if (Cache::lock($lockKey, 5)->get()) {
+            try {
+                $request->validate([
+                    'amount' => 'required|numeric|min:1|max:999999',
+                ]);
+        
+                $client = Client::find($request->client_id);
+        
+                GlobalPayment::create([
+                    'initial_amount' => $client->debt,
+                    'amount' => $request->amount,
+                    'date' => $request->date,
+                    'notes' => $request->notes,
+                    'client_id' => $request->client_id,
+                ]);
+        
+                $updated_debt = $client->debt - $request->amount;
+                // Evitar deuda negativa si es posible, aunque la validación está en front
+                $client->update(['debt' => $updated_debt]);
 
-        GlobalPayment::create([
-            'initial_amount' => $client->debt,
-            'amount' => $request->amount,
-            'date' => $request->date,
-            'notes' => $request->notes,
-            'client_id' => $request->client_id,
-        ]);
-
-        $updated_debt = $client->debt - $request->amount;
-        $client->update(['debt' => $updated_debt]);
+            } finally {
+                // Dejamos que el lock expire solo
+            }
+        } else {
+             return abort(429, 'Procesando pago anterior. Espere.');
+        }
 
     }
 }
