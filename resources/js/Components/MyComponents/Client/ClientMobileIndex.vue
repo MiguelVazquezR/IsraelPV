@@ -1,5 +1,6 @@
 <script setup>
 import { Link, router } from "@inertiajs/vue3";
+import { computed } from 'vue';
 import axios from 'axios';
 import { ElNotification } from 'element-plus';
 
@@ -7,6 +8,15 @@ import { ElNotification } from 'element-plus';
 const props = defineProps({
     client: Object,
 });
+
+const hasDebt = computed(() => Number(props.client.debt || 0) > 0);
+
+const formatMoney = (amount) => {
+    return Number(amount || 0).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
+};
 
 const deleteItem = async (clientId) => {
     try {
@@ -94,5 +104,16 @@ const deleteItem = async (clientId) => {
                 <span>{{ client.rfc ?? 'Sin RFC' }}</span>
             </div>
         </Link>
+
+        <!-- Deuda -->
+        <div class="flex items-center justify-between pl-2 mt-3 pt-2 border-t border-gray-100">
+            <span class="text-[11px] text-gray-400 font-semibold uppercase tracking-widest">Deuda</span>
+            <span
+                class="px-2.5 py-1 rounded-full text-xs font-bold"
+                :class="hasDebt ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'"
+            >
+                {{ hasDebt ? '$' + formatMoney(client.debt) : 'Sin deuda' }}
+            </span>
+        </div>
     </div>
 </template>

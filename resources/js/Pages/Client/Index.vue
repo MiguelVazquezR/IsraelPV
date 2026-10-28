@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ClientTable from '@/Components/MyComponents/Client/ClientTable.vue';
@@ -19,6 +19,17 @@ const loading = ref(false);
 const localClients = ref(props.clients.data);
 const loadingItems = ref(false);
 const currentPage = ref(1);
+
+const visibleDebtTotal = computed(() =>
+    localClients.value.reduce((sum, client) => sum + Number(client.debt || 0), 0)
+);
+
+const formatMoney = (amount) => {
+    return Number(amount || 0).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
+};
 
 const searchClients = async () => {
     loading.value = true;
@@ -90,8 +101,17 @@ const fetchItemsByPage = async () => {
             
             <div v-else class="space-y-4">
                 <!-- Info de paginación -->
-                <div v-if="localClients.length" class="text-xs text-gray-500 font-medium px-1">
-                    Mostrando {{ localClients.length }} de {{ total_clients }} registros
+                <div v-if="localClients.length" class="flex flex-wrap items-center justify-between gap-2 px-1">
+                    <span class="text-xs text-gray-500 font-medium">
+                        Mostrando {{ localClients.length }} de {{ total_clients }} registros
+                    </span>
+                    <span
+                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+                        :class="visibleDebtTotal > 0 ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'"
+                    >
+                        <i class="fa-solid fa-circle-dollar-to-slot text-[11px]"></i>
+                        Deuda mostrada: ${{ formatMoney(visibleDebtTotal) }}
+                    </span>
                 </div>
 
                 <!-- Tabla Desktop -->

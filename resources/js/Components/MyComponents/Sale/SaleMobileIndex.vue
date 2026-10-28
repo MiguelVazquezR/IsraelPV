@@ -45,26 +45,17 @@
                 <i class="fa-solid fa-print text-sm"></i>
             </button>
             
-            <el-popconfirm 
-                confirm-button-text="Sí, eliminar" 
-                cancel-button-text="No" 
-                width="200"
-                icon-color="#C30303" 
-                title="¿Eliminar esta venta?" 
-                @confirm="deleteItem(sale.id)">
-                <template #reference>
-                    <button @click.stop class="flex items-center justify-center w-10 h-10 rounded-full bg-red-50 text-red-500 active:bg-red-100 transition-colors">
-                        <i class="fa-regular fa-trash-can text-sm"></i>
-                    </button>
-                </template>
-            </el-popconfirm>
+            <button @click.stop="confirmDelete(sale)"
+                class="flex items-center justify-center w-10 h-10 rounded-full bg-red-50 text-red-500 active:bg-red-100 transition-colors">
+                <i class="fa-regular fa-trash-can text-sm"></i>
+            </button>
         </div>
     </div>
 </template>
 
 <script>
 import { Link } from "@inertiajs/vue3";
-import { ElNotification } from 'element-plus'
+import { ElMessageBox, ElNotification } from 'element-plus'
 import axios from 'axios';
 
 export default {
@@ -78,19 +69,35 @@ export default {
         formatMoney(amount) {
             return parseFloat(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         },
+        async confirmDelete(sale) {
+            try {
+                await ElMessageBox.confirm(
+                    `¿Eliminar la venta con folio ${sale.folio}? Esta acción no se puede deshacer.`,
+                    'Eliminar venta',
+                    {
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar',
+                        type: 'warning',
+                    }
+                );
+            } catch (cancelled) {
+                return;
+            }
+
+            await this.deleteItem(sale.id);
+        },
         async deleteItem(saleId) {
             try {
                 const response = await axios.delete(route('sales.destroy', saleId));
                 if (response.status == 200) {
+                    // El padre refresca la lista localmente (sin recargar la página)
+                    this.$emit('delete-sale', saleId);
+
                     ElNotification({
                         title: 'Eliminado',
                         message: 'Venta eliminada correctamente',
                         type: 'success',
-                        position: 'bottom-center'
                     });
-                    // Recargar la página es una opción segura si no emitimos eventos,
-                    // aunque idealmente deberías emitir un evento para refrescar la lista localmente.
-                    window.location.reload(); 
                 }
             } catch (error) {
                 console.error(error);

@@ -63,17 +63,11 @@
                             </button>
                         </el-tooltip>
 
-                        <el-popconfirm confirm-button-text="Sí" cancel-button-text="No" icon-color="#C30303" title="¿Eliminar venta?" @confirm="deleteItem(sale.id)">
-                            <template #reference>
-                                <div class="inline-block"> <!-- Wrapper para tooltip + popconfirm -->
-                                    <el-tooltip content="Eliminar" placement="top">
-                                        <button @click.stop class="p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors">
-                                            <i class="fa-regular fa-trash-can text-lg"></i>
-                                        </button>
-                                    </el-tooltip>
-                                </div>
-                            </template>
-                        </el-popconfirm>
+                        <el-tooltip content="Eliminar" placement="top">
+                            <button @click.stop="confirmDelete(sale)" class="p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors">
+                                <i class="fa-regular fa-trash-can text-lg"></i>
+                            </button>
+                        </el-tooltip>
                     </div>
                 </div>
             </div>
@@ -83,7 +77,7 @@
 </template>
 
 <script>
-import { ElNotification } from 'element-plus'
+import { ElMessageBox, ElNotification } from 'element-plus'
 import axios from 'axios';
 
 export default {
@@ -94,16 +88,29 @@ export default {
         formatMoney(amount) {
             return parseFloat(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         },
+        async confirmDelete(sale) {
+            try {
+                await ElMessageBox.confirm(
+                    `¿Eliminar la venta con folio ${sale.folio}? Esta acción no se puede deshacer.`,
+                    'Eliminar venta',
+                    {
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar',
+                        type: 'warning',
+                    }
+                );
+            } catch (cancelled) {
+                return;
+            }
+
+            await this.deleteItem(sale.id);
+        },
         async deleteItem(saleId) {
             try {
                 const response = await axios.delete(route('sales.destroy', saleId));
                 if (response.status == 200) {
-                    // Emitir evento al padre para actualizar la lista en lugar de manipular props directamente
+                    // El padre es quien refresca la lista para no mutar la prop
                     this.$emit('delete-sale', saleId);
-                    
-                    // Fallback visual local si no se usa el evento
-                    const indexToDelete = this.sales.findIndex(item => item.id == saleId);
-                    if(indexToDelete !== -1) this.sales.splice(indexToDelete, 1);
 
                     ElNotification({
                         title: 'Eliminado',

@@ -66,14 +66,21 @@ class SaleController extends Controller
                 'price' => $product_price
             ]);
 
-            $product->decrement('current_stock', $prd['quantity']);
+            // Solo se descuenta inventario de los productos que llevan stock registrado.
+            // Si el stock es NULL (sin inventario) o 0, no se toca: evita guardar negativos
+            // en una columna que no lo permite y mantiene la venta funcionando.
+            if ($product->current_stock !== null && $product->current_stock > 0) {
+                $newStock = max(0, (float) $product->current_stock - (float) $prd['quantity']);
 
-            if ($product->current_stock <= $product->min_stock) {
-                $title = "Bajo stock";
-                $description = "Producto <span class='text-primary'>$product->name</span> alcanzó el nivel mínimo establecido";
-                $url = route('products.show', $product->id);
+                $product->update(['current_stock' => $newStock]);
 
-                auth()->user()->notify(new BasicNotification($title, $description, $url));
+                if ($newStock <= $product->min_stock) {
+                    $title = "Bajo stock";
+                    $description = "Producto <span class='text-primary'>$product->name</span> alcanzó el nivel mínimo establecido";
+                    $url = route('products.show', $product->id);
+
+                    auth()->user()->notify(new BasicNotification($title, $description, $url));
+                }
             }
         }
         

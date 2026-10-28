@@ -57,7 +57,7 @@
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                         <span class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Total Ventas</span>
-                        <p class="text-2xl font-bold text-gray-800">{{ total_sales.toLocaleString() }}</p>
+                        <p class="text-2xl font-bold text-gray-800">{{ totalSales.toLocaleString() }}</p>
                     </div>
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                         <span class="text-xs text-gray-400 uppercase tracking-wider font-semibold">En pantalla</span>
@@ -76,12 +76,13 @@
                     <div v-if="localSales.length">
                         <!-- Desktop View -->
                         <div class="hidden md:block overflow-x-auto">
-                            <RegisteredSalesTable :sales="localSales" />
+                            <RegisteredSalesTable :sales="localSales" @delete-sale="handleSaleDeleted" />
                         </div>
                         
                         <!-- Mobile View -->
                         <div class="md:hidden divide-y divide-gray-100">
-                            <SaleMobileIndex v-for="item in localSales" :key="item.id" :sale="item" class="md:hidden" />
+                            <SaleMobileIndex v-for="item in localSales" :key="item.id" :sale="item" class="md:hidden"
+                                @delete-sale="handleSaleDeleted" />
                         </div>
                     </div>
                     
@@ -96,7 +97,7 @@
                     <!-- Footer / Paginación -->
                     <div v-if="localSales.length" class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex flex-col items-center">
                         <p class="text-xs text-gray-500 mb-3">
-                            Mostrando {{ localSales.length }} de {{ total_sales }} registros totales
+                            Mostrando {{ localSales.length }} de {{ totalSales }} registros totales
                         </p>
                         
                         <div v-if="loadingItems" class="flex items-center text-primary text-sm font-medium">
@@ -131,6 +132,7 @@ export default {
         return {
             loading: false,
             localSales: [],
+            totalSales: 0,
             showFilter: false,
             searchDate: null,
             searchClient: null,
@@ -169,8 +171,13 @@ export default {
         // Inicializar datos al montar
         this.localSales = this.sales.data;
         this.lastPage = this.sales.meta ? this.sales.meta.last_page : 1;
+        this.totalSales = this.total_sales ?? this.localSales.length;
     },
     methods: {
+        handleSaleDeleted(saleId) {
+            this.localSales = this.localSales.filter(item => item.id !== saleId);
+            this.totalSales = Math.max(this.totalSales - 1, 0);
+        },
         clearFilters() {
             this.searchDate = null;
             this.searchClient = null;
@@ -192,6 +199,9 @@ export default {
                     // Resetear paginación al buscar
                     this.currentPage = 1;
                     this.lastPage = response.data.items.meta ? response.data.items.meta.last_page : 1;
+                    if (response.data.items.meta?.total !== undefined) {
+                        this.totalSales = response.data.items.meta.total;
+                    }
                 }
 
             } catch (error) {
