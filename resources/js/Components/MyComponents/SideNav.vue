@@ -1,193 +1,201 @@
-<template>
-    <!-- sidebar -->
-    <div class="h-screen hidden lg:block shadow-lg relative">
-        <i @click="small = false" v-if="small"
-            class="fa-solid fa-angle-right text-center text-xs pt-[2px] text-white rounded-full size-5 bg-primary absolute top-24 -right-3 cursor-pointer hover:scale-125 transition-transform ease-linear duration-150"></i>
-        <i @click="small = true" v-else
-            class="fa-solid fa-angle-left text-center text-xs pt-[2px] text-white rounded-full size-5 bg-primary absolute top-24 -right-3 cursor-pointer hover:scale-125 transition-transform ease-linear duration-150"></i>
-        <div class="bg-[#F2F2F2] h-full overflow-auto">
-            <!-- Logo -->
-            <div class="flex items-center justify-center">
-                <Link v-if="small" class="mt-4" :href="route('sales.index')">
-                <ApplicationMark />
-                </Link>
-                <Link class="w-[94px]" v-else :href="route('sales.index')">
-                <AuthenticationCardLogo />
-                </Link>
-            </div>
-            <nav class="pr-2 text-gray-600 text-xs" :class="small ? 'pt-20' : 'pt-14'">
-                <!-- Con barra pequeña -->
-                <template v-if="small">
-                    <div v-for="(menu, index) in menus" :key="index">
-                        <button v-if="menu.show" @click="goToRoute(menu.route)" :active="menu.active"
-                            :title="menu.label"
-                            class="w-full text-center py-2 pr-3 pl-5 justify-between rounded-r-[10px] mt-2 transition ease-linear duration-150"
-                            :class="menu.active ? 'bg-gray-300 text-primary border-l-4 border-primary' : 'hover:text-primary hover:bg-gray-300 text-gray-600'">
-                            <span v-html="menu.icon"></span>
-                        </button>
-                    </div>
-                </template>
+<script setup>
+import { ref, computed } from 'vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import ApplicationMark from '@/Components/ApplicationMark.vue';
+import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 
-                <!-- Con barra grande -->
-                <template v-else v-for="(menu, index) in menus" :key="index">
-                    <!-- Con submenues -->
-                    <div v-if="menu.show">
-                        <Accordion v-if="menu.options.length" :icon="menu.icon" :active="menu.active" :ref="'accordion-'+index"
-                            :title="menu.label" :id="index">
-                            <div v-for="(option, index2) in menu.options" :key="index2">
-                                <button @click="goToRoute(option.route)" v-if="option.show"
-                                    :title="option.label"
-                                    class="w-full text-start pl-6 pr-2 mt-2 flex justify-between text-xs rounded-md py-1 transition ease-linear duration-150"
-                                    :class="option.active ? 'text-primary' : 'hover:text-primary hover:bg-gray-300 text-gray-600'">
-                                    <p class="w-full truncate"> {{ option.label }}</p>
-                                </button>
-                            </div>
-                        </Accordion>
-                        <!-- Sin submenues -->
-                        <button v-else-if="menu.show" @click="goToRoute(menu.route)" :active="menu.active"
-                            :title="menu.label"
-                            class="w-full text-start pl-4 pr-3 py-2 mt-2 border-l-4 flex items-center justify-between text-xs rounded-r-[10px] transition ease-linear duration-150"
-                            :class="menu.active ? 'bg-gray-300 text-primary border-primary font-bold' : 'hover:text-primary border-transparent hover:bg-gray-300 text-gray-600'">
-                            <p class="w-full truncate"><span class="mr-2" v-html="menu.icon"></span> {{
-                                menu.label }}</p>
-                        </button>
+const props = defineProps({
+    collapsed: {
+        type: Boolean,
+        default: false
+    }
+});
+
+const emit = defineEmits(['toggle-collapse']);
+
+// Estructura de menú reactiva para manejar estados de apertura/cierre de submenús
+const menus = ref([
+    {
+        label: 'Punto de venta',
+        icon: 'fa-solid fa-basket-shopping',
+        route: 'sales.point',
+        activeKey: 'sales.point',
+        options: []
+    },
+    {
+        label: 'Productos',
+        icon: 'fa-regular fa-clipboard',
+        activeKey: 'products.*', // Usamos un string para identificar el grupo activo
+        isOpen: false, // Estado local para el acordeón
+        options: [
+            { label: 'Lista de productos', route: 'products.index', activeKey: 'products.index' },
+            { label: 'Registro de entradas', route: 'product-histories.index', activeKey: 'product-histories.*' },
+        ]
+    },
+    {
+        label: 'Gestión de ventas',
+        icon: 'fa-solid fa-chart-simple',
+        activeKey: ['dashboard', 'sales.index'], // Puede ser array
+        isOpen: false,
+        options: [
+            { label: 'Análisis de ventas', route: 'dashboard', activeKey: 'dashboard' },
+            { label: 'Ventas registradas', route: 'sales.index', activeKey: 'sales.index' },
+        ]
+    },
+    {
+        label: 'Clientes',
+        icon: 'fa-solid fa-users',
+        route: 'clients.index',
+        activeKey: 'clients.*',
+        options: []
+    },
+    {
+        label: 'Abonos',
+        icon: 'fa-solid fa-dollar-sign', // Corregido fa-dollar a fa-dollar-sign (estándar FA 5/6)
+        route: 'global-payments.index',
+        activeKey: 'global-payments.*',
+        options: []
+    },
+]);
+
+// Función auxiliar para verificar ruta activa (más flexible)
+const isActive = (key) => {
+    if (Array.isArray(key)) {
+        return key.some(k => route().current(k));
+    }
+    return route().current(key);
+};
+
+// Alternar submenú
+const toggleSubmenu = (index) => {
+    if (props.collapsed) {
+        emit('toggle-collapse'); // Si está cerrado y clicamos, lo abrimos
+        setTimeout(() => {
+            menus.value[index].isOpen = !menus.value[index].isOpen;
+        }, 150);
+    } else {
+        // Cierra otros menús (estilo acordeón estricto) o deja múltiples abiertos
+        menus.value.forEach((menu, i) => {
+            if (i !== index) menu.isOpen = false;
+        });
+        menus.value[index].isOpen = !menus.value[index].isOpen;
+    }
+};
+
+const goToRoute = (routeName) => {
+    if (routeName) router.visit(route(routeName));
+};
+
+</script>
+
+<template>
+    <div class="h-full flex flex-col bg-white">
+        <!-- Header del Sidebar (Logo) -->
+        <div class="h-16 flex items-center justify-center border-b border-gray-100 shrink-0">
+            <Link :href="route('sales.index')" class="flex items-center gap-2 overflow-hidden px-2 transition-all duration-300">
+                <template v-if="collapsed">
+                    <ApplicationMark class="h-8 w-8 text-primary" />
+                </template>
+                <template v-else>
+                     <!-- Asumiendo que AuthenticationCardLogo es el logo completo -->
+                    <div class="flex items-center gap-2">
+                        <ApplicationMark class="h-8 w-8 text-primary" />
+                        <span class="font-bold text-lg text-gray-700 tracking-tight">SEMILLAS Y CEREALES</span>
                     </div>
                 </template>
-            </nav>
+            </Link>
+        </div>
+
+        <!-- Lista de Navegación -->
+        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+            <template v-for="(menu, index) in menus" :key="index">
+                
+                <!-- Caso 1: Item Simple sin Submenú -->
+                <div v-if="!menu.options || menu.options.length === 0">
+                    <Link 
+                        :href="route(menu.route)" 
+                        :title="menu.label"
+                        class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200"
+                        :class="isActive(menu.activeKey) 
+                            ? 'bg-indigo-50 text-indigo-700' 
+                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
+                    >
+                        <i :class="[menu.icon, 'text-lg transition-colors duration-200 shrink-0', isActive(menu.activeKey) ? 'text-indigo-600' : 'text-gray-400 group-hover:text-gray-500']"></i>
+                        
+                        <span 
+                            class="ml-3 transition-all duration-300 whitespace-nowrap overflow-hidden"
+                            :class="collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'"
+                        >
+                            {{ menu.label }}
+                        </span>
+                    </Link>
+                </div>
+
+                <!-- Caso 2: Item con Submenú -->
+                <div v-else>
+                    <button 
+                        @click="toggleSubmenu(index)"
+                        :title="menu.label"
+                        class="w-full group flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none"
+                        :class="isActive(menu.activeKey) || menu.isOpen
+                            ? 'bg-gray-50 text-gray-900' 
+                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
+                    >
+                        <div class="flex items-center overflow-hidden">
+                            <i :class="[menu.icon, 'text-lg shrink-0 transition-colors duration-200', isActive(menu.activeKey) ? 'text-indigo-600' : 'text-gray-400 group-hover:text-gray-500']"></i>
+                            <span 
+                                class="ml-3 transition-all duration-300 whitespace-nowrap"
+                                :class="collapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'"
+                            >
+                                {{ menu.label }}
+                            </span>
+                        </div>
+                        
+                        <!-- Flecha indicadora -->
+                        <svg 
+                            v-if="!collapsed"
+                            class="ml-2 h-4 w-4 transform transition-transform duration-200 text-gray-400" 
+                            :class="menu.isOpen ? 'rotate-90 text-gray-600' : 'rotate-0'"
+                            viewBox="0 0 20 20" fill="currentColor"
+                        >
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+
+                    <!-- Opciones del Submenú (Transición nativa sin componente externo) -->
+                    <div 
+                        v-show="menu.isOpen && !collapsed" 
+                        class="mt-1 space-y-1 overflow-hidden transition-all duration-300"
+                    >
+                        <Link 
+                            v-for="(option, idx) in menu.options" 
+                            :key="idx"
+                            :href="route(option.route)"
+                            class="group flex items-center pl-11 pr-2 py-2 text-sm font-medium rounded-lg transition-colors duration-150"
+                            :class="isActive(option.activeKey)
+                                ? 'text-indigo-600 bg-indigo-50'
+                                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'"
+                        >
+                            <!-- Pequeño punto para indicar item de submenú -->
+                            <span 
+                                class="w-1.5 h-1.5 rounded-full mr-2 transition-colors"
+                                :class="isActive(option.activeKey) ? 'bg-indigo-600' : 'bg-gray-300 group-hover:bg-gray-400'"
+                            ></span>
+                            <span class="truncate">{{ option.label }}</span>
+                        </Link>
+                    </div>
+                </div>
+            </template>
+        </nav>
+
+        <!-- Footer del Sidebar (Opcional: Botón de Toggle para Desktop) -->
+        <div class="p-4 border-t border-gray-100 hidden lg:flex justify-end">
+            <button 
+                @click="$emit('toggle-collapse')"
+                class="p-2 rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+            >
+                <i :class="['fa-solid', collapsed ? 'fa-angles-right' : 'fa-angles-left']"></i>
+            </button>
         </div>
     </div>
 </template>
-
-<script>
-import Accordion from './Accordion.vue';
-import { Link } from '@inertiajs/vue3';
-import ApplicationMark from '@/Components/ApplicationMark.vue';
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
-
-export default {
-    data() {
-        return {
-            small: true,
-            collapsedMenu: null,
-            menus: [
-                {
-                    label: 'Punto de venta',
-                    icon: '<i class="fa-solid fa-basket-shopping text-lg"></i>',
-                    route: route('sales.point'),
-                    active: route().current('sales.point'),
-                    options: [],
-                    dropdown: false,
-                    show: true
-                },
-                {
-                    label: 'Productos',
-                    icon: '<i class="fa-regular fa-clipboard text-lg"></i>',
-                    route: null,
-                    active: route().current('products.*'),
-                    options: [
-                        {
-                            label: 'Lista de productos',
-                            route: route('products.index'),
-                            active: route().current('products.*'),
-                            show: true,
-                        },
-                        {
-                            label: 'Registro de entradas',
-                            route: route('product-histories.index'),
-                            active: route().current('product-histories.*'),
-                            show: true,
-                        },
-                    ],
-                    dropdown: false,
-                    show: true
-                },
-                {
-                    //    ejemplo para usar submenues
-                    label: 'Gestión de ventas',
-                    icon: '<i class="fa-solid fa-chart-simple text-lg"></i>',
-                    route: null,
-                    active: route().current('dashboard') || route().current('sales.index'),
-                    options: [
-                        {
-                            label: 'Análisis de ventas',
-                            route: route('dashboard'),
-                            active: route().current('dashboard'),
-                            show: true,
-                        },
-                        {
-                            label: 'Ventas registradas',
-                            route: route('sales.index'),
-                            active: route().current('sales.index'),
-                            show: true,
-                        },
-                    ],
-                    dropdown: true,
-                    show: true
-                },
-                {
-                    label: 'Clientes',
-                    icon: '<i class="fa-solid fa-users text-lg"></i>',
-                    route: route('clients.index'),
-                    active: route().current('clients.*'),
-                    options: [],
-                    dropdown: false,
-                    show: true
-                },
-                {
-                    label: 'Abonos',
-                    icon: '<i class="fa-solid fa-dollar text-lg"></i>',
-                    route: route('global-payments.index'),
-                    active: route().current('global-payments.*'),
-                    options: [],
-                    dropdown: false,
-                    show: true
-                },
-                // {
-                //     label: 'Configuraciones',
-                //     icon: '<i class="fa-solid fa-gears text-lg"></i>',
-                //     route: route('settings.index'),
-                //     active: route().current('settings.*'),
-                //     options: [],
-                //     dropdown: false,
-                //     show: true
-                // },
-            ],
-        }
-    },
-    components: {
-        AuthenticationCardLogo,
-        ApplicationMark,
-        Accordion,
-        DropdownLink,
-        Dropdown,
-        Link
-    },
-    methods: {
-        handleClickInMenu(index) {
-            if (this.menus[index].options.length) {
-                if (this.collapsedMenu === index) {
-                    this.collapsedMenu = null;
-                } else {
-                    this.collapsedMenu = index;
-                }
-            } else {
-                this.goToRoute(this.menus[index].route)
-            }
-        },
-        goToRoute(route) {
-            if (route === null) {
-                this.small = false;
-            } else {
-                this.$inertia.get(route);
-            }
-        },
-        logout() {
-            this.$inertia.post(route('logout'));
-        }
-    },
-    mounted() {
-    }
-}
-</script>

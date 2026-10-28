@@ -215,7 +215,7 @@
               <div class="flex items-center justify-end space-x-3 mt-4">
                 <!-- <ThirthButton @click="editableTabs[this.editableTabsValue - 1].has_credit = true; checkClientExist()">No abonar</ThirthButton> -->
                 <PrimaryButton @click="editableTabs[this.editableTabsValue - 1].has_credit = true; checkClientExist()"
-                  :disabled="(((clientSelected?.debt || 0) + calculateTotal()) - editableTabs[this.editableTabsValue - 1].deposit) < 0">Finalizar venta
+                  :disabled="storeProcessing || (((clientSelected?.debt || 0) + calculateTotal()) - editableTabs[this.editableTabsValue - 1].deposit) < 0">Finalizar venta
                 </PrimaryButton>
               </div>
             </div>
@@ -464,7 +464,6 @@ export default {
           }
         });
         if (response.status === 200) {
-          this.storeProcessing = false;
           //actualiza la deuda del cliente dinamicamente sumando la venta y restando el abono
           this.clients.find(client => client.id == this.clientSelected.id).debt += (this.calculateTotal() - this.editableTabs[this.editableTabsValue - 1]?.deposit);
           this.clientSelected = null;
@@ -477,7 +476,18 @@ export default {
           this.clearTab();
         }
       } catch (error) {
-        console.log(error);
+        const message = error.response?.data?.message || 'No se pudo registrar la venta. Intenta de nuevo.';
+
+        this.$notify({
+          title: 'Error al registrar la venta',
+          message,
+          type: 'error',
+          duration: 6000,
+        });
+
+        console.error(error);
+      } finally {
+        this.storeProcessing = false;
       }
     },
     deleteProduct(productId) {

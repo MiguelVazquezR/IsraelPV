@@ -1,99 +1,86 @@
-<template>
-    <div class="border border-grayD9 rounded-[20px] py-2 px-4 min-h-32">
-        <Loading v-if="loading" class="pt-6" />
-        <Link :href="route('sales.show', saleId)" v-else>
-        <header class="flex items-center justify-between">
-            <h1 class="text-gray99"><b class="mr-1">Folio</b>{{ 'V-' + String(saleId).padStart(4, '0') }}</h1>
-        </header>
-        <main v-if="sale" class="text-gray99 mt-1">
-            <div class="flex items-center space-x-1">
-                <p>Creado el: <span class="text-black">{{ format(sale.created_at, true) }}</span></p>
-                <i v-if="sale.has_credit" class="fa-solid fa-minus"></i>
-                <p v-if="sale.has_credit">Crédito vence el: <span class="text-black">{{ format(sale.limit_date) ?? '-' }}</span></p>
-            </div>
-            <p>Total: <span class="text-black">${{ getTotal.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span></p>
-            <div v-if="sale.has_credit">
-                <p>Abonado: <span class="text-black">${{ getTotalPaid.toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span></p>
-                <p class="font-bold">Saldo pendinte: <span class="text-black">${{ (getTotal - getTotalPaid).toLocaleString('en-US', {minimumFractionDigits: 2}) }}</span></p>
-            </div>
-            <div class="mt-2">
-                <p>Productos:</p>
-                <ul class="text-primary">
-                    •
-                    <Link :href="route('products.show', item)" v-for="(item, index) in sale.products" :key="item.id"
-                        class="underline">
-                    {{ item.name }}
-                    </Link>
-                </ul>
-            </div>
-        </main>
-        </Link>
-    </div>
-</template>
-<script>
+<script setup>
 import { Link } from "@inertiajs/vue3";
-import axios from 'axios';
-import Loading from '../Loading.vue';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-export default {
-    data() {
-        return {
-            loading: true,
-            sale: null,
-        }
+// AHORA RECIBIMOS EL OBJETO VENTA COMPLETO
+const props = defineProps({
+    sale: {
+        type: Object,
+        required: true
     },
-    props: {
-        saleId: Number,
-    },
-    components: {
-        Loading,
-        Link,
-    },
-    computed: {
-        getTotal() {
-            return this.sale.products.reduce((total, product) => {
-                return total + (product.pivot.quantity * product.pivot.price);
-            }, 0);
-        },
-        getTotalPaid() {
-            return this.sale.payments.reduce((total, payment) => {
-                return total + payment.amount;
-            }, 0);
-        },
-    },
-    methods: {
-        format(date, dateTime = false) {
-            if (!date) return;
-            if (dateTime) {
-                return format(new Date(date), 'd MMM yyyy, hh:mm a', { locale: es });
-            } else {
-                return format(new Date(date), 'd MMM yyyy', { locale: es });
-            }
-        },
-        async fetchSale() {
-            try {
-                const response = await axios.get(route('sales.get-by-id', this.saleId));
+});
 
-                if (response.status === 200) {
-                    this.sale = response.data.item;
-                }
-            } catch (error) {
-                console.log(error);
-            } finally {
-                this.loading = false;
-            }
-        }
-    },
-    async mounted() {
-        await this.fetchSale();
+const formatDate = (date, dateTime = false) => {
+    if (!date) return '-';
+    if (dateTime) {
+        return format(new Date(date), 'd MMM, HH:mm', { locale: es });
+    } else {
+        return format(new Date(date), 'd MMM yyyy', { locale: es });
     }
-}
+};
+
+const getTotal = () => {
+    return props.sale.products?.reduce((sum, p) => sum + (p.pivot.quantity * p.pivot.price), 0) || 0;
+};
+
+const getTotalPaid = () => {
+    return props.sale.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+};
+
+const total = getTotal();
+const paid = getTotalPaid();
+const pending = total - paid;
 </script>
-<style scoped>
-.component-crop {
-    clip-path: inset(0 round 20px);
-    /* Recorta el componente con redondeo en las esquinas */
-}
-</style>
+
+<template>
+    <Link :href="route('sales.show', sale.id)" class="block">
+        <div class="bg-white border border-gray-100 rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow relative overflow-hidden">
+            <!-- Banda lateral de estado -->
+            <div 
+                class="absolute left-0 top-0 bottom-0 w-1" 
+                :class="pending > 0.1 && sale.has_credit ? 'bg-orange-400' : 'bg-green-500'"
+            ></div>
+
+            <div class="pl-2">
+                <header class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-mono text-gray-400 uppercase">V-{{ String(sale.id).padStart(4, '0') }}</span>
+                    <span class="text-xs text-gray-500">{{ formatDate(sale.created_at, true) }}</span>
+                </header>
+
+                <div class="flex justify-between items-end mb-3">
+                    <div>
+                        <p class="text-sm font-bold text-gray-900">
+                            ${{ total.toLocaleString('en-US', {minimumFractionDigits: 2}) }}
+                        </p>
+                        <p class="text-[10px] text-gray-500 uppercase tracking-wide">
+                            {{ sale.has_credit ? 'Crédito' : 'Contado' }}
+                        </p>
+                    </div>
+
+                    <div v-if="sale.has_credit" class="text-right">
+                        <p class="text-xs text-gray-500">Pendiente</p>
+                        <p class="text-sm font-bold" :class="pending > 0.1 ? 'text-red-500' : 'text-green-500'">
+                            ${{ pending.toLocaleString('en-US', {minimumFractionDigits: 2}) }}
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Lista resumida de productos -->
+                <div class="pt-2 border-t border-gray-50">
+                    <p class="text-[10px] text-gray-400 mb-1">Items ({{ sale.products?.length || 0 }})</p>
+                    <div class="flex flex-wrap gap-1">
+                        <span 
+                            v-for="prod in sale.products?.slice(0, 3)" 
+                            :key="prod.id"
+                            class="text-[10px] bg-gray-50 text-gray-600 px-1.5 py-0.5 rounded truncate max-w-[100px]"
+                        >
+                            {{ prod.name }}
+                        </span>
+                        <span v-if="sale.products?.length > 3" class="text-[10px] text-gray-400 px-1">+{{ sale.products.length - 3 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </Link>
+</template>

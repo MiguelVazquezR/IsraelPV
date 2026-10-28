@@ -11,7 +11,8 @@ class GlobalPaymentController extends Controller
 {
     public function index()
     {
-        $global_payments = GlobalPayment::with('client:id,name')->latest()->get()->take(20);
+        // CAMBIO: Aumentado de 20 a 100 para optimizar la vista general
+        $global_payments = GlobalPayment::with('client:id,name')->latest()->get()->take(100);
         $clients = Client::all(['id', 'name']);
         $total_global_payments = GlobalPayment::all()->count();
 
@@ -50,10 +51,13 @@ class GlobalPaymentController extends Controller
 
     public function getItemsByPage($currentPage)
     {
-        $offset = $currentPage * 20;
+        // CAMBIO: Paginación de 100 en 100
+        $itemsPerPage = 100;
+        $offset = $currentPage * $itemsPerPage;
+        
         $sales = GlobalPayment::with('client:id,name')->latest()
             ->skip($offset)
-            ->take(20)
+            ->take($itemsPerPage)
             ->get();
 
         return response()->json(['items' => $sales]);
@@ -78,8 +82,8 @@ class GlobalPaymentController extends Controller
             $globalPaymentsQuery->where('client_id', $queryClient);
         }
 
-        // Realizar la consulta y devolver los resultados
-        $global_payments = $globalPaymentsQuery->take(20)->get();
+        // Realizar la consulta y devolver los resultados (limitado a 100 en búsqueda también)
+        $global_payments = $globalPaymentsQuery->take(100)->get();
 
         return response()->json(['items' => $global_payments]);
     }
